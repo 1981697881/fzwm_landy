@@ -24,10 +24,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class ReturnGoodsDetail extends StatefulWidget {
-  ReturnGoodsDetail({Key key}) : super(key: key);
+  var FBillNo;
+
+  ReturnGoodsDetail({Key key,@required this.FBillNo}) : super(key: key);
 
   @override
-  _ReturnGoodsDetailState createState() => _ReturnGoodsDetailState();
+  _ReturnGoodsDetailState createState() => _ReturnGoodsDetailState(FBillNo);
 }
 
 class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
@@ -60,11 +62,19 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   StreamSubscription _subscription;
   var _code;
   var _FNumber;
+  var fBillNo;
+
+  _ReturnGoodsDetailState(fBillNo){
+    this.fBillNo = fBillNo['value'];
+    this.getOrderList();
+  }
 
   @override
   void initState() {
     super.initState();
-
+    DateTime dateTime= DateTime.now();
+    var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
+    selectData[DateMode.YMD] = nowDate;
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin

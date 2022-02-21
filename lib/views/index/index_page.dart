@@ -1,16 +1,11 @@
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:fzwm_landy/http/api_response.dart';
 import 'package:fzwm_landy/model/version_entity.dart';
 import 'package:fzwm_landy/views/login/login_page.dart';
-import 'package:fzwm_landy/views/production/warehousing_page.dart';
-import 'package:fzwm_landy/views/sale/retrieval_page.dart';
-import 'package:fzwm_landy/views/stock/stock_page.dart';
-import 'package:fzwm_landy/views/drawing/drawing_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -296,7 +291,7 @@ class _IndexPageState extends State<IndexPage> {
     return Wrap(
         /*mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,*/
-        spacing: 44, //主轴上子控件的间距
+        spacing: 24, //主轴上子控件的间距
         runSpacing: 20, //交叉轴上子控件之间的间距
         children: Boxs(
             menu) /*[

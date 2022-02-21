@@ -23,6 +23,8 @@ class WarehousingPage extends StatefulWidget {
 class _WarehousingPageState extends State<WarehousingPage> {
   //搜索字段
   String keyWord = '';
+  String startDate = '';
+  String endDate = '';
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
@@ -63,12 +65,19 @@ class _WarehousingPageState extends State<WarehousingPage> {
 
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
-    if (this.keyWord != '') {
-      userMap['FilterString'] = "FMaterialId.FNumber='$keyWord'";
+    userMap['FilterString'] = "FNoStockInQty>0";
+    if(this._dateSelectText != ""){
+      this.startDate = this._dateSelectText.substring(0,10);
+      this.endDate = this._dateSelectText.substring(26,36);
+      userMap['FilterString'] = "FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'STK_Inventory';
+    if (this.keyWord != '') {
+      userMap['FilterString'] = "FMaterialId.FNumber='$keyWord' and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+    }
+
+    userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
-        'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -81,48 +90,48 @@ class _WarehousingPageState extends State<WarehousingPage> {
         List arr = [];
         arr.add({
           "title": "单据编号",
-          "name": "FMaterialFNumber",
-          "value": {"label": "1000001100", "value": "1000001100"}
+          "name": "FBillNo",
+          "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
           "title": "生产组织",
-          "name": "FMaterialFName",
-          "value": {"label": "蓝海集团", "value": "蓝海集团"}
+          "name": "FPrdOrgId",
+          "value": {"label": value[2], "value": value[1]}
         });
         arr.add({
           "title": "单据日期",
           "name": "FMaterialIdFSpecification",
-          "value": {"label": "2022-02-18", "value": "2022-02-18"}
+          "value": {"label": value[3], "value": value[3]}
         });
         arr.add({
           "title": "物料名称",
-          "name": "FMaterialFName",
-          "value": {"label": value[1], "value": value[1]}
+          "name": "FMaterial",
+          "value": {"label": value[5], "value": value[4]}
         });
         arr.add({
           "title": "规格型号",
-          "name": "FBaseQty",
-          "value": {"label": "10*10", "value": "10*10"}
+          "name": "FMaterialIdFSpecification",
+          "value": {"label": value[6], "value": value[6]}
         });
         arr.add({
           "title": "单位名称",
-          "name": "FBaseQty",
-          "value": {"label": "个", "value": "个"}
+          "name": "FUnitId",
+          "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
           "title": "数量",
           "name": "FBaseQty",
-          "value": {"label": value[4], "value": value[4]}
+          "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
           "title": "计划开工日期",
           "name": "FBaseQty",
-          "value": {"label": "2022-02-18", "value": "2022-02-18"}
+          "value": {"label": value[13], "value": value[13]}
         });
         arr.add({
           "title": "未入库数量",
           "name": "FBaseQty",
-          "value": {"label": value[4], "value": value[4]}
+          "value": {"label": value[16], "value": value[16]}
         });
         hobby.add(arr);
       });
@@ -170,7 +179,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        return WarehousingDetail(
+                        return WarehousingDetail(FBillNo:this.hobby[i][0]['value']
                             // 路由参数
                             );
                       },
@@ -290,22 +299,22 @@ class _WarehousingPageState extends State<WarehousingPage> {
                                 direction: Axis.horizontal,
                                 children: <Widget>[
                                   Expanded(
-                                    flex: 5,
+                                    flex: 1,
                                     child: Container(
                                         padding: EdgeInsets.all(6.0),
                                       height: 40.0,
                                         alignment: Alignment.centerLeft,
-                                      child: Text("开始时间："+(this._dateSelectText == ""?"":this._dateSelectText.substring(0,10)),style: TextStyle(
+                                      child: Text("开始时间:"+(this._dateSelectText == ""?"":this._dateSelectText.substring(0,10)),style: TextStyle(
                                           color: Colors.white, decoration: TextDecoration.none))
                                     ),
                                   ),
                                   Expanded(
-                                    flex: 5,
+                                    flex: 1,
                                     child: Container(
                                         padding: EdgeInsets.all(6.0),
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
-                                        child: Text("结束时间："+(this._dateSelectText == ""?"":this._dateSelectText.substring(26,36)),style: TextStyle(
+                                        child: Text("结束时间:"+(this._dateSelectText == ""?"":this._dateSelectText.substring(26,36)),style: TextStyle(
                                             color: Colors.white, decoration: TextDecoration.none))
                                     ),
                                   ),

@@ -24,10 +24,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class RetrievalDetail extends StatefulWidget {
-  RetrievalDetail({Key key}) : super(key: key);
+  var FBillNo;
+
+  RetrievalDetail({Key key,@required this.FBillNo}) : super(key: key);
 
   @override
-  _RetrievalDetailState createState() => _RetrievalDetailState();
+  _RetrievalDetailState createState() => _RetrievalDetailState(FBillNo);
 }
 
 class _RetrievalDetailState extends State<RetrievalDetail> {
@@ -60,11 +62,19 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
   StreamSubscription _subscription;
   var _code;
   var _FNumber;
+  var fBillNo;
+
+  _RetrievalDetailState(fBillNo){
+    this.fBillNo = fBillNo['value'];
+    this.getOrderList();
+  }
 
   @override
   void initState() {
     super.initState();
-
+    DateTime dateTime= DateTime.now();
+    var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
+    selectData[DateMode.YMD] = nowDate;
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin

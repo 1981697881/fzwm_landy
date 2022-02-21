@@ -46,7 +46,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   List<Widget> Boxs(List<Map<String, dynamic>> menu) =>
       List.generate(menu.length, (index) {
         return Container(
-            width: 150,
+            width: 130,
             height: 60,
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -136,7 +136,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
       }
     });
     return Wrap(
-        spacing: 20, //主轴上子控件的间距
+        spacing: 28, //主轴上子控件的间距
         runSpacing: 20, //交叉轴上子控件之间的间距
         children: Boxs(childMenu));
   }
