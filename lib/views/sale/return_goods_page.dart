@@ -62,19 +62,19 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
   List hobby = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FNoStockInQty>0";
+    userMap['FilterString'] = "FJoinRetQty>0";
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
-      userMap['FilterString'] = "FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
-      userMap['FilterString'] = "FMaterialId.FNumber='$keyWord' and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FMaterialId.FNumber='$keyWord' and FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
 
     userMap['FormId'] = 'SAL_RETURNNOTICE';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID';
+    'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FRetorgId.FNumber,FRetorgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FJoinRetQty,FID,FRetcustId.FNumber,FRetcustId.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -88,47 +88,62 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
         arr.add({
           "title": "单据编号",
           "name": "FBillNo",
+          "isHide": false,
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "生产组织",
-          "name": "FPrdOrgId",
+          "title": "销售组织",
+          "name": "FSaleOrgId",
+          "isHide": false,
           "value": {"label": value[2], "value": value[1]}
         });
         arr.add({
+          "title": "客户",
+          "name": "FSaleOrgId",
+          "isHide": false,
+          "value": {"label": value[17], "value": value[16]}
+        });
+        arr.add({
           "title": "单据日期",
-          "name": "FMaterialIdFSpecification",
+          "name": "FDate",
+          "isHide": false,
           "value": {"label": value[3], "value": value[3]}
         });
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
+          "isHide": false,
           "value": {"label": value[5], "value": value[4]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
+          "isHide": false,
           "value": {"label": value[6], "value": value[6]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
+          "isHide": false,
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
           "title": "数量",
           "name": "FBaseQty",
+          "isHide": false,
           "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
-          "title": "计划开工日期",
-          "name": "FBaseQty",
+          "title": "退货日期",
+          "name": "FDeliverydate",
+          "isHide": false,
           "value": {"label": value[13], "value": value[13]}
         });
         arr.add({
-          "title": "未入库数量",
-          "name": "FBaseQty",
-          "value": {"label": value[16], "value": value[16]}
+          "title": "退货数量",
+          "name": "FJoinRetQty",
+          "isHide": false,
+          "value": {"label": value[14], "value": value[14]}
         });
         hobby.add(arr);
       });
@@ -165,36 +180,38 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
-        comList.add(
-          Column(children: [
-            Container(
-              color: Colors.white,
-              child: ListTile(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return ReturnGoodsDetail(FBillNo:this.hobby[i][0]['value']
-                          // 路由参数
-                        );
-                      },
-                    ),
-                  );
-                },
-                title: Text(this.hobby[i][j]["title"] +
-                    '：' +
-                    this.hobby[i][j]["value"]["label"].toString()),
-                trailing:
-                Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  /* MyText(orderDate[i][j],
+        if(!this.hobby[i][j]['isHide']){
+          comList.add(
+            Column(children: [
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ReturnGoodsDetail(FBillNo:this.hobby[i][0]['value']
+                            // 路由参数
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  title: Text(this.hobby[i][j]["title"] +
+                      '：' +
+                      this.hobby[i][j]["value"]["label"].toString()),
+                  trailing:
+                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                    /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
-                ]),
+                  ]),
+                ),
               ),
-            ),
-            divider,
-          ]),
-        );
+              divider,
+            ]),
+          );
+        }
       }
       tempList.add(
         SizedBox(height: 10),

@@ -26,7 +26,7 @@ final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 class WarehousingDetail extends StatefulWidget {
   var FBillNo;
 
-  WarehousingDetail({Key key,@required this.FBillNo}) : super(key: key);
+  WarehousingDetail({Key key, @required this.FBillNo}) : super(key: key);
 
   @override
   _WarehousingDetailState createState() => _WarehousingDetailState(FBillNo);
@@ -65,7 +65,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   var _FNumber;
   var fBillNo;
 
-  _WarehousingDetailState(fBillNo){
+  _WarehousingDetailState(fBillNo) {
     this.fBillNo = fBillNo['value'];
     this.getOrderList();
   }
@@ -73,9 +73,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime= DateTime.now();
+    DateTime dateTime = DateTime.now();
     var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     selectData[DateMode.YMD] = nowDate;
+
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
@@ -118,7 +119,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     userMap['FilterString'] = "FNoStockInQty>0 and fBillNo='$fBillNo'";
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -132,26 +133,31 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
+          "isHide": false,
           "value": {"label": value[5], "value": value[4]}
         });
         arr.add({
           "title": "规格型号",
+          "isHide": false,
           "name": "FMaterialIdFSpecification",
           "value": {"label": value[6], "value": value[6]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
+          "isHide": false,
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
           "title": "数量",
           "name": "FBaseQty",
+          "isHide": false,
           "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
           "title": "未入库数量",
           "name": "FBaseQty",
+          "isHide": false,
           "value": {"label": value[16], "value": value[16]}
         });
         hobby.add(arr);
@@ -369,85 +375,90 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
-        if (j == 4 || j == 6) {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                    title: Text(this.hobby[i][j]["title"] +
-                        '：' +
-                        this.hobby[i][j]["value"]["label"].toString()),
-                    trailing:
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                      IconButton(
-                        icon: new Icon(Icons.filter_center_focus),
-                        tooltip: '点击扫描',
-                        onPressed: () {
-                          this._FNumber = 0;
-                          checkItem = 'FNumber';
-                          this.show = false;
-                          checkData = i;
-                          checkDataChild = j;
-                          scanDialog();
-                          if (this.hobby[i][j]["value"]["label"] != 0) {
-                            this._textNumber.value = _textNumber.value.copyWith(
-                              text: this.hobby[i][j]["value"]["label"],
-                            );
-                          }
-                        },
-                      ),
-                    ])),
-              ),
-              divider,
-            ]),
-          );
-        } else if (j == 5 || j == 7) {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                    title: Text(this.hobby[i][j]["title"] +
-                        '：' +
-                        this.hobby[i][j]["value"]["label"].toString()),
-                    trailing:
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                      IconButton(
-                        icon: new Icon(Icons.filter_center_focus),
-                        tooltip: '点击扫描',
-                        onPressed: () {
-                          checkItem = 'FStock';
-                          this.show = true;
-                          checkData = i;
-                          checkDataChild = j;
-                          scanDialog();
-                        },
-                      ),
-                    ])),
-              ),
-              divider,
-            ]),
-          );
-        } else {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  title: Text(this.hobby[i][j]["title"] +
-                      '：' +
-                      this.hobby[i][j]["value"]["label"].toString()),
-                  trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    /* MyText(orderDate[i][j],
-                        color: Colors.grey, rightpadding: 18),*/
-                  ]),
+        if (!this.hobby[i][j]['isHide']) {
+          if (j == 4 || j == 6) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+                                this._FNumber = 0;
+                                checkItem = 'FNumber';
+                                this.show = false;
+                                checkData = i;
+                                checkDataChild = j;
+                                scanDialog();
+                                if (this.hobby[i][j]["value"]["label"] != 0) {
+                                  this._textNumber.value =
+                                      _textNumber.value.copyWith(
+                                    text: this.hobby[i][j]["value"]["label"],
+                                  );
+                                }
+                              },
+                            ),
+                          ])),
                 ),
-              ),
-              divider,
-            ]),
-          );
+                divider,
+              ]),
+            );
+          } else if (j == 5 || j == 7) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+                                checkItem = 'FStock';
+                                this.show = true;
+                                checkData = i;
+                                checkDataChild = j;
+                                scanDialog();
+                              },
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
+            );
+          } else {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                    title: Text(this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString()),
+                    trailing:
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      /* MyText(orderDate[i][j],
+                        color: Colors.grey, rightpadding: 18),*/
+                    ]),
+                  ),
+                ),
+                divider,
+              ]),
+            );
+          }
         }
       }
       tempList.add(
