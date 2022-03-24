@@ -1,11 +1,10 @@
 import 'dart:convert';
+import 'package:fzwm_landy/components/my_text.dart';
 import 'package:fzwm_landy/model/currency_entity.dart';
 import 'package:fzwm_landy/model/submit_entity.dart';
-import 'package:fzwm_landy/utils/handler_order.dart';
 import 'package:fzwm_landy/utils/refresh_widget.dart';
 import 'package:fzwm_landy/utils/text.dart';
 import 'package:fzwm_landy/utils/toast_util.dart';
-import 'package:fzwm_landy/views/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -19,43 +18,49 @@ import 'package:flutter_pickers/time_picker/model/suffix.dart';
 import 'dart:io';
 import 'package:flutter_pickers/utils/check.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:fzwm_landy/components/my_text.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
-class RetrievalDetail extends StatefulWidget {
+class ReplenishmentDetail extends StatefulWidget {
   var FBillNo;
+  var FSeq;
 
-  RetrievalDetail({Key key, @required this.FBillNo}) : super(key: key);
+  ReplenishmentDetail({Key key, @required this.FBillNo, @required this.FSeq})
+      : super(key: key);
 
   @override
-  _RetrievalDetailState createState() => _RetrievalDetailState(FBillNo);
+  _ReplenishmentDetailState createState() =>
+      _ReplenishmentDetailState(FBillNo, FSeq);
 }
 
-class _RetrievalDetailState extends State<RetrievalDetail> {
-  var _remarkContent = new TextEditingController();
+class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
+
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
-  GlobalKey<TextWidgetState> textKey = GlobalKey();
+
   final _textNumber = TextEditingController();
   var checkItem;
-  String FBillNo = '';
-  String FSaleOrderNo = '';
-  String cusName = '';
-  String FName = '';
-  String FNumber = '';
-  String FDate = '';
-  var isSubmit = false;
+  var FBillNo = '';
+  var FSaleOrderNo = '';
+  var FName = '';
+  var FNumber = '';
+  var FDate = '';
+  var FStockOrgId = '';
+  var FPrdOrgId = '';
   var show = false;
+  var isSubmit = false;
   var isScanWork = false;
   var checkData;
   var checkDataChild;
+
   var selectData = {
-    DateMode.YMD: '',
+    DateMode.YMD: "",
   };
   var stockList = [];
   List<dynamic> stockListObj = [];
+  var selectStock = "";
+  Map<String, dynamic> selectStockMap = Map();
   List<dynamic> orderDate = [];
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
@@ -65,10 +70,12 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
   StreamSubscription _subscription;
   var _code;
   var _FNumber;
+  var FSeq;
   var fBillNo;
 
-  _RetrievalDetailState(fBillNo) {
+  _ReplenishmentDetailState(fBillNo, FSeq) {
     this.fBillNo = fBillNo['value'];
+    this.FSeq = FSeq['value'];
     this.getOrderList();
   }
 
@@ -76,8 +83,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
   void initState() {
     super.initState();
     DateTime dateTime = DateTime.now();
-    /*var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";*/
-    selectData[DateMode.YMD] = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+    var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
+    selectData[DateMode.YMD] = nowDate;
 
     /// 开启监听
     if (_subscription == null) {
@@ -87,20 +94,6 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     }
     getWorkShop();
     getStockList();
-  }
-
-  //获取仓库
-  getStockList() async {
-    Map<String, dynamic> userMap = Map();
-    userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber';
-    Map<String, dynamic> dataMap = Map();
-    dataMap['data'] = userMap;
-    String res = await CurrencyEntity.polling(dataMap);
-    stockListObj = jsonDecode(res);
-    stockListObj.forEach((element) {
-      stockList.add(element[1]);
-    });
   }
 
   void getWorkShop() async {
@@ -127,88 +120,79 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     }
   }
 
+  //获取仓库
+  getStockList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'BD_STOCK';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber';
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    stockListObj = jsonDecode(res);
+    stockListObj.forEach((element) {
+      stockList.add(element[1]);
+    });
+  }
+
   // 用户的爱好集合
   List hobby = [];
+
+  //获取订单信息
   getOrderList() async {
-    EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    print(fBillNo);
-    userMap['FilterString'] = "FRemainOutQty>0 and fBillNo='$fBillNo'";
-    userMap['FormId'] = 'SAL_DELIVERYNOTICE';
+    userMap['FilterString'] = "FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq'";
+    userMap['FormId'] = 'PRD_PPBOM';
     userMap['FieldKeys'] =
-        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialID2.FNumber,FMaterialID2.FName,FMaterialID2.FSpecification,FUnitID2.FNumber,FUnitID2.FName,FNoPickedQty,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
     DateTime dateTime = DateTime.now();
-    FDate = DateFormat('yyyy-MM-dd').format(dateTime);
+    FDate =
+        "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
     if (orderDate.length > 0) {
-      this.FBillNo = orderDate[0][0];
-      this.cusName = orderDate[0][17];
+      FStockOrgId = orderDate[0][1].toString();
+      FPrdOrgId = orderDate[0][1].toString();
       hobby = [];
       orderDate.forEach((value) {
         List arr = [];
         arr.add({
-          "title": "单据编号",
-          "name": "FBillNo",
+          "title": "物料编码",
+          "name": "FMaterialId",
           "isHide": true,
-          "value": {"label": value[0], "value": value[0]}
-        });
-        arr.add({
-          "title": "销售组织",
-          "name": "FSaleOrgId",
-          "isHide": true,
-          "value": {"label": value[2], "value": value[1]}
-        });
-        arr.add({
-          "title": "客户",
-          "name": "FSaleOrgId",
-          "isHide": true,
-          "value": {"label": value[17], "value": value[16]}
-        });
-        arr.add({
-          "title": "单据日期",
-          "name": "FDate",
-          "isHide": true,
-          "value": {"label": value[3], "value": value[3]}
-        });
-        arr.add({
-          "title": "物料名称",
-          "name": "FMaterial",
-          "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
-        });
-        arr.add({
-          "title": "规格型号",
-          "name": "FMaterialIdFSpecification",
-          "isHide": false,
           "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
-          "title": "单位名称",
-          "name": "FUnitId",
+          "title": "物料名称",
           "isHide": false,
-          "value": {"label": value[11], "value": value[10]}
+          "name": "FDate",
+          "value": {"label": value[8], "value": value[8]}
         });
         arr.add({
-          "title": "未出库数量",
-          "name": "FRemainOutQty",
-          "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
+          "title": "单位",
+          "name": "FStockOrgNumber",
+          "isHide": true,
+          "value": {"label": value[10], "value": value[10]}
         });
         arr.add({
-          "title": "数量",
+          "title": "单位",
+          "name": "FStockOrgName",
+          "isHide": false,
+          "value": {"label": value[11], "value": value[11]}
+        });
+        arr.add({
+          "title": "用量",
+          "name": "FPrdOrgId",
+          "isHide": false,
+          "value": {"label": value[12], "value": value[12]}
+        });
+        arr.add({
+          "title": "补料数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
-        });
-        arr.add({
-          "title": "要货日期",
-          "name": "FDeliveryDate",
-          "isHide": true,
-          "value": {"label": value[13], "value": value[13]}
+          "value": {"label": "0", "value": "0"}
         });
         arr.add({
           "title": "仓库",
@@ -232,10 +216,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
   }
 
   void _onEvent(Object event) async {
-    /*  setState(() {*/
     _code = event;
     print("ChannelPage: $event");
-    /*});*/
   }
 
   void _onError(Object error) {
@@ -256,7 +238,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             title: Text(title),
             onTap: () => _onClickItem(data, selectData, hobby, label: label),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(hobby['value']['label'].toString() ?? '暂无',
+              MyText(hobby['value']['label'] ?? '暂无',
                   color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
@@ -311,11 +293,13 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
         print('longer >>> 返回数据：$p');
-        setState(() {
+        setState(() async {
           switch (model) {
             case DateMode.YMD:
-              selectData[model] = DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}').toString();
-              FDate = DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}').toString();
+              Map<String, dynamic> userMap = Map();
+              selectData[model] = '${p.year}-${p.month}-${p.day}';
+              FDate = '${p.year}-${p.month}-${p.day}';
+              await getOrderList();
               break;
           }
         });
@@ -349,61 +333,13 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     );
   }
 
-  void _pushSaved() {
-    Navigator.of(context).push(
-      new MaterialPageRoute(
-        builder: (context) {
-          return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('系统设置'),
-              centerTitle: true,
-            ),
-            body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
-              /* ListTile(
-                leading: Icon(Icons.search),
-                title: Text('版本信息'),
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),*/
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('退出登录'),
-                onTap: () async {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  prefs.clear();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return LoginPage();
-                      },
-                    ),
-                  );
-                },
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),
-            ]),
-          );
-        },
-      ),
-    );
-  }
-
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 7) {
+          if (j == 5) {
             comList.add(
               Column(children: [
                 Container(
@@ -416,8 +352,9 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
-                              tooltip: '点击扫描',
+                              icon: new Icon(Icons.mode_edit),
+                              tooltip: '输入数量',
+                              padding: EdgeInsets.only(left: 30),
                               onPressed: () {
                                 this._textNumber.text =
                                     this.hobby[i][j]["value"]["label"];
@@ -439,7 +376,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                 divider,
               ]),
             );
-          } else if (j == 10) {
+          } else if (j == 6) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['label'],
                   this.hobby[i][j]),
@@ -544,7 +481,119 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       print(val);
     });
   }
+  //删除
+  deleteOrder(Map<String, dynamic> map,title) async {
+    var subData = await SubmitEntity.delete(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+         /* this.hobby = [];
+          this.orderDate = [];
+          this.FBillNo = '';
+          this.FSaleOrderNo = '';
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");*/
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                title);
+          });
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
+  //反审核
+  unAuditOrder(Map<String, dynamic> map,title) async {
+    var subData = await SubmitEntity.unAudit(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          //提交清空页面
+          Map<String, dynamic> deleteMap = Map();
+          deleteMap = {
+            "formid": "PRD_PickMtrl",
+            "data": {
+              'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+            }
+          };
+          deleteOrder(deleteMap,title);
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
+  //审核
+  auditOrder(Map<String, dynamic> auditMap) async {
+    var subData = await SubmitEntity.audit(auditMap);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          //提交清空页面
+          setState(() {
+            this.hobby = [];
+            this.orderDate = [];
+            this.FBillNo = '';
+            this.FSaleOrderNo = '';
+            ToastUtil.showInfo('提交成功');
+            Navigator.of(context).pop("refresh");
+          });
+        } else {
+          unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
+         /* setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });*/
+        }
+      }
+    }
+  }
 
+  //提交
+  submitOrder(Map<String, dynamic> submitMap) async {
+    var subData = await SubmitEntity.submit(submitMap);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          //提交清空页面
+          Map<String, dynamic> auditMap = Map();
+          auditMap = {
+            "formid": "PRD_FeedMtrl",
+            "data": {
+              'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+            }
+          };
+          auditOrder(auditMap);
+        } else {
+          deleteOrder(submitMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          /*setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });*/
+        }
+      }
+    }
+  }
 
   //保存
   saveOrder() async {
@@ -553,28 +602,48 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         this.isSubmit = true;
       });
       Map<String, dynamic> dataMap = Map();
-      dataMap['formid'] = 'SAL_OUTSTOCK';
+      dataMap['formid'] = 'PRD_FeedMtrl';
       Map<String, dynamic> orderMap = Map();
       orderMap['NeedReturnFields'] = [];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
-      Model['FBillType'] = {"FNUMBER": "CKD01_SYS"};
+      Model['FBillType'] = {"FNUMBER": "SCBLD01_SYS"};
       Model['FDate'] = FDate;
-      Model['FStockOrgId'] = {"FNumber": orderDate[0][1].toString()};
-      Model['FSaleOrgId'] = {"FNumber": orderDate[0][1].toString()};
-      Model['FCustomerID'] = {"FNumber": orderDate[0][16].toString()};
+      Model['FStockOrgId'] = {"FNumber": FStockOrgId};
+      Model['FPrdOrgId'] = {"FNumber": FPrdOrgId};
+      Model['FCurrId'] = {"FNumber": 'PRE001'};
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
-        if (element[8]['value']['value'] != '0' &&
-            element[10]['value']['value'] != '') {
+        if (element[5]['value']['value'] != '0' &&
+            element[6]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
-          FEntityItem['FMaterialId'] = {"FNumber": element[4]['value']['value']};
-          FEntityItem['FUnitID'] = {"FNumber": element[6]['value']['value']};
-          FEntityItem['FReturnType'] = 1;
-          FEntityItem['FStockId'] = {"FNumber": element[10]['value']['value']};
-          FEntityItem['FRealQty'] = element[8]['value']['value'];
+
+          FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
+          FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
+          FEntityItem['FStockId'] = {"FNumber": element[6]['value']['value']};
+          FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+          FEntityItem['FActualQty'] = element[5]['value']['value'];
+          FEntityItem['FMoBillNo'] = fBillNo;
+          FEntityItem['FEntrySrcBillType'] = "PRD_PPBOM";
+          FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
+          FEntityItem['FParentOwnerTypeId'] = "BD_OwnerOrg";
+          FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
+          FEntityItem['FEntrySrcBillNo'] = fBillNo;
+          FEntityItem['FKeeperId'] = {"FNumber": FStockOrgId};
+          FEntityItem['FOwnerId'] = {"FNumber": FStockOrgId};
+          FEntityItem['FParentOwnerId'] = {"FNumber": FStockOrgId};
+          FEntityItem['FEntity_Link'] = [
+            {
+              "FEntity_Link_FRuleId": "PRD_PPBOM2FEEDMTRL",
+              "FEntity_Link_FSTableName": "T_PRD_PPBOMENTRY",
+              "FEntity_Link_FSBillId": orderDate[hobbyIndex][13],
+              "FEntity_Link_FSId": orderDate[hobbyIndex][5],
+              "FEntity_Link_FBaseActualQty": element[5]['value']['value']
+            }
+          ];
+          FEntityItem['FKeeperTypeId'] = 'BD_KeeperOrg';
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
@@ -589,38 +658,12 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         Map<String, dynamic> submitMap = Map();
         submitMap = {
-          "formid": "SAL_OUTSTOCK",
+          "formid": "PRD_FeedMtrl",
           "data": {
             'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
           }
         };
-        //提交
-        HandlerOrder.orderHandler(context,submitMap,1,"SAL_OUTSTOCK",SubmitEntity.submit(submitMap)).then((submitResult) {
-          if(submitResult){
-            //审核
-            HandlerOrder.orderHandler(context,submitMap,1,"SAL_OUTSTOCK",SubmitEntity.audit(submitMap)).then((auditResult) {
-              if(auditResult){
-                //提交清空页面
-                setState(() {
-                  this.hobby = [];
-                  this.orderDate = [];
-                  this.FBillNo = '';
-                  ToastUtil.showInfo('提交成功');
-                  Navigator.of(context).pop("refresh");
-                });
-              }else{
-                //失败后反审
-                HandlerOrder.orderHandler(context,submitMap,0,"SAL_OUTSTOCK",SubmitEntity.unAudit(submitMap)).then((unAuditResult) {
-                  if(unAuditResult){
-                    this.isSubmit = false;
-                  }
-                });
-              }
-            });
-          }else{
-            this.isSubmit = false;
-          }
-        });
+        submitOrder(submitMap);
       } else {
         setState(() {
           this.isSubmit = false;
@@ -638,7 +681,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     return FlutterEasyLoading(
       child: Scaffold(
           appBar: AppBar(
-            title: Text("销售出库"),
+            title: Text("补料"),
             centerTitle: true,
             leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
               Navigator.of(context).pop("refresh");
@@ -653,51 +696,24 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                          title: Text("单号：$FBillNo"),
+                          title: Text("单据编号：$fBillNo"),
                         ),
                       ),
                       divider,
                     ],
                   ),
-                  Column(
+                  /* Column(
                     children: [
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                          /* title: TextWidget(FBillNoKey, '生产订单：'),*/
-                          title: Text("客户：$cusName"),
+                          title: Text("日期：$FDate"),
                         ),
                       ),
                       divider,
                     ],
                   ),
-                  _dateItem('日期：', DateMode.YMD),
-                  Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: TextField(
-                            //最多输入行数
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                              hintText: "备注",
-                              //给文本框加边框
-                              border: OutlineInputBorder(),
-                            ),
-                            controller: this._remarkContent,
-                            //改变回调
-                            onChanged: (value) {
-                              setState(() {
-                                _remarkContent.text = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),
+                  _item('仓库:', stockList, selectStock),*/
                   Column(
                     children: this._getHobby(),
                   ),
@@ -714,6 +730,16 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                         color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         onPressed: () async=> this.isSubmit ? null : saveOrder(),
+                       /* onPressed: () async {
+                          if (this.hobby.length > 0) {
+                            setState(() {
+                              this.isSubmit = true;
+                            });
+                            saveOrder();
+                          } else {
+                            ToastUtil.showInfo('无提交数据');
+                          }
+                        },*/
                       ),
                     ),
                   ],

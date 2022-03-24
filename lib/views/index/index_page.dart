@@ -280,6 +280,12 @@ class _IndexPageState extends State<IndexPage> {
         "id": 3,
         "color": Colors.pink.withOpacity(0.7),
         "router": MiddleLayerPage(menuId: 3,menuTitle: "库存管理")
+      },{
+        "icon": Icons.ballot,
+        "text": "车间管理",
+        "id": 4,
+        "color": Colors.pink.withOpacity(0.7),
+        "router": MiddleLayerPage(menuId: 4,menuTitle: "车间管理")
       },
       /*{
         "icon": Icons.wallpaper,

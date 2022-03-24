@@ -196,7 +196,17 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
                           );
                         },
                       ),
-                    );
+                    ).then((data) {
+                      //延时500毫秒执行
+                      Future.delayed(
+                          const Duration(milliseconds: 500),
+                              () {
+                            setState(() {
+                              //延时更新状态
+                              this.getOrderList();
+                            });
+                          });
+                    });
                   },
                   title: Text(this.hobby[i][j]["title"] +
                       '：' +

@@ -48,7 +48,13 @@ class _RetrievalPageState extends State<RetrievalPage> {
           .listen(_onEvent, onError: _onError);
     }*/
   }
-
+  _initState() {
+    this.getOrderList();
+    /// 开启监听
+    _subscription = scannerPlugin
+        .receiveBroadcastStream()
+        .listen(_onEvent, onError: _onError);
+  }
   @override
   void dispose() {
     this.controller.dispose();
@@ -203,7 +209,17 @@ class _RetrievalPageState extends State<RetrievalPage> {
                               );
                         },
                       ),
-                    );
+                    ).then((data) {
+                      //延时500毫秒执行
+                      Future.delayed(
+                          const Duration(milliseconds: 500),
+                              () {
+                            setState(() {
+                              //延时更新状态
+                              this.getOrderList();
+                            });
+                          });
+                    });
                   },
                   title: Text(this.hobby[i][j]["title"] +
                       '：' +

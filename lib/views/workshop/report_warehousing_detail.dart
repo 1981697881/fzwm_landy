@@ -23,48 +23,49 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
-class ReturnGoodsDetail extends StatefulWidget {
+class ReportWarehousingDetail extends StatefulWidget {
   var FBillNo;
 
-  ReturnGoodsDetail({Key key, @required this.FBillNo}) : super(key: key);
+  ReportWarehousingDetail({Key key, @required this.FBillNo}) : super(key: key);
 
   @override
-  _ReturnGoodsDetailState createState() => _ReturnGoodsDetailState(FBillNo);
+  _ReportWarehousingDetailState createState() => _ReportWarehousingDetailState(FBillNo);
 }
 
-class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
-  var _remarkContent = new TextEditingController();
+class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
+  GlobalKey<TextWidgetState> textKey = GlobalKey();
+  GlobalKey<TextWidgetState> FBillNoKey = GlobalKey();
+  GlobalKey<TextWidgetState> FSaleOrderNoKey = GlobalKey();
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
+  GlobalKey<PartRefreshWidgetState> FPrdOrgIdKey = GlobalKey();
 
   final _textNumber = TextEditingController();
   var checkItem;
-  String FBillNo = '';
+  String FBillNo = 'A10000101010';
   String FSaleOrderNo = '';
   String FName = '';
-  String cusName = '';
   String FNumber = '';
   String FDate = '';
   var show = false;
   var isScanWork = false;
   var checkData;
   var checkDataChild;
+
   var selectData = {
-    DateMode.YMD: '',
+    DateMode.YMD: "",
   };
-  var stockList = [];
-  List<dynamic> stockListObj = [];
   List<dynamic> orderDate = [];
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
-      const EventChannel('com.shinow.pda_scanner/plugin');
+  const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
   var _FNumber;
   var fBillNo;
 
-  _ReturnGoodsDetailState(fBillNo) {
+  _ReportWarehousingDetailState(fBillNo) {
     this.fBillNo = fBillNo['value'];
     this.getOrderList();
   }
@@ -83,21 +84,8 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           .listen(_onEvent, onError: _onError);
     }
     getWorkShop();
-    getStockList();
   }
-  //获取仓库
-  getStockList() async {
-    Map<String, dynamic> userMap = Map();
-    userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber';
-    Map<String, dynamic> dataMap = Map();
-    dataMap['data'] = userMap;
-    String res = await CurrencyEntity.polling(dataMap);
-    stockListObj = jsonDecode(res);
-    stockListObj.forEach((element) {
-      stockList.add(element[1]);
-    });
-  }
+
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -128,10 +116,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
-    userMap['FilterString'] = "FJoinRetQty>0 and fBillNo='$fBillNo'";
-    userMap['FormId'] = 'SAL_RETURNNOTICE';
+    userMap['FilterString'] = "FNoStockInQty>0 and fBillNo='$fBillNo'";
+    userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
-        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FRetorgId.FNumber,FRetorgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FJoinRetQty,FID,FRetcustId.FNumber,FRetcustId.FName';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -139,35 +127,9 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     orderDate = jsonDecode(order);
     print(orderDate);
     if (orderDate.length > 0) {
-      this.FBillNo = orderDate[0][0];
-      this.cusName = orderDate[0][17];
       hobby = [];
       orderDate.forEach((value) {
         List arr = [];
-        arr.add({
-          "title": "单据编号",
-          "name": "FBillNo",
-          "isHide": true,
-          "value": {"label": value[0], "value": value[0]}
-        });
-        arr.add({
-          "title": "销售组织",
-          "name": "FSaleOrgId",
-          "isHide": true,
-          "value": {"label": value[2], "value": value[1]}
-        });
-        arr.add({
-          "title": "客户",
-          "name": "FSaleOrgId",
-          "isHide": true,
-          "value": {"label": value[17], "value": value[16]}
-        });
-        arr.add({
-          "title": "单据日期",
-          "name": "FDate",
-          "isHide": true,
-          "value": {"label": value[3], "value": value[3]}
-        });
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
@@ -176,8 +138,8 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
         });
         arr.add({
           "title": "规格型号",
-          "name": "FMaterialIdFSpecification",
           "isHide": false,
+          "name": "FMaterialIdFSpecification",
           "value": {"label": value[6], "value": value[6]}
         });
         arr.add({
@@ -193,22 +155,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
-          "title": "退货日期",
-          "name": "FDeliverydate",
-          "isHide": true,
-          "value": {"label": value[13], "value": value[13]}
-        });
-        arr.add({
-          "title": "退货数量",
-          "name": "FJoinRetQty",
+          "title": "未入库数量",
+          "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
-        });
-        arr.add({
-          "title": "仓库",
-          "name": "FStockId",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
+          "value": {"label": value[16], "value": value[16]}
         });
         hobby.add(arr);
       });
@@ -228,6 +178,42 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   void _onEvent(Object event) async {
     /*  setState(() {*/
     _code = event;
+    if (textKey.currentState != null) {
+      textKey.currentState.onPressed(_code);
+      switch (checkItem) {
+        case 'FBillNo':
+          EasyLoading.show(status: 'loading...');
+          Navigator.pop(context);
+          FBillNo = _code;
+          await getOrderList();
+          break;
+        case 'FPrdOrgId':
+          EasyLoading.show(status: 'loading...');
+          Navigator.pop(context);
+          FName = _code.split(',')[1];
+          FNumber = _code.split(',')[0];
+          await getOrderList();
+          break;
+        case 'FNumber':
+          Navigator.pop(context);
+          setState(() {
+            this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
+            this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+          });
+          break;
+        case 'FStock':
+          Navigator.pop(context);
+          setState(() {
+            this.hobby[checkData][checkDataChild]["value"]['label'] =
+            _code.split(',')[1];
+            this.hobby[checkData][checkDataChild]['value']["value"] =
+            _code.split(',')[0];
+          });
+          break;
+      }
+    } else {
+      ToastUtil.showInfo('请点击扫描行扫描图标');
+    }
     print("ChannelPage: $event");
     /*});*/
   }
@@ -238,19 +224,16 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     });
   }
 
-  Widget _item(title, var data, selectData, hobby, {String label}) {
-    if (selectData == null) {
-      selectData = "";
-    }
+  Widget _item(title, var data, var selectData, {String label}) {
     return Column(
       children: [
         Container(
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => _onClickItem(data, selectData, hobby, label: label),
+            onTap: () => _onClickItem(data, selectData, label: label),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(hobby['value']['label'].toString() ?? '暂无',
+              MyText(selectData.toString() ?? '暂无',
                   color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
@@ -320,7 +303,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, hobby, {String label}) {
+  void _onClickItem(var data, var selectData, {String label}) {
     Pickers.showSinglePicker(
       context,
       data: data,
@@ -331,15 +314,9 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
-          hobby['value']['label'] = p;
-          var elementIndex = 0;
-          stockList.forEach((element) {
-            if (element == p) {
-              hobby['value']['value'] = stockListObj[elementIndex][2];
-            }
-            elementIndex++;
-          });
-          print(hobby);
+          if (data == PickerDataType.sex) {
+            /* FDate = p;*/
+          }
         });
       },
     );
@@ -353,9 +330,6 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
             appBar: new AppBar(
               title: new Text('系统设置'),
               centerTitle: true,
-              leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-                Navigator.of(context).pop("refresh");
-              }),
             ),
             body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
               /* ListTile(
@@ -372,7 +346,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                 title: Text('退出登录'),
                 onTap: () async {
                   SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
+                  await SharedPreferences.getInstance();
                   prefs.clear();
                   Navigator.pushReplacement(
                     context,
@@ -402,7 +376,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 7) {
+          if (j == 4 || j == 6) {
             comList.add(
               Column(children: [
                 Container(
@@ -418,10 +392,9 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                               icon: new Icon(Icons.filter_center_focus),
                               tooltip: '点击扫描',
                               onPressed: () {
-                                this._textNumber.text =
-                                this.hobby[i][j]["value"]["label"];
-                                this._FNumber =
-                                this.hobby[i][j]["value"]["label"];
+                                this._FNumber = 0;
+                                checkItem = 'FNumber';
+                                this.show = false;
                                 checkData = i;
                                 checkDataChild = j;
                                 scanDialog();
@@ -438,10 +411,33 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                 divider,
               ]),
             );
-          } else if (j == 10) {
+          } else if (j == 5 || j == 7) {
             comList.add(
-              _item('仓库:', stockList, this.hobby[i][j]['label'],
-                  this.hobby[i][j]),
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+                                checkItem = 'FStock';
+                                this.show = true;
+                                checkData = i;
+                                checkDataChild = j;
+                                scanDialog();
+                              },
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
             );
           } else {
             comList.add(
@@ -493,28 +489,34 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
               color: Colors.white,
               child: Column(
                 children: <Widget>[
-                  /*  Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 8),
-                    child: Text('输入数量',
+                    child: Text('扫描',
                         style: TextStyle(
                             fontSize: 16, decoration: TextDecoration.none)),
-                  ),*/
-                  Padding(
+                  ),
+                  if (!show)
+                    Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Card(
+                            child: Column(children: <Widget>[
+                              TextField(
+                                style: TextStyle(color: Colors.black87),
+                                keyboardType: TextInputType.number,
+                                controller: this._textNumber,
+                                decoration: InputDecoration(hintText: "输入或者扫描数量"),
+                                onChanged: (value) {
+                                  setState(() {
+                                    this._FNumber = value;
+                                  });
+                                },
+                              ),
+                            ]))),
+                  if (show)
+                    Padding(
                       padding: EdgeInsets.only(top: 8),
-                      child: Card(
-                          child: Column(children: <Widget>[
-                            TextField(
-                              style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
-                              controller: this._textNumber,
-                              decoration: InputDecoration(hintText: "输入数量"),
-                              onChanged: (value) {
-                                setState(() {
-                                  this._FNumber = value;
-                                });
-                              },
-                            ),
-                          ]))),
+                      child: TextWidget(textKey, ''),
+                    ),
                   Padding(
                     padding: EdgeInsets.only(top: 15, bottom: 8),
                     child: FlatButton(
@@ -522,12 +524,14 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                         onPressed: () {
                           // 关闭 Dialog
                           Navigator.pop(context);
-                          setState(() {
-                            this.hobby[checkData][checkDataChild]["value"]
-                            ["label"] = _FNumber;
-                            this.hobby[checkData][checkDataChild]['value']
-                            ["value"] = _FNumber;
-                          });
+                          if (checkItem == 'FNumber') {
+                            setState(() {
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
+                            });
+                          }
                         },
                         child: Text(
                           '确定',
@@ -553,19 +557,19 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     pushMap['IsEnableDefaultRule'] = "false";
     pushMap['IsDraftWhenSaveFail'] = "false";
     var downData =
-        await SubmitEntity.pushDown({"formid": "PRD_MO", "data": pushMap});
+    await SubmitEntity.pushDown({"formid": "PRD_MO", "data": pushMap});
     print(downData);
     var res = jsonDecode(downData);
     //判断成功
     if (res['Result']['ResponseStatus']['IsSuccess']) {
       //查询入库单
       var entitysNumber =
-          res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
+      res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
       Map<String, dynamic> inOrderMap = Map();
       inOrderMap['FormId'] = 'PRD_INSTOCK';
       inOrderMap['FilterString'] = "FBillNo='$entitysNumber'";
       inOrderMap['FieldKeys'] =
-          'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber,FMoBillNo';
+      'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber,FMoBillNo';
       String order = await CurrencyEntity.polling({'data': inOrderMap});
       print(order);
       var resData = jsonDecode(order);
@@ -671,7 +675,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                 } else {
                   setState(() {
                     ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors']
-                        [0]['Message']);
+                    [0]['Message']);
                   });
                 }
               }
@@ -701,7 +705,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                 } else {
                   setState(() {
                     ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors']
-                        [0]['Message']);
+                    [0]['Message']);
                   });
                 }
               }
@@ -719,8 +723,11 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     return FlutterEasyLoading(
       child: Scaffold(
           appBar: AppBar(
-            title: Text("销售退货"),
+            title: Text("汇报入库"),
             centerTitle: true,
+            leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
+              Navigator.of(context).pop("refresh");
+            }),
           ),
           body: Column(
             children: <Widget>[
@@ -738,40 +745,28 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                       divider,
                     ],
                   ),
-                  Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          /* title: TextWidget(FBillNoKey, '生产订单：'),*/
-                          title: Text("客户：$cusName"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),
                   _dateItem('日期：', DateMode.YMD),
+                  /*_item('部门', ['生产部'], '生产部'),*/
+                  _item('仓库', ['一仓'], '一仓'),
                   Column(
                     children: [
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                          title: TextField(
-                          //最多输入行数
-                          maxLines: 1,
-                          decoration: InputDecoration(
-                            hintText: "备注",
-                            //给文本框加边框
-                            border: OutlineInputBorder(),
-                          ),
-                          controller: this._remarkContent,
-                          //改变回调
-                          onChanged: (value) {
-                            setState(() {
-                              _remarkContent.text = value;
-                            });
-                          },
-                        ),
+                          title: Text('备注：'),
+                          /*trailing: Column(children: <Widget>[
+                            TextField(
+                              style: TextStyle(color: Colors.black87),
+                              keyboardType: TextInputType.number,
+                              controller: this._textNumber,
+                              decoration: InputDecoration(hintText: "备注"),
+                              onChanged: (value) {
+                                setState(() {
+                                  this._FNumber = value;
+                                });
+                              },
+                            )
+                          ]),*/
                         ),
                       ),
                       divider,
@@ -808,19 +803,19 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                             });
                             dataMap['data'] = {'PkEntryIds': numbers};
                             var status =
-                                await SubmitEntity.alterStatus(dataMap);
+                            await SubmitEntity.alterStatus(dataMap);
                             print(status);
                             if (status != null) {
                               var res = jsonDecode(status);
                               print(res);
                               if (res != null) {
                                 if (res['Result']['ResponseStatus']
-                                    ['IsSuccess']) {
+                                ['IsSuccess']) {
                                   submitOder();
                                 } else {
                                   ToastUtil.showInfo(res['Result']
-                                          ['ResponseStatus']['Errors'][0]
-                                      ['Message']);
+                                  ['ResponseStatus']['Errors'][0]
+                                  ['Message']);
                                 }
                               }
                             }

@@ -9,6 +9,7 @@ import 'package:fzwm_landy/views/sale/retrieval_page.dart';
 import 'package:fzwm_landy/views/sale/return_goods_detail.dart';
 import 'package:fzwm_landy/views/sale/return_goods_page.dart';
 import 'package:fzwm_landy/views/stock/stock_page.dart';
+import 'package:fzwm_landy/views/workshop/report_warehousing_page.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
@@ -122,10 +123,10 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
       },
       {
         "icon": Icons.wallpaper,
-        "text": "图纸查询",
+        "text": "汇报入库",
         "parentId": 4,
         "color": Colors.pink.withOpacity(0.7),
-        "router": DrawingPage()
+        "router": ReportWarehousingPage()
       },
     ];
     var childMenu = List<Map<String, dynamic>>();
