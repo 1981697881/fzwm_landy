@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:date_format/date_format.dart';
 import 'package:fzwm_landy/model/currency_entity.dart';
 import 'package:fzwm_landy/model/submit_entity.dart';
 import 'package:fzwm_landy/utils/handler_order.dart';
@@ -75,9 +76,6 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now();
-    /*var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";*/
-    selectData[DateMode.YMD] = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
 
     /// 开启监听
     if (_subscription == null) {
@@ -143,7 +141,9 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     orderDate = [];
     orderDate = jsonDecode(order);
     DateTime dateTime = DateTime.now();
-    FDate = DateFormat('yyyy-MM-dd').format(dateTime);
+
+    FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+    selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     if (orderDate.length > 0) {
       this.FBillNo = orderDate[0][0];
       this.cusName = orderDate[0][17];
@@ -314,8 +314,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         setState(() {
           switch (model) {
             case DateMode.YMD:
-              selectData[model] = DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}').toString();
-              FDate = DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}').toString();
+              selectData[model] = formatDate(DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}'), [yyyy, "-", mm, "-", dd,]);
+              FDate = formatDate(DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}'), [yyyy, "-", mm, "-", dd,]);
               break;
           }
         });
@@ -346,54 +346,6 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           print(hobby);
         });
       },
-    );
-  }
-
-  void _pushSaved() {
-    Navigator.of(context).push(
-      new MaterialPageRoute(
-        builder: (context) {
-          return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('系统设置'),
-              centerTitle: true,
-            ),
-            body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
-              /* ListTile(
-                leading: Icon(Icons.search),
-                title: Text('版本信息'),
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),*/
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('退出登录'),
-                onTap: () async {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  prefs.clear();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return LoginPage();
-                      },
-                    ),
-                  );
-                },
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),
-            ]),
-          );
-        },
-      ),
     );
   }
 
@@ -572,7 +524,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FMaterialId'] = {"FNumber": element[4]['value']['value']};
           FEntityItem['FUnitID'] = {"FNumber": element[6]['value']['value']};
-          FEntityItem['FReturnType'] = 1;
+          /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FStockId'] = {"FNumber": element[10]['value']['value']};
           FEntityItem['FRealQty'] = element[8]['value']['value'];
           FEntity.add(FEntityItem);

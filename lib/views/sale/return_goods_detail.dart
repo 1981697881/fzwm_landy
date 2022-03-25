@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'package:date_format/date_format.dart';
 import 'package:fzwm_landy/model/currency_entity.dart';
 import 'package:fzwm_landy/model/submit_entity.dart';
+import 'package:fzwm_landy/utils/handler_order.dart';
 import 'package:fzwm_landy/utils/refresh_widget.dart';
-import 'package:fzwm_landy/utils/text.dart';
 import 'package:fzwm_landy/utils/toast_util.dart';
 import 'package:fzwm_landy/views/login/login_page.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_pickers/pickers.dart';
-import 'package:flutter_pickers/more_pickers/init_data.dart';
 import 'package:flutter_pickers/style/default_style.dart';
 import 'package:flutter_pickers/time_picker/model/date_mode.dart';
 import 'package:flutter_pickers/time_picker/model/pduration.dart';
@@ -19,6 +19,7 @@ import 'dart:io';
 import 'package:flutter_pickers/utils/check.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm_landy/components/my_text.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
@@ -45,6 +46,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   String FNumber = '';
   String FDate = '';
   var show = false;
+  var isSubmit = false;
   var isScanWork = false;
   var checkData;
   var checkDataChild;
@@ -137,7 +139,8 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
-    print(orderDate);
+    FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+    selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     if (orderDate.length > 0) {
       this.FBillNo = orderDate[0][0];
       this.cusName = orderDate[0][17];
@@ -305,13 +308,12 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
         print('longer >>> 返回数据：$p');
-        setState(() async {
+        setState(() {
           switch (model) {
             case DateMode.YMD:
               Map<String, dynamic> userMap = Map();
-              selectData[model] = '${p.year}-${p.month}-${p.day}';
-              FDate = '${p.year}-${p.month}-${p.day}';
-              await getOrderList();
+              selectData[model] = formatDate(DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}'), [yyyy, "-", mm, "-", dd,]);
+              FDate = formatDate(DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}'), [yyyy, "-", mm, "-", dd,]);
               break;
           }
         });
@@ -543,174 +545,90 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       print(val);
     });
   }
-
-  pushDown(val, isGood) async {
-    //下推
-    Map<String, dynamic> pushMap = Map();
-    pushMap['EntryIds'] = val;
-    pushMap['RuleId'] = "PRD_MO2INSTOCK";
-    pushMap['TargetFormId'] = "PRD_INSTOCK";
-    pushMap['IsEnableDefaultRule'] = "false";
-    pushMap['IsDraftWhenSaveFail'] = "false";
-    var downData =
-        await SubmitEntity.pushDown({"formid": "PRD_MO", "data": pushMap});
-    print(downData);
-    var res = jsonDecode(downData);
-    //判断成功
-    if (res['Result']['ResponseStatus']['IsSuccess']) {
-      //查询入库单
-      var entitysNumber =
-          res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
-      Map<String, dynamic> inOrderMap = Map();
-      inOrderMap['FormId'] = 'PRD_INSTOCK';
-      inOrderMap['FilterString'] = "FBillNo='$entitysNumber'";
-      inOrderMap['FieldKeys'] =
-          'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber,FMoBillNo';
-      String order = await CurrencyEntity.polling({'data': inOrderMap});
-      print(order);
-      var resData = jsonDecode(order);
-      //组装数据
+  //保存
+  saveOrder() async {
+    if (this.hobby.length > 0) {
+      setState(() {
+        this.isSubmit = true;
+      });
       Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = inOrderMap;
+      dataMap['formid'] = 'SAL_RETURNSTOCK';
       Map<String, dynamic> orderMap = Map();
-      orderMap['NeedUpDataFields'] = [
-        'FStockStatusId',
-        'FRealQty',
-        'FInStockType'
-      ];
+      orderMap['NeedReturnFields'] = [];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
-      Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
-      // ignore: non_constant_identifier_names
+      Model['FID'] = 0;
+      Model['FBillType'] = {"FNUMBER": "XSTHD01_SYS"};
+      Model['FDate'] = FDate;
+      Model['FStockOrgId'] = {"FNumber": orderDate[0][1].toString()};
+      Model['FSaleOrgId'] = {"FNumber": orderDate[0][1].toString()};
+      Model['FRetcustId'] = {"FNumber": orderDate[0][16].toString()};
       var FEntity = [];
-      resData.forEach((entity) {
-        this.hobby.forEach((element) {
-          if (entity[1].toString() == element[0]['value']['value'].toString()) {
-            // ignore: non_constant_identifier_names
-            Map<String, dynamic> FEntityItem = Map();
-            FEntityItem['FEntryID'] = entity[0];
-            FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-            //判断良品，不良品
-            if (isGood == "defective") {
-              FEntityItem['FInStockType'] = '1';
-              FEntityItem['FRealQty'] = element[4]['value']['value'];
-              FEntity.add(FEntityItem);
-            } else if (isGood == "nonDefective") {
-              FEntityItem['FInStockType'] = '2';
-              FEntityItem['FRealQty'] = element[6]['value']['value'];
-              FEntity.add(FEntityItem);
-            }
-          }
-        });
-      });
-      Model['FEntity'] = FEntity;
-      orderMap['Model'] = Model;
-      dataMap = {"formid": "PRD_INSTOCK", "data": orderMap};
-      print(jsonEncode(dataMap));
-      //返回保存参数
-      return dataMap;
-    } else {
-      return false;
-    }
-  }
-
-  //保存
-  submitOder() async {
-    var EntryIds1 = '';
-    var EntryIds2 = '';
-    //分两次读取良品，不良品数据
-    for (var i = 0; i < 2; i++) {
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
-        if (i == 0) {
-          if (double.parse(element[4]['value']['value']) > 0) {
-            if (EntryIds1 == '') {
-              EntryIds1 = orderDate[hobbyIndex][5].toString();
-            } else {
-              EntryIds1 = EntryIds1 + ',' + orderDate[hobbyIndex][5].toString();
-            }
-          }
-        } else {
-          if (double.parse(element[6]['value']['value']) > 0) {
-            if (EntryIds2 == '') {
-              EntryIds2 = orderDate[hobbyIndex][5].toString();
-            } else {
-              EntryIds2 = EntryIds2 + ',' + orderDate[hobbyIndex][5].toString();
-            }
-          }
+        if (element[8]['value']['value'] != '0' &&
+            element[10]['value']['value'] != '') {
+          Map<String, dynamic> FEntityItem = Map();
+          FEntityItem['FMaterialId'] = {"FNumber": element[4]['value']['value']};
+          FEntityItem['FUnitID'] = {"FNumber": element[6]['value']['value']};
+          /*FEntityItem['FReturnType'] = 1;*/
+          FEntityItem['FStockId'] = {"FNumber": element[10]['value']['value']};
+          FEntityItem['FRealQty'] = element[8]['value']['value'];
+          FEntity.add(FEntityItem);
         }
         hobbyIndex++;
       });
-    }
-    //判断是否填写数量
-    if (EntryIds1 == '' && EntryIds2 == '') {
-      ToastUtil.showInfo('无提交数据');
-    } else {
-      var checkList = [];
-      //循环下推单据
-      for (var i = 0; i < 2; i++) {
-        if (EntryIds1 != '' && checkList.indexOf(EntryIds1) == -1) {
-          checkList.add(EntryIds1);
-          var resCheck = await this.pushDown(EntryIds1, 'defective');
-          print(resCheck);
-          if (resCheck != false) {
-            var subData = await SubmitEntity.submit(resCheck);
-            print(subData);
-            if (subData != null) {
-              var res = jsonDecode(subData);
-              if (res != null) {
-                if (res['Result']['ResponseStatus']['IsSuccess']) {
-                  //提交清空页面
-                  setState(() {
-                    this.hobby = [];
-                    this.orderDate = [];
-                    this.FBillNo = '';
-                    this.FSaleOrderNo = '';
-                    ToastUtil.showInfo('提交成功');
-                  });
-                } else {
-                  setState(() {
-                    ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors']
-                        [0]['Message']);
-                  });
-                }
-              }
-            }
-          } else {
-            ToastUtil.showInfo('下推失败');
+      Model['FEntity'] = FEntity;
+      orderMap['Model'] = Model;
+      dataMap['data'] = orderMap;
+      print(jsonEncode(dataMap));
+      String order = await SubmitEntity.save(dataMap);
+      var res = jsonDecode(order);
+      print(res);
+      if (res['Result']['ResponseStatus']['IsSuccess']) {
+        Map<String, dynamic> submitMap = Map();
+        submitMap = {
+          "formid": "SAL_RETURNSTOCK",
+          "data": {
+            'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
           }
-        } else if (EntryIds2 != '' && checkList.indexOf(EntryIds2) == -1) {
-          checkList.add(EntryIds2);
-          var resCheck = await this.pushDown(EntryIds2, 'nonDefective');
-          print(resCheck);
-          if (resCheck != false) {
-            var subData = await SubmitEntity.submit(resCheck);
-            print(subData);
-            if (subData != null) {
-              var res = jsonDecode(subData);
-              if (res != null) {
-                if (res['Result']['ResponseStatus']['IsSuccess']) {
-                  //提交清空页面
-                  setState(() {
-                    this.hobby = [];
-                    this.orderDate = [];
-                    this.FBillNo = '';
-                    this.FSaleOrderNo = '';
-                    ToastUtil.showInfo('提交成功');
-                  });
-                } else {
-                  setState(() {
-                    ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors']
-                        [0]['Message']);
-                  });
-                }
+        };
+        //提交
+        HandlerOrder.orderHandler(context,submitMap,1,"SAL_RETURNSTOCK",SubmitEntity.submit(submitMap)).then((submitResult) {
+          if(submitResult){
+            //审核
+            HandlerOrder.orderHandler(context,submitMap,1,"SAL_RETURNSTOCK",SubmitEntity.audit(submitMap)).then((auditResult) {
+              if(auditResult){
+                //提交清空页面
+                setState(() {
+                  this.hobby = [];
+                  this.orderDate = [];
+                  this.FBillNo = '';
+                  ToastUtil.showInfo('提交成功');
+                  Navigator.of(context).pop("refresh");
+                });
+              }else{
+                //失败后反审
+                HandlerOrder.orderHandler(context,submitMap,0,"SAL_RETURNSTOCK",SubmitEntity.unAudit(submitMap)).then((unAuditResult) {
+                  if(unAuditResult){
+                    this.isSubmit = false;
+                  }
+                });
               }
-            }
-          } else {
-            ToastUtil.showInfo('下推失败');
+            });
+          }else{
+            this.isSubmit = false;
           }
-        }
+        });
+      } else {
+        setState(() {
+          this.isSubmit = false;
+          ToastUtil.errorDialog(context,
+              res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        });
       }
+    } else {
+      ToastUtil.showInfo('无提交数据');
     }
   }
 
@@ -790,44 +708,9 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),
                         child: Text("保存"),
-                        color: Theme.of(context).primaryColor,
+                        color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
                         textColor: Colors.white,
-                        onPressed: () async {
-                          if (this.hobby.length > 0) {
-                            Map<String, dynamic> dataMap = Map();
-                            var numbers = [];
-                            dataMap['formid'] = 'PRD_MO';
-                            dataMap['opNumber'] = 'toStart';
-                            var hobbyIndex = 0;
-                            this.hobby.forEach((list) {
-                              Map<String, dynamic> entityMap = Map();
-                              entityMap['Id'] = orderDate[hobbyIndex][18];
-                              entityMap['EntryIds'] = orderDate[hobbyIndex][5];
-                              numbers.add(entityMap);
-                              hobbyIndex++;
-                            });
-                            dataMap['data'] = {'PkEntryIds': numbers};
-                            var status =
-                                await SubmitEntity.alterStatus(dataMap);
-                            print(status);
-                            if (status != null) {
-                              var res = jsonDecode(status);
-                              print(res);
-                              if (res != null) {
-                                if (res['Result']['ResponseStatus']
-                                    ['IsSuccess']) {
-                                  submitOder();
-                                } else {
-                                  ToastUtil.showInfo(res['Result']
-                                          ['ResponseStatus']['Errors'][0]
-                                      ['Message']);
-                                }
-                              }
-                            }
-                          } else {
-                            ToastUtil.showInfo('无提交数据');
-                          }
-                        },
+                        onPressed: () async=> this.isSubmit ? null : saveOrder(),
                       ),
                     ),
                   ],

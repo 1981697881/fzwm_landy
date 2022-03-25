@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:date_format/date_format.dart';
 import 'package:fzwm_landy/model/currency_entity.dart';
 import 'package:fzwm_landy/model/submit_entity.dart';
+import 'package:fzwm_landy/utils/handler_order.dart';
 import 'package:fzwm_landy/utils/refresh_widget.dart';
 import 'package:fzwm_landy/utils/text.dart';
 import 'package:fzwm_landy/utils/toast_util.dart';
@@ -19,6 +21,7 @@ import 'dart:io';
 import 'package:flutter_pickers/utils/check.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm_landy/components/my_text.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
@@ -47,6 +50,7 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
   String FNumber = '';
   String FDate = '';
   var show = false;
+  var isSubmit = false;
   var isScanWork = false;
   var checkData;
   var checkDataChild;
@@ -55,6 +59,7 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
     DateMode.YMD: "",
   };
   List<dynamic> orderDate = [];
+  List<dynamic> collarOrderDate = [];
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
@@ -125,7 +130,8 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
-    print(orderDate);
+    FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+    selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     if (orderDate.length > 0) {
       hobby = [];
       orderDate.forEach((value) {
@@ -292,8 +298,8 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
           switch (model) {
             case DateMode.YMD:
               Map<String, dynamic> userMap = Map();
-              selectData[model] = '${p.year}-${p.month}-${p.day}';
-              FDate = '${p.year}-${p.month}-${p.day}';
+              selectData[model] = formatDate(DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}'), [yyyy, "-", mm, "-", dd,]);
+              FDate = formatDate(DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}'), [yyyy, "-", mm, "-", dd,]);
               await getOrderList();
               break;
           }
@@ -322,53 +328,6 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
     );
   }
 
-  void _pushSaved() {
-    Navigator.of(context).push(
-      new MaterialPageRoute(
-        builder: (context) {
-          return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('系统设置'),
-              centerTitle: true,
-            ),
-            body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
-              /* ListTile(
-                leading: Icon(Icons.search),
-                title: Text('版本信息'),
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),*/
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('退出登录'),
-                onTap: () async {
-                  SharedPreferences prefs =
-                  await SharedPreferences.getInstance();
-                  prefs.clear();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return LoginPage();
-                      },
-                    ),
-                  );
-                },
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),
-            ]),
-          );
-        },
-      ),
-    );
-  }
 
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
@@ -548,173 +507,126 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
     });
   }
 
-  pushDown(val, isGood) async {
-    //下推
-    Map<String, dynamic> pushMap = Map();
-    pushMap['EntryIds'] = val;
-    pushMap['RuleId'] = "PRD_MO2INSTOCK";
-    pushMap['TargetFormId'] = "PRD_INSTOCK";
-    pushMap['IsEnableDefaultRule'] = "false";
-    pushMap['IsDraftWhenSaveFail'] = "false";
-    var downData =
-    await SubmitEntity.pushDown({"formid": "PRD_MO", "data": pushMap});
-    print(downData);
-    var res = jsonDecode(downData);
-    //判断成功
-    if (res['Result']['ResponseStatus']['IsSuccess']) {
-      //查询入库单
-      var entitysNumber =
-      res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
-      Map<String, dynamic> inOrderMap = Map();
-      inOrderMap['FormId'] = 'PRD_INSTOCK';
-      inOrderMap['FilterString'] = "FBillNo='$entitysNumber'";
-      inOrderMap['FieldKeys'] =
-      'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber,FMoBillNo';
-      String order = await CurrencyEntity.polling({'data': inOrderMap});
-      print(order);
-      var resData = jsonDecode(order);
-      //组装数据
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = inOrderMap;
-      Map<String, dynamic> orderMap = Map();
-      orderMap['NeedUpDataFields'] = [
-        'FStockStatusId',
-        'FRealQty',
-        'FInStockType'
-      ];
-      orderMap['IsDeleteEntry'] = false;
-      Map<String, dynamic> Model = Map();
-      Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
-      // ignore: non_constant_identifier_names
-      var FEntity = [];
-      resData.forEach((entity) {
-        this.hobby.forEach((element) {
-          if (entity[1].toString() == element[0]['value']['value'].toString()) {
-            // ignore: non_constant_identifier_names
-            Map<String, dynamic> FEntityItem = Map();
-            FEntityItem['FEntryID'] = entity[0];
-            FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-            //判断良品，不良品
-            if (isGood == "defective") {
-              FEntityItem['FInStockType'] = '1';
-              FEntityItem['FRealQty'] = element[4]['value']['value'];
-              FEntity.add(FEntityItem);
-            } else if (isGood == "nonDefective") {
-              FEntityItem['FInStockType'] = '2';
-              FEntityItem['FRealQty'] = element[6]['value']['value'];
-              FEntity.add(FEntityItem);
-            }
-          }
-        });
+  pushDown() async {
+    if (this.hobby.length > 0) {
+      setState(() {
+        this.isSubmit = true;
       });
-      Model['FEntity'] = FEntity;
-      orderMap['Model'] = Model;
-      dataMap = {"formid": "PRD_INSTOCK", "data": orderMap};
-      print(jsonEncode(dataMap));
-      //返回保存参数
-      return dataMap;
+      //下推
+      Map<String, dynamic> pushMap = Map();
+      pushMap['Ids'] = orderDate[0][13];
+      pushMap['RuleId'] = "PRD_IssueMtrl2PickMtrl";
+      pushMap['TargetFormId'] = "PRD_PickMtrl";
+      print(pushMap);
+      var downData =
+      await SubmitEntity.pushDown({"formid": "PRD_PPBOM", "data": pushMap});
+      print(downData);
+      var res = jsonDecode(downData);
+      //判断成功
+      if (res['Result']['ResponseStatus']['IsSuccess']) {
+        //查询生产领料单
+        var entitysNumber =
+        res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
+        Map<String, dynamic> OrderMap = Map();
+        OrderMap['FormId'] = 'PRD_PickMtrl';
+        OrderMap['FilterString'] = "FID='$entitysNumber'";
+        OrderMap['FieldKeys'] =
+        'FID,FEntity_FEntryId,FStockId.FNumber,FMaterialId.FNumber';
+        String order = await CurrencyEntity.polling({'data': OrderMap});
+        var resData = jsonDecode(order);
+        collarOrderDate = resData;
+        saveOrder();
+      } else {
+        setState(() {
+          this.isSubmit = false;
+          ToastUtil.errorDialog(context,
+              res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        });
+      }
     } else {
-      return false;
+      ToastUtil.showInfo('无提交数据');
     }
   }
-
   //保存
-  submitOder() async {
-    var EntryIds1 = '';
-    var EntryIds2 = '';
-    //分两次读取良品，不良品数据
-    for (var i = 0; i < 2; i++) {
-      var hobbyIndex = 0;
-      this.hobby.forEach((element) {
-        if (i == 0) {
-          if (double.parse(element[4]['value']['value']) > 0) {
-            if (EntryIds1 == '') {
-              EntryIds1 = orderDate[hobbyIndex][5].toString();
-            } else {
-              EntryIds1 = EntryIds1 + ',' + orderDate[hobbyIndex][5].toString();
-            }
-          }
-        } else {
-          if (double.parse(element[6]['value']['value']) > 0) {
-            if (EntryIds2 == '') {
-              EntryIds2 = orderDate[hobbyIndex][5].toString();
-            } else {
-              EntryIds2 = EntryIds2 + ',' + orderDate[hobbyIndex][5].toString();
-            }
-          }
-        }
-        hobbyIndex++;
-      });
-    }
-    //判断是否填写数量
-    if (EntryIds1 == '' && EntryIds2 == '') {
-      ToastUtil.showInfo('无提交数据');
-    } else {
-      var checkList = [];
-      //循环下推单据
-      for (var i = 0; i < 2; i++) {
-        if (EntryIds1 != '' && checkList.indexOf(EntryIds1) == -1) {
-          checkList.add(EntryIds1);
-          var resCheck = await this.pushDown(EntryIds1, 'defective');
-          print(resCheck);
-          if (resCheck != false) {
-            var subData = await SubmitEntity.submit(resCheck);
-            print(subData);
-            if (subData != null) {
-              var res = jsonDecode(subData);
-              if (res != null) {
-                if (res['Result']['ResponseStatus']['IsSuccess']) {
-                  //提交清空页面
-                  setState(() {
-                    this.hobby = [];
-                    this.orderDate = [];
-                    this.FBillNo = '';
-                    this.FSaleOrderNo = '';
-                    ToastUtil.showInfo('提交成功');
-                  });
-                } else {
-                  setState(() {
-                    ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors']
-                    [0]['Message']);
-                  });
-                }
-              }
-            }
-          } else {
-            ToastUtil.showInfo('下推失败');
-          }
-        } else if (EntryIds2 != '' && checkList.indexOf(EntryIds2) == -1) {
-          checkList.add(EntryIds2);
-          var resCheck = await this.pushDown(EntryIds2, 'nonDefective');
-          print(resCheck);
-          if (resCheck != false) {
-            var subData = await SubmitEntity.submit(resCheck);
-            print(subData);
-            if (subData != null) {
-              var res = jsonDecode(subData);
-              if (res != null) {
-                if (res['Result']['ResponseStatus']['IsSuccess']) {
-                  //提交清空页面
-                  setState(() {
-                    this.hobby = [];
-                    this.orderDate = [];
-                    this.FBillNo = '';
-                    this.FSaleOrderNo = '';
-                    ToastUtil.showInfo('提交成功');
-                  });
-                } else {
-                  setState(() {
-                    ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors']
-                    [0]['Message']);
-                  });
-                }
-              }
-            }
-          } else {
-            ToastUtil.showInfo('下推失败');
-          }
-        }
+  saveOrder() async {
+    Map<String, dynamic> dataMap = Map();
+    dataMap['formid'] = 'PRD_PickMtrl';
+    Map<String, dynamic> orderMap = Map();
+    orderMap['NeedReturnFields'] = [];
+    orderMap['IsDeleteEntry'] = true;
+    Map<String, dynamic> Model = Map();
+    Model['FID'] = collarOrderDate[0][0];
+    var FEntity = [];
+    var hobbyIndex = 0;
+    this.hobby.forEach((element) {
+      if (element[5]['value']['value'] != '0') {
+        Map<String, dynamic> FEntityItem = Map();
+        FEntityItem['FActualQty'] = element[5]['value']['value'];
+        FEntityItem['FEntryID'] = collarOrderDate[hobbyIndex][1];
+        /* FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};*/
+        /* FEntityItem['FStockId'] = {
+          "FNumber": fBillNo.substring(0, 2) == "FO"
+              ? 'XBC001'
+              : collarOrderDate[hobbyIndex][2]
+        };*/
+        FEntityItem['FStockId'] = {
+          "FNumber": collarOrderDate[hobbyIndex][2]
+        };
+        FEntity.add(FEntityItem);
       }
+      hobbyIndex++;
+    });
+    Model['FEntity'] = FEntity;
+    orderMap['Model'] = Model;
+    dataMap['data'] = orderMap;
+    print(jsonEncode(dataMap));
+    String order = await SubmitEntity.save(dataMap);
+    var res = jsonDecode(order);
+    print(res);
+    if (res['Result']['ResponseStatus']['IsSuccess']) {
+      Map<String, dynamic> submitMap = Map();
+      submitMap = {
+        "formid": "PRD_PickMtrl",
+        "data": {
+          'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+        }
+      };
+      //提交
+      HandlerOrder.orderHandler(context,submitMap,1,"SAL_OUTSTOCK",SubmitEntity.submit(submitMap)).then((submitResult) {
+        if(submitResult){
+          //审核
+          HandlerOrder.orderHandler(context,submitMap,1,"SAL_OUTSTOCK",SubmitEntity.audit(submitMap)).then((auditResult) {
+            if(auditResult){
+              //提交清空页面
+              setState(() {
+                this.hobby = [];
+                this.orderDate = [];
+                this.FBillNo = '';
+                ToastUtil.showInfo('提交成功');
+                Navigator.of(context).pop("refresh");
+              });
+            }else{
+              //失败后反审
+              HandlerOrder.orderHandler(context,submitMap,0,"SAL_OUTSTOCK",SubmitEntity.unAudit(submitMap)).then((unAuditResult) {
+                if(unAuditResult){
+                  this.isSubmit = false;
+                }
+              });
+            }
+          });
+        }else{
+          this.isSubmit = false;
+        }
+      });
+    } else {
+      Map<String, dynamic> deleteMap = Map();
+      deleteMap = {
+        "formid": "PRD_PickMtrl",
+        "data": {
+          'Ids': collarOrderDate[0][0]
+        }
+      };
+      HandlerOrder.orderDelete(context,deleteMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
     }
   }
 
@@ -785,44 +697,9 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),
                         child: Text("保存"),
-                        color: Theme.of(context).primaryColor,
+                        color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
                         textColor: Colors.white,
-                        onPressed: () async {
-                          if (this.hobby.length > 0) {
-                            Map<String, dynamic> dataMap = Map();
-                            var numbers = [];
-                            dataMap['formid'] = 'PRD_MO';
-                            dataMap['opNumber'] = 'toStart';
-                            var hobbyIndex = 0;
-                            this.hobby.forEach((list) {
-                              Map<String, dynamic> entityMap = Map();
-                              entityMap['Id'] = orderDate[hobbyIndex][18];
-                              entityMap['EntryIds'] = orderDate[hobbyIndex][5];
-                              numbers.add(entityMap);
-                              hobbyIndex++;
-                            });
-                            dataMap['data'] = {'PkEntryIds': numbers};
-                            var status =
-                            await SubmitEntity.alterStatus(dataMap);
-                            print(status);
-                            if (status != null) {
-                              var res = jsonDecode(status);
-                              print(res);
-                              if (res != null) {
-                                if (res['Result']['ResponseStatus']
-                                ['IsSuccess']) {
-                                  submitOder();
-                                } else {
-                                  ToastUtil.showInfo(res['Result']
-                                  ['ResponseStatus']['Errors'][0]
-                                  ['Message']);
-                                }
-                              }
-                            }
-                          } else {
-                            ToastUtil.showInfo('无提交数据');
-                          }
-                        },
+                        onPressed: () async=> this.isSubmit ? null : saveOrder(),
                       ),
                     ),
                   ],
