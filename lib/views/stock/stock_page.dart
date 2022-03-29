@@ -58,6 +58,7 @@ class _StockPageState extends State<StockPage> {
   // 集合
   List hobby = [];
   getOrderList() async {
+    EasyLoading.show(status: 'loading...');
       Map<String, dynamic> userMap = Map();
       if(this.keyWord != ''){
         userMap['FilterString'] =

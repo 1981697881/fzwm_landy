@@ -44,7 +44,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
 
   final _textNumber = TextEditingController();
   var checkItem;
-  String FBillNo = 'A10000101010';
+  String FBillNo = '';
   String FSaleOrderNo = '';
   String FName = '';
   String FNumber = '';
@@ -538,6 +538,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         }
         hobbyIndex++;
       });
+      if(FEntity.length==0){
+        this.isSubmit = false;
+        ToastUtil.showInfo('请输入数量和录入仓库');
+        return;
+      }
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;

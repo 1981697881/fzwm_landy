@@ -64,6 +64,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
   List hobby = [];
 
   getOrderList() async {
+    EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FNoStockInQty>0";
     if (this._dateSelectText != "") {
@@ -265,9 +266,9 @@ class _WarehousingPageState extends State<WarehousingPage> {
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
-        firstDate: DateTime(2021, 1),
+        firstDate: DateTime(now.year-2, now.month),
         //结束时间
-        lastDate: DateTime(2022, 2),
+        lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
@@ -328,7 +329,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
                                         height: 40.0,
                                         alignment: Alignment.centerLeft,
                                         child: Text(
-                                            "开始时间:" +
+                                            "开始:" +
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
@@ -346,7 +347,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
                                         height: 40.0,
                                         alignment: Alignment.centerLeft,
                                         child: Text(
-                                            "结束时间:" +
+                                            "结束:" +
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this

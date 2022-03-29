@@ -355,7 +355,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 7) {
+          if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -531,6 +531,11 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         }
         hobbyIndex++;
       });
+      if(FEntity.length==0){
+        this.isSubmit = false;
+        ToastUtil.showInfo('请输入数量和录入仓库');
+        return;
+      }
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;

@@ -175,19 +175,25 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[5], "value": value[4]}
+          "value": {"label": value[6], "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": false,
-          "value": {"label": value[6], "value": value[6]}
+          "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
           "value": {"label": value[11], "value": value[10]}
+        });
+        arr.add({
+          "title": "退货数量",
+          "name": "FJoinRetQty",
+          "isHide": false,
+          "value": {"label": value[14], "value": value[14]}
         });
         arr.add({
           "title": "数量",
@@ -200,12 +206,6 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           "name": "FDeliverydate",
           "isHide": true,
           "value": {"label": value[13], "value": value[13]}
-        });
-        arr.add({
-          "title": "退货数量",
-          "name": "FJoinRetQty",
-          "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
         });
         arr.add({
           "title": "仓库",
@@ -404,7 +404,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 7) {
+          if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -578,6 +578,11 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
         }
         hobbyIndex++;
       });
+      if(FEntity.length==0){
+        this.isSubmit = false;
+        ToastUtil.showInfo('请输入数量和录入仓库');
+        return;
+      }
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;

@@ -139,6 +139,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
 
   //获取订单信息
   getOrderList() async {
+
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq'";
     userMap['FormId'] = 'PRD_PPBOM';
@@ -648,6 +649,11 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         }
         hobbyIndex++;
       });
+      if(FEntity.length==0){
+        this.isSubmit = false;
+        ToastUtil.showInfo('请输入数量和录入仓库');
+        return;
+      }
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;

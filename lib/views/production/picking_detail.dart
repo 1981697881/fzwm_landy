@@ -162,6 +162,7 @@ class _PickingDetailState extends State<PickingDetail> {
 
   //获取订单信息
   getOrderList() async {
+
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] =
         "FNoPickedQty>0 and FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq'";
@@ -752,6 +753,11 @@ class _PickingDetailState extends State<PickingDetail> {
       }
       hobbyIndex++;
     });
+    if(FEntity.length==0){
+      this.isSubmit = false;
+      ToastUtil.showInfo('请输入数量和录入仓库');
+      return;
+    }
     Model['FEntity'] = FEntity;
     orderMap['Model'] = Model;
     dataMap['data'] = orderMap;

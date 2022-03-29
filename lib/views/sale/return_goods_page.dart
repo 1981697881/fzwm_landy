@@ -61,6 +61,7 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
   // 集合
   List hobby = [];
   getOrderList() async {
+    EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FJoinRetQty>0";
     if(this._dateSelectText != ""){
@@ -262,9 +263,9 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
-        firstDate: DateTime(2021, 1),
+        firstDate: DateTime(now.year-2, now.month),
         //结束时间
-        lastDate: DateTime(2022, 2),
+        lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
@@ -282,7 +283,6 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
   }
   @override
   Widget build(BuildContext context) {
-
     return FlutterEasyLoading(
       /*child: MaterialApp(
       title: "loging",*/
@@ -326,7 +326,7 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
                                       padding: EdgeInsets.all(6.0),
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
-                                      child: Text("开始时间："+(this._dateSelectText == ""?"":this._dateSelectText.substring(0,10)),style: TextStyle(
+                                      child: Text("开始："+(this._dateSelectText == ""?"":this._dateSelectText.substring(0,10)),style: TextStyle(
                                           color: Colors.white, decoration: TextDecoration.none))
                                   ),
                                 ),
@@ -336,7 +336,7 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
                                       padding: EdgeInsets.all(6.0),
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
-                                      child: Text("结束时间："+(this._dateSelectText == ""?"":this._dateSelectText.substring(26,36)),style: TextStyle(
+                                      child: Text("结束："+(this._dateSelectText == ""?"":this._dateSelectText.substring(26,36)),style: TextStyle(
                                           color: Colors.white, decoration: TextDecoration.none))
                                   ),
                                 ),

@@ -70,6 +70,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
   List hobby = [];
 
   getOrderList() async {
+    EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FRemainOutQty>0";
     if (this._dateSelectText != "") {
@@ -277,9 +278,9 @@ class _RetrievalPageState extends State<RetrievalPage> {
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
-        firstDate: DateTime(2021, 1),
+        firstDate: DateTime(now.year-2, now.month),
         //结束时间
-        lastDate: DateTime(2022, 2),
+        lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
@@ -340,7 +341,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          "开始时间：" +
+                                          "开始：" +
                                               (this._dateSelectText == ""
                                                   ? ""
                                                   : this
@@ -358,7 +359,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          "结束时间：" +
+                                          "结束：" +
                                               (this._dateSelectText == ""
                                                   ? ""
                                                   : this
