@@ -235,7 +235,7 @@ class _LoginPageState extends State<LoginPage> {
               Map<String,dynamic> userMap = Map();
               userMap['FormId']='BD_Empinfo';
               userMap['FilterString']= "FStaffNumber='$_username' and FPwd='$_password'";
-              userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName,FForbidStatus';/*FWorkShopID.FNumber,FWorkShopID.FName*/
+              userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX';/*FWorkShopID.FNumber,FWorkShopID.FName*/
               Map<String,dynamic> dataMap = Map();
               dataMap['data']=userMap;
               String UserEntity = await CurrencyEntity.polling(dataMap);
@@ -245,6 +245,7 @@ class _LoginPageState extends State<LoginPage> {
               if(resUser.length > 0){
                 print(resUser);
                 if(resUser[0][2] == 'A'){
+                  sharedPreferences.setString('MenuPermissions', UserEntity);
                   /*sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
                   sharedPreferences.setString('FWorkShopName', resUser[0][3]);*/
                   ToastUtil.showInfo('登录成功');

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:fzwm_landy/utils/menu_permissions.dart';
 import 'package:fzwm_landy/views/drawing/drawing_page.dart';
 import 'package:fzwm_landy/views/production/warehousing_detail.dart';
 import 'package:fzwm_landy/views/production/warehousing_page.dart';
@@ -35,6 +36,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
 
   @override
   void initState() {
+    MenuPermissions.getMenu();
     super.initState();
   }
 
@@ -93,7 +95,8 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
 
   // tabs 容器
   Widget buildAppBarTabs() {
-    var menu = [
+    var menu = MenuPermissions.getMenuChild();
+    /*[
       {
         "icon": Icons.loupe,
         "text": "生产入库",
@@ -128,7 +131,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
         "color": Colors.pink.withOpacity(0.7),
         "router": ReportWarehousingPage()
       },
-    ];
+    ];*/
     var childMenu = List<Map<String, dynamic>>();
     menu.forEach((value) {
       if(value['parentId'] == this.currentIndex){

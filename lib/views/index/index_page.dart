@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:fzwm_landy/http/api_response.dart';
 import 'package:fzwm_landy/model/version_entity.dart';
+import 'package:fzwm_landy/utils/menu_permissions.dart';
 import 'package:fzwm_landy/views/login/login_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -44,6 +45,7 @@ class _IndexPageState extends State<IndexPage> {
   @override
   void initState() {
     super.initState();
+
     IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     _port.listen(_updateDownLoadInfo);
