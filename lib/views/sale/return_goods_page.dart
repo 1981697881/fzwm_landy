@@ -39,12 +39,16 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
   @override
   void initState() {
     super.initState();
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime newDate = DateTime.now();
+    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+
     /// 开启监听
-    /* if (_subscription == null) {
+     if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
-    }*/
+    }
   }
 
   @override
@@ -53,9 +57,9 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     super.dispose();
 
     /// 取消监听
-    /*if (_subscription != null) {
+    if (_subscription != null) {
       _subscription.cancel();
-    }*/
+    }
   }
 
   // 集合
@@ -64,15 +68,15 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FJoinRetQty>0";
+    var scanCode = keyWord.split(",");
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
-      userMap['FilterString'] = "FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FBillCloseStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
-      userMap['FilterString'] = "FMaterialId.FNumber='$keyWord' and FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FBillNo='"+scanCode[0]+"' and FBillCloseStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-
     userMap['FormId'] = 'SAL_RETURNNOTICE';
     userMap['FieldKeys'] =
     'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FRetorgId.FNumber,FRetorgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FJoinRetQty,FID,FRetcustId.FNumber,FRetcustId.FName';
@@ -82,8 +86,8 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     orderDate = [];
     orderDate = jsonDecode(order);
     print(orderDate);
+    hobby = [];
     if (orderDate.length > 0) {
-      hobby = [];
       orderDate.forEach((value) {
         List arr = [];
         arr.add({
@@ -253,17 +257,16 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
   void showDateSelect() async {
     //获取当前的时间
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day - 30);
+    DateTime start = DateTime(now.year, now.month, now.day-1);
     //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day + 4);
-    print(DateTimeRange(start: start, end: end));
+    DateTime end = DateTime(start.year, start.month, start.day);
     //显示时间选择器
     DateTimeRange selectTimeRange = await showDateRangePicker(
       //语言环境
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
-        firstDate: DateTime(now.year-2, now.month),
+        firstDate: DateTime(now.year-3, now.month),
         //结束时间
         lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",

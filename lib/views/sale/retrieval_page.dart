@@ -40,13 +40,15 @@ class _RetrievalPageState extends State<RetrievalPage> {
   @override
   void initState() {
     super.initState();
-
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime newDate = DateTime.now();
+    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     /// 开启监听
-    /* if (_subscription == null) {
+     if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
-    }*/
+    }
   }
   _initState() {
     this.getOrderList();
@@ -61,9 +63,9 @@ class _RetrievalPageState extends State<RetrievalPage> {
     super.dispose();
 
     /// 取消监听
-    /*if (_subscription != null) {
+    if (_subscription != null) {
       _subscription.cancel();
-    }*/
+    }
   }
 
   // 集合
@@ -72,16 +74,17 @@ class _RetrievalPageState extends State<RetrievalPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FRemainOutQty>0";
+    userMap['FilterString'] = "FRemainOutQty>0 and FCLOSESTATUS='A'";
+    var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-          "FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FRemainOutQty>0 and FCLOSESTATUS='A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =
-          "FMaterialId.FNumber='$keyWord' and FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FBillNo='"+scanCode[0]+"' and FCLOSESTATUS='A' and FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
 
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
@@ -93,8 +96,8 @@ class _RetrievalPageState extends State<RetrievalPage> {
     orderDate = [];
     orderDate = jsonDecode(order);
     print(orderDate);
+    hobby = [];
     if (orderDate.length > 0) {
-      hobby = [];
       orderDate.forEach((value) {
         List arr = [];
         arr.add({
@@ -268,17 +271,16 @@ class _RetrievalPageState extends State<RetrievalPage> {
   void showDateSelect() async {
     //获取当前的时间
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day - 30);
+    DateTime start = DateTime(now.year, now.month, now.day-1);
     //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day + 4);
-    print(DateTimeRange(start: start, end: end));
+    DateTime end = DateTime(start.year, start.month, start.day);
     //显示时间选择器
     DateTimeRange selectTimeRange = await showDateRangePicker(
-        //语言环境
+      //语言环境
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
-        firstDate: DateTime(now.year-2, now.month),
+        firstDate: DateTime(now.year-3, now.month),
         //结束时间
         lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",
@@ -292,7 +294,9 @@ class _RetrievalPageState extends State<RetrievalPage> {
     //选择结果中的结束时间
     DateTime selectEnd = selectTimeRange.end;
     print(_dateSelectText);
-    setState(() {});
+    setState(() {
+
+    });
   }
 
   @override

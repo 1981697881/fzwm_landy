@@ -8,17 +8,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:fzwm_landy/views/workshop/report_warehousing_detail.dart';
+import 'package:fzwm_landy/views/sale/retrieval_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
-class ReportWarehousingPage extends StatefulWidget {
-  ReportWarehousingPage({Key key}) : super(key: key);
+import 'report_detail.dart';
+
+
+final String _fontFamily = Platform.isWindows ? "Roboto" : "";
+
+class ReportPage extends StatefulWidget {
+  ReportPage({Key key}) : super(key: key);
 
   @override
-  _ReportWarehousingPageState createState() => _ReportWarehousingPageState();
+  _ReportPageState createState() => _ReportPageState();
 }
 
-class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
+class _ReportPageState extends State<ReportPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -41,7 +46,6 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
-
     /// 开启监听
     /* if (_subscription == null) {
       _subscription = scannerPlugin
@@ -49,7 +53,13 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
           .listen(_onEvent, onError: _onError);
     }*/
   }
-
+  _initState() {
+    this.getOrderList();
+    /// 开启监听
+    _subscription = scannerPlugin
+        .receiveBroadcastStream()
+        .listen(_onEvent, onError: _onError);
+  }
   @override
   void dispose() {
     this.controller.dispose();
@@ -67,26 +77,26 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FFinishQty>0 and FBillType.FNumber ='SCHBD01_SYS'";
+    userMap['FilterString'] = "FOrderQty>0";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FFinishQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FBillType.FNumber ='SCHBD01_SYS''";
+      "FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =
-      "FMaterialId.FNumber='$keyWord' and FFinishQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FBillType.FNumber ='SCHBD01_SYS'";
+      "FBillNo='$keyWord' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'PRD_MORPT';
+    userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkshipId.FNumber,FWorkshipId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FProduceDate,FQuaQty,FSrcBillNo,FStockInSelQty,FID';
+    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID,FProcessID.FDataValue';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
-    print(order);
     orderDate = [];
     orderDate = jsonDecode(order);
+    print(orderDate);
     hobby = [];
     if (orderDate.length > 0) {
       orderDate.forEach((value) {
@@ -98,16 +108,16 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "生产组织",
-          "name": "FPrdOrgId",
+          "title": "工艺路线",
+          "name": "FProcessLine",
           "isHide": false,
-          "value": {"label": value[2], "value": value[1]}
+          "value": {"label": value[9], "value": value[9]}
         });
         arr.add({
-          "title": "单据日期",
-          "name": "FDate",
+          "title": "流程卡号",
+          "name": "FOrderNo",
           "isHide": false,
-          "value": {"label": value[3], "value": value[3]}
+          "value": {"label": value[8], "value": value[8]}
         });
         arr.add({
           "title": "物料名称",
@@ -116,34 +126,40 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
           "value": {"label": value[6], "value": value[5]}
         });
         arr.add({
-          "title": "规格型号",
-          "name": "FMaterialIdFSpecification",
+          "title": "工序名称",
+          "name": "FProcessID",
           "isHide": false,
-          "value": {"label": value[7], "value": value[7]}
+          "value": {"label": value[18], "value": value[17]}
         });
         arr.add({
-          "title": "单位名称",
-          "name": "FUnitId",
+          "title": "派工数量",
+          "name": "FOrderQty",
           "isHide": false,
-          "value": {"label": value[11], "value": value[10]}
+          "value": {"label": value[10], "value": value[10]}
         });
         arr.add({
-          "title": "完成数量",
-          "name": "FBaseQty",
+          "title": "汇报数量",
+          "name": "FSubmitQty",
+          "isHide": false,
+          "value": {"label": value[15], "value": value[15]}
+        });
+        arr.add({
+          "title": "未汇报数量",
+          "name": "FUnSubmitQty",
+          "isHide": false,
+          "value": {"label": value[16], "value": value[16]}
+        });
+        arr.add({
+          "title": "计划开工时间",
+          "name": "FPlanStarDate",
+          "isHide": false,
+          "value": {"label": value[11], "value": value[11]}
+        });
+        arr.add({
+          "title": "计划完工时间",
+          "name": "FPlanEndDate",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
-        });
-        arr.add({
-          "title": "生产日期",
-          "name": "FProduceDate",
-          "isHide": false,
-          "value": {"label": value[13], "value": value[13]}
-        });
-        arr.add({
-          "title": "合格数量",
-          "name": "FBaseQty",
-          "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
         });
         hobby.add(arr);
       });
@@ -192,7 +208,7 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ReportWarehousingDetail(
+                          return ReportDetail(
                               FBillNo: this.hobby[i][0]['value']
                             // 路由参数
                           );
@@ -298,7 +314,7 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("汇报入库"),
+            title: Text("工序汇报"),
             centerTitle: true,
           ),
           body: CustomScrollView(
@@ -311,108 +327,108 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
                   child: Container(
                     color: Theme.of(context).primaryColor,
                     child: Padding(
-                        padding: EdgeInsets.only(top: 2.0),
-                        child: Column(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                this.showDateSelect();
-                              },
-                              child: Flex(
-                                direction: Axis.horizontal,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                        padding: EdgeInsets.all(6.0),
-                                        height: 40.0,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                            "开始:" +
-                                                (this._dateSelectText == ""
-                                                    ? ""
-                                                    : this
-                                                    ._dateSelectText
-                                                    .substring(0, 10)),
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                decoration:
-                                                TextDecoration.none))),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                        padding: EdgeInsets.all(6.0),
-                                        height: 40.0,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                            "结束:" +
-                                                (this._dateSelectText == ""
-                                                    ? ""
-                                                    : this
-                                                    ._dateSelectText
-                                                    .substring(26, 36)),
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                decoration:
-                                                TextDecoration.none))),
-                                  ),
-                                ],
-                              ),
+                      padding: EdgeInsets.only(top: 2.0),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              this.showDateSelect();
+                            },
+                            child: Flex(
+                              direction: Axis.horizontal,
+                              children: <Widget>[
+                                Expanded(
+                                  flex: 5,
+                                  child: Container(
+                                      padding: EdgeInsets.all(6.0),
+                                      height: 40.0,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                          "开始：" +
+                                              (this._dateSelectText == ""
+                                                  ? ""
+                                                  : this
+                                                  ._dateSelectText
+                                                  .substring(0, 10)),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              decoration:
+                                              TextDecoration.none))),
+                                ),
+                                Expanded(
+                                  flex: 5,
+                                  child: Container(
+                                      padding: EdgeInsets.all(6.0),
+                                      height: 40.0,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                          "结束：" +
+                                              (this._dateSelectText == ""
+                                                  ? ""
+                                                  : this
+                                                  ._dateSelectText
+                                                  .substring(26, 36)),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              decoration:
+                                              TextDecoration.none))),
+                                ),
+                              ],
                             ),
-                            Container(
-                              height: 52.0,
-                              child: new Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: new Card(
-                                    child: new Container(
-                                        child: Row(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            SizedBox(
-                                              width: 6.0,
-                                            ),
-                                            Icon(
-                                              Icons.search,
-                                              color: Colors.grey,
-                                            ),
-                                            Expanded(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                child: TextField(
-                                                  controller: this.controller,
-                                                  decoration: new InputDecoration(
-                                                      contentPadding:
-                                                      EdgeInsets.only(
-                                                          bottom: 12.0),
-                                                      hintText: '输入关键字',
-                                                      border: InputBorder.none),
-                                                  onSubmitted: (value) {
-                                                    setState(() {
-                                                      this.keyWord = value;
-                                                      this.getOrderList();
-                                                    });
-                                                  },
-                                                  // onChanged: onSearchTextChanged,
-                                                ),
+                          ),
+                          Container(
+                            height: 52.0,
+                            child: new Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: new Card(
+                                  child: new Container(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          SizedBox(
+                                            width: 6.0,
+                                          ),
+                                          Icon(
+                                            Icons.search,
+                                            color: Colors.grey,
+                                          ),
+                                          Expanded(
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: TextField(
+                                                controller: this.controller,
+                                                decoration: new InputDecoration(
+                                                    contentPadding: EdgeInsets.only(
+                                                        bottom: 12.0),
+                                                    hintText: '输入关键字',
+                                                    border: InputBorder.none),
+                                                onSubmitted: (value) {
+                                                  setState(() {
+                                                    this.keyWord = value;
+                                                    this.getOrderList();
+                                                  });
+                                                },
+                                                // onChanged: onSearchTextChanged,
                                               ),
                                             ),
-                                            new IconButton(
-                                              icon: new Icon(Icons.cancel),
-                                              color: Colors.grey,
-                                              iconSize: 18.0,
-                                              onPressed: () {
-                                                this.controller.clear();
-                                                // onSearchTextChanged('');
-                                              },
-                                            ),
-                                          ],
-                                        )),
-                                  )),
-                            ),
-                          ],
-                        )),
+                                          ),
+                                          new IconButton(
+                                            icon: new Icon(Icons.cancel),
+                                            color: Colors.grey,
+                                            iconSize: 18.0,
+                                            onPressed: () {
+                                              this.controller.clear();
+                                              // onSearchTextChanged('');
+                                            },
+                                          ),
+                                        ],
+                                      )),
+                                )),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

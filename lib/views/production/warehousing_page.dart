@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm_landy/views/production/warehousing_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'package:shared_preferences/shared_preferences.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
@@ -25,6 +26,10 @@ class _WarehousingPageState extends State<WarehousingPage> {
   String keyWord = '';
   String startDate = '';
   String endDate = '';
+  //生产车间
+  String FName = '';
+  String FNumber = '';
+  String username = '';
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
@@ -40,6 +45,9 @@ class _WarehousingPageState extends State<WarehousingPage> {
   @override
   void initState() {
     super.initState();
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime newDate = DateTime.now();
+    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
 
     /// 开启监听
     /* if (_subscription == null) {
@@ -62,7 +70,16 @@ class _WarehousingPageState extends State<WarehousingPage> {
 
   // 集合
   List hobby = [];
-
+  void getWorkShop() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      if (sharedPreferences.getString('FWorkShopName') != null) {
+        username = sharedPreferences.getString('FStaffNumber');
+        FName = sharedPreferences.getString('FWorkShopName');
+        FNumber = sharedPreferences.getString('FWorkShopNumber');
+      }
+    });
+  }
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
@@ -70,25 +87,23 @@ class _WarehousingPageState extends State<WarehousingPage> {
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
-      userMap['FilterString'] =
-          "FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    if (this.keyWord != '') {
+    if(this.keyWord != ''){
       userMap['FilterString'] =
-          "FMaterialId.FNumber='$keyWord' and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FSaleOrderNo='$keyWord' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-
+    userMap['FilterString'] =
+    "FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
-    print(orderDate);
+    hobby = [];
     if (orderDate.length > 0) {
-      hobby = [];
       orderDate.forEach((value) {
         List arr = [];
         arr.add({
@@ -100,7 +115,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
         arr.add({
           "title": "生产组织",
           "name": "FPrdOrgId",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[2], "value": value[1]}
         });
         arr.add({
@@ -125,25 +140,79 @@ class _WarehousingPageState extends State<WarehousingPage> {
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
-          "value": {"label": value[11], "value": value[10]}
+          "value": {
+            "label": value[11],
+            "value": value[10]
+          }
         });
         arr.add({
           "title": "数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {
+            "label": value[12],
+            "value": value[12]
+          }
+        });
+        arr.add({
+          "title": "生产序号",
+          "name": "FProdOrder",
+          "isHide": false,
+          "value": {
+            "label": value[1],/*value[18]*/
+            "value": value[1]
+          }
         });
         arr.add({
           "title": "计划开工日期",
           "name": "FBaseQty",
-          "isHide": false,
-          "value": {"label": value[13], "value": value[13]}
+          "isHide": true,
+          "value": {
+            "label": value[13],
+            "value": value[13]
+          }
         });
         arr.add({
           "title": "未入库数量",
           "name": "FBaseQty",
+          "isHide": true,
+          "value": {
+            "label": value[16],
+            "value": value[16]
+          }
+        });
+        arr.add({
+          "title": "行号",
+          "name": "FSeq",
+          "isHide": true,
+          "value": {
+            "label": value[18],
+            "value": value[18]
+          }
+        });
+        arr.add({
+          "title": "分录内码",
+          "name": "FEntryId",
+          "isHide": true,
+          "value": {"label": value[4], "value": value[4]}
+        });
+        arr.add({
+          "title": "FID",
+          "name": "FID",
+          "isHide": true,
+          "value": {
+            "label": value[17],
+            "value": value[17]
+          }
+        });
+        arr.add({
+          "title": "状态",
+          "name": "FStatus",
           "isHide": false,
-          "value": {"label": value[16], "value": value[16]}
+          "value": {
+            "label": value[19] == "3" ? "下达" : "开工",
+            "value": value[19]
+          }
         });
         hobby.add(arr);
       });
@@ -193,7 +262,16 @@ class _WarehousingPageState extends State<WarehousingPage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return WarehousingDetail(
-                              FBillNo: this.hobby[i][0]['value']
+                            FBillNo: this.hobby[i][0]
+                            ['value'],
+                            FBarcode: _code,
+                            FSeq: this.hobby[i][10]
+                            ['value'],
+                            FEntryId: this.hobby[i][11]
+                            ['value'],
+                            FID: this.hobby[i][12]['value'],
+                            FProdOrder: this.hobby[i][7]
+                            ['value'],
                               // 路由参数
                               );
                         },
@@ -256,17 +334,16 @@ class _WarehousingPageState extends State<WarehousingPage> {
   void showDateSelect() async {
     //获取当前的时间
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day - 30);
+    DateTime start = DateTime(now.year, now.month, now.day-1);
     //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day + 4);
-    print(DateTimeRange(start: start, end: end));
+    DateTime end = DateTime(start.year, start.month, start.day);
     //显示时间选择器
     DateTimeRange selectTimeRange = await showDateRangePicker(
         //语言环境
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
-        firstDate: DateTime(now.year-2, now.month),
+        firstDate: DateTime(now.year-3, now.month),
         //结束时间
         lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",

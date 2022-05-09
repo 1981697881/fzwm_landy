@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:fzwm_landy/http/api_response.dart';
+import 'package:fzwm_landy/model/authorize_entity.dart';
 import 'package:fzwm_landy/model/version_entity.dart';
 import 'package:fzwm_landy/utils/menu_permissions.dart';
 import 'package:fzwm_landy/views/login/login_page.dart';
@@ -14,6 +16,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 
+import 'about_page.dart';
 import 'middle_layer_page.dart';
 
 class IndexPage extends StatefulWidget {
@@ -41,16 +44,25 @@ class _IndexPageState extends State<IndexPage> {
   String apkName = 'fzwm_landy.apk';
   String appPath = '';
   ReceivePort _port = ReceivePort();
+  SharedPreferences sharedPreferences;
 
   @override
   void initState() {
     super.initState();
-
+    Future.delayed(
+        Duration.zero,
+        () => setState(() {
+              _load();
+            }));
     IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     _port.listen(_updateDownLoadInfo);
     FlutterDownloader.registerCallback(_downLoadCallback);
     afterFirstLayout(context);
+  }
+
+  _load() async {
+    sharedPreferences = await SharedPreferences.getInstance();
   }
 
   @override
@@ -206,14 +218,14 @@ class _IndexPageState extends State<IndexPage> {
             height: 80,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black12,
-                      offset: Offset(0.0, 15.0), //阴影xy轴偏移量
-                      blurRadius: 15.0, //阴影模糊程度
-                      spreadRadius: 1.0 //阴影扩散程度
-                  )
-                ],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black12,
+                    offset: Offset(0.0, 15.0), //阴影xy轴偏移量
+                    blurRadius: 15.0, //阴影模糊程度
+                    spreadRadius: 1.0 //阴影扩散程度
+                    )
+              ],
               borderRadius: BorderRadius.all(
                 //圆角
                 Radius.circular(10.0),
@@ -238,9 +250,9 @@ class _IndexPageState extends State<IndexPage> {
                   child: Container(
                     padding: EdgeInsets.all(6.0),
                     decoration: BoxDecoration(
-                        color: menu[index]['color'],
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
+                      color: menu[index]['color'],
+                      borderRadius: BorderRadius.circular(6.0),
+                    ),
                     child: Icon(
                       menu[index]['icon'],
                       size: IconTheme.of(context).size - 6,
@@ -261,41 +273,65 @@ class _IndexPageState extends State<IndexPage> {
 
   // tabs 容器
   Widget buildAppBarTabs() {
-    var menu = [
-      {
-        "icon": Icons.loupe,
-        "text": "生产管理",
-        "id": 1,
-        "color": Colors.pink.withOpacity(0.7),
-        "router": MiddleLayerPage(menuId: 1,menuTitle: "生产管理")
-      },
-      {
-        "icon": Icons.local_shipping,
-        "text": "销售管理",
-        "id": 2,
-        "color": Colors.pink.withOpacity(0.7),
-        "router": MiddleLayerPage(menuId: 2,menuTitle: "销售管理")
-      },
-      {
-        "icon": Icons.web,
-        "text": "库存管理",
-        "id": 3,
-        "color": Colors.pink.withOpacity(0.7),
-        "router": MiddleLayerPage(menuId: 3,menuTitle: "库存管理")
-      },{
-        "icon": Icons.ballot,
-        "text": "车间管理",
-        "id": 4,
-        "color": Colors.pink.withOpacity(0.7),
-        "router": MiddleLayerPage(menuId: 4,menuTitle: "车间管理")
-      },
-      /*{
-        "icon": Icons.wallpaper,
-        "text": "图纸查询",
-        "color": Colors.pink.withOpacity(0.7),
-        "router": DrawingPage()
-      },*/
-    ];
+    var deptData = sharedPreferences.getString('menuList');
+    var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
+    var fAuthList = menuList['FAuthList'].split(",");
+    var menu = List<Map<String, dynamic>>();
+    for (var i in fAuthList) {
+      switch (i) {
+        case "1":
+          var obj = {
+            "icon": Icons.loupe,
+            "text": "生产管理",
+            "id": 1,
+            "color": Colors.pink.withOpacity(0.7),
+            "router": MiddleLayerPage(menuId: 1, menuTitle: "生产管理")
+          };
+          menu.add(obj);
+          break;
+        case "2":
+          var obj = {
+            "icon": Icons.local_shipping,
+            "text": "销售管理",
+            "id": 2,
+            "color": Colors.pink.withOpacity(0.7),
+            "router": MiddleLayerPage(menuId: 2, menuTitle: "销售管理")
+          };
+          menu.add(obj);
+          break;
+        case "3":
+          var obj = {
+            "icon": Icons.web,
+            "text": "库存管理",
+            "id": 3,
+            "color": Colors.pink.withOpacity(0.7),
+            "router": MiddleLayerPage(menuId: 3, menuTitle: "库存管理")
+          };
+          menu.add(obj);
+          break;
+        case "4":
+          var obj = {
+            "icon": Icons.ballot,
+            "text": "车间管理",
+            "id": 4,
+            "color": Colors.pink.withOpacity(0.7),
+            "router": MiddleLayerPage(menuId: 4, menuTitle: "车间管理")
+          };
+          menu.add(obj);
+          break;
+        case "5":
+          var obj = {
+            "icon": Icons.shopping_cart,
+            "text": "采购管理",
+            "id": 5,
+            "color": Colors.pink.withOpacity(0.7),
+            "router": MiddleLayerPage(menuId: 5, menuTitle: "采购管理")
+          };
+          menu.add(obj);
+          break;
+      }
+    };
+    print(menu);
     return Wrap(
         /*mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,*/
@@ -346,13 +382,32 @@ class _IndexPageState extends State<IndexPage> {
                 color: Colors.grey,
               ),
               ListTile(
+                leading: Icon(Icons.help),
+                title: Text('关于'),
+                onTap: () async {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return AboutPage();
+                      },
+                    ),
+                  );
+                },
+              ),
+              Divider(
+                height: 10.0,
+                indent: 0.0,
+                color: Colors.grey,
+              ),
+              ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('退出登录'),
                 onTap: () async {
                   print("点击退出登录");
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
-                  prefs.clear();
+                  /*prefs.clear();*/
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

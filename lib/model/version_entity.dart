@@ -12,7 +12,6 @@ String versionEntityToJson(VersionEntity data) => json.encode(data.toJson());
 
 class VersionEntity {
   static Future<ApiResponse<VersionEntity>> getVersion(
-
       ) async {
     try {
       final response = await HttpUtils.post(API.VERSION_URL);

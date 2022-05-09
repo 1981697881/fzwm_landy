@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
-
+import 'package:flutter/services.dart';
+import 'package:fzwm_landy/model/authorize_entity.dart';
 import 'package:fzwm_landy/model/currency_entity.dart';
 import 'package:fzwm_landy/model/login_entity.dart';
 import 'package:fzwm_landy/http/api_response.dart';
@@ -8,11 +10,8 @@ import 'package:fzwm_landy/views/index/index_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fzwm_landy/utils/toast_util.dart';
-import 'package:fzwm_landy/server/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-
-
 
 class LoginPage extends StatefulWidget {
   @override
@@ -20,29 +19,32 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
-
-
   //焦点
   FocusNode _focusNodeUserName = new FocusNode();
   FocusNode _focusNodePassWord = new FocusNode();
-
+  var urlContent = new TextEditingController();
+  var acctidContent = new TextEditingController();
+  var lcidContent = new TextEditingController();
+  var usernameContent = new TextEditingController();
+  var passwordContent = new TextEditingController();
+  static const scannerPlugin =
+  const EventChannel('com.shinow.pda_scanner/plugin');
+  StreamSubscription _subscription;
+  var _code;
   //用户名输入框控制器，此控制器可以监听用户名输入框操作
   TextEditingController _userNameController = new TextEditingController();
 
   //表单状态
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  SharedPreferences sharedPreferences;
   var _password = ''; //用户名
   var _username = ''; //密码
+  var message = ''; //密码
   var _isShowPwd = false; //是否显示密码
   var _isShowClear = false; //是否显示输入框尾部的清除按钮
 
-
   @override
   void initState() {
-
-
     // TODO: implement initState
     //设置焦点监听
     _focusNodeUserName.addListener(_focusNodeListener);
@@ -60,9 +62,38 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {});
     });
     super.initState();
+    /// 开启监听
+    if (_subscription == null) {
+      _subscription = scannerPlugin
+          .receiveBroadcastStream()
+          .listen(_onEvent, onError: _onError);
+    }
+    Future.delayed(
+        Duration.zero,
+        () => setState(() {
+              _load();
+            }));
   }
 
+  _load() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    urlContent.text = sharedPreferences.getString('url');
+    acctidContent.text = sharedPreferences.getString('acctId');
+    usernameContent.text = sharedPreferences.getString('username');
+    passwordContent.text = sharedPreferences.getString('password');
+    /*lcidContent.text = sharedPreferences.getString('lcid');*/
+  }
+  void _onEvent(Object event) async {
+    /*  setState(() {*/
+    _code = event;
+    /*});*/
+  }
 
+  void _onError(Object error) {
+    setState(() {
+      _code = "扫描异常";
+    });
+  }
   @override
   void dispose() {
     // TODO: implement dispose
@@ -71,6 +102,11 @@ class _LoginPageState extends State<LoginPage> {
     _focusNodePassWord.removeListener(_focusNodeListener);
     _userNameController.dispose();
     super.dispose();
+
+    /// 取消监听
+    if (_subscription != null) {
+      _subscription.cancel();
+    }
   }
 
   // 监听焦点
@@ -100,7 +136,6 @@ class _LoginPageState extends State<LoginPage> {
     }
     return null;
   }
-
   /**
    * 验证密码
    */
@@ -112,12 +147,263 @@ class _LoginPageState extends State<LoginPage> {
     }
     return null;
   }
-
+  void _pushSaved() async {
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+        builder: (context) {
+          return new Scaffold(
+            appBar: new AppBar(
+              title: new Text('系统参数'),
+              centerTitle: true,
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: new ListView(children: <Widget>[
+                    ListTile(
+                      title: TextField(
+                        //最多输入行数
+                        maxLines: 1,
+                        autofocus: false,
+                        decoration: InputDecoration(
+                          hintText: "地址：",
+                          //给文本框加边框
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              // 清空输入框内容
+                              urlContent.clear();
+                            },
+                          )
+                        ),
+                        controller: this.urlContent,
+                        //改变回调
+                        onChanged: (value) {
+                          setState(() {
+                            urlContent.value = TextEditingValue(
+                                text: value,
+                                selection: TextSelection.fromPosition(TextPosition(
+                                    affinity: TextAffinity.downstream,
+                                    offset: value.length)));
+                          });
+                        },
+                      ),
+                    ),
+                    Divider(
+                      height: 10.0,
+                      indent: 0.0,
+                      color: Colors.grey,
+                    ),
+                    ListTile(
+                      title: TextField(
+                        //最多输入行数
+                        maxLines: 1,
+                        autofocus: false,
+                        decoration: InputDecoration(
+                          hintText: "ACCTID：",
+                          //给文本框加边框
+                          border: OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                // 清空输入框内容
+                                acctidContent.clear();
+                              },
+                            )
+                        ),
+                        controller: this.acctidContent,
+                        //改变回调
+                        onChanged: (value) {
+                          setState(() {
+                            acctidContent.value = TextEditingValue(
+                                text: value,
+                                selection: TextSelection.fromPosition(TextPosition(
+                                    affinity: TextAffinity.downstream,
+                                    offset: value.length)));
+                          });
+                        },
+                      ),
+                    ),
+                   /* Divider(
+                      height: 10.0,
+                      indent: 0.0,
+                      color: Colors.grey,
+                    ),
+                    ListTile(
+                      title: TextField(
+                        //最多输入行数
+                        maxLines: 1,
+                        autofocus: false,
+                        decoration: InputDecoration(
+                          hintText: "LCID：",
+                          //给文本框加边框
+                          border: OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                // 清空输入框内容
+                                lcidContent.clear();
+                              },
+                            )
+                        ),
+                        controller: this.lcidContent,
+                        //改变回调
+                        onChanged: (value) {
+                          setState(() {
+                            lcidContent.value = TextEditingValue(
+                                text: value,
+                                selection: TextSelection.fromPosition(TextPosition(
+                                    affinity: TextAffinity.downstream,
+                                    offset: value.length)));
+                          });
+                        },
+                      ),
+                    ),*/
+                    Divider(
+                      height: 10.0,
+                      indent: 0.0,
+                      color: Colors.grey,
+                    ),ListTile(
+                      title: TextField(
+                        //最多输入行数
+                        maxLines: 1,
+                        autofocus: false,
+                        decoration: InputDecoration(
+                          hintText: "账号：",
+                          //给文本框加边框
+                          border: OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                // 清空输入框内容
+                                usernameContent.clear();
+                              },
+                            )
+                        ),
+                        controller: this.usernameContent,
+                        //改变回调
+                        onChanged: (value) {
+                          setState(() {
+                              usernameContent.value = TextEditingValue(
+                                text: value,
+                                selection: TextSelection.fromPosition(TextPosition(
+                                    affinity: TextAffinity.downstream,
+                                    offset: value.length)));
+                          });
+                        },
+                      ),
+                    ),
+                    Divider(
+                      height: 10.0,
+                      indent: 0.0,
+                      color: Colors.grey,
+                    ),ListTile(
+                      title: TextField(
+                        //最多输入行数
+                        maxLines: 1,
+                        autofocus: false,
+                        decoration: InputDecoration(
+                          hintText: "密码：",
+                          //给文本框加边框
+                          border: OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                // 清空输入框内容
+                                passwordContent.clear();
+                              },
+                            )
+                        ),
+                        controller: this.passwordContent,
+                        //改变回调
+                        onChanged: (value) {
+                          setState(() {
+                            passwordContent.value = TextEditingValue(
+                                text: value,
+                                selection: TextSelection.fromPosition(TextPosition(
+                                    affinity: TextAffinity.downstream,
+                                    offset: value.length)));
+                          });
+                        },
+                      ),
+                    ),
+                    Divider(
+                      height: 10.0,
+                      indent: 0.0,
+                      color: Colors.grey,
+                    ),
+                  ]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 28.0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: RaisedButton(
+                          padding: EdgeInsets.all(15.0),
+                          child: Text("保存"),
+                          color: Theme.of(context).primaryColor,
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            if(this.acctidContent.text != '' && this.urlContent.text != ''&& this.passwordContent.text != ''&& this.usernameContent.text != ''){
+                              sharedPreferences.setString('url', this.urlContent.text);
+                              sharedPreferences.setString('acctId', this.acctidContent.text);
+                              /*sharedPreferences.setString('lcid', this.lcidContent.text);*/
+                              sharedPreferences.setString('username', this.usernameContent.text);
+                              sharedPreferences.setString('password', this.passwordContent.text);
+                              ToastUtil.showInfo('保存成功');
+                              Navigator.of(context).pop();
+                            }else{
+                              ToastUtil.showInfo('参数不能为空');
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+  //AlertDialog
+  Future showExitDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("提示"),
+          content: Text("$message"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("确定"),
+              onPressed: () {
+                //关闭对话框并返回true
+                Navigator.of(context).pop();
+                ToastUtil.showInfo('登录成功');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return IndexPage();
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
     print(ScreenUtil().scaleHeight);
-
     // logo 图片区域
     Widget logoImageArea = new Container(
       alignment: Alignment.topCenter,
@@ -147,7 +433,7 @@ class _LoginPageState extends State<LoginPage> {
               controller: _userNameController,
               focusNode: _focusNodeUserName,
               //设置键盘类型
-             /* keyboardType: TextInputType.number,*/
+              /* keyboardType: TextInputType.number,*/
               decoration: InputDecoration(
                 labelText: "用户名",
                 hintText: "请输入用户名",
@@ -199,7 +485,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-
     // 登录按钮区域
     Widget loginButtonArea = new Container(
       margin: EdgeInsets.only(left: 20, right: 20),
@@ -220,51 +505,87 @@ class _LoginPageState extends State<LoginPage> {
           if (_formKey.currentState.validate()) {
             //只有输入通过验证，才会执行这里
             _formKey.currentState.save();
-            Map<String,dynamic> map = Map();
-            map['username']='demo';
-            map['acctID']=API.ACCT_ID;
-            map['lcid']=API.lcid;
-            map['password']='123456';
-            ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
-            print(entity);
-            if (entity.data.loginResultType == 1) {
+            if(this.acctidContent.text != '' && this.urlContent.text != '' && this.passwordContent.text != '' && this.usernameContent.text != ''){
+              Map<String, dynamic> map = Map();
+              map['username'] = sharedPreferences.getString('username');
+              map['acctID'] =  sharedPreferences.getString('acctId');
+              map['lcid'] =  "2052";
+              map['password'] = sharedPreferences.getString('password');
+              ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
+              print(entity);
+              if (entity.data.loginResultType == 1) {
                 //  print("登录成功");
-              SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-              sharedPreferences.setString('username', 'demo');
-              sharedPreferences.setString('password', '123456');
-              Map<String,dynamic> userMap = Map();
-              userMap['FormId']='BD_Empinfo';
-              userMap['FilterString']= "FStaffNumber='$_username' and FPwd='$_password'";
-              userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX';/*FWorkShopID.FNumber,FWorkShopID.FName*/
-              Map<String,dynamic> dataMap = Map();
-              dataMap['data']=userMap;
-              String UserEntity = await CurrencyEntity.polling(dataMap);
-              sharedPreferences.setString('FStaffNumber', _username);
-              sharedPreferences.setString('FPwd', _password);
-              var resUser = jsonDecode(UserEntity);
-              if(resUser.length > 0){
-                print(resUser);
-                if(resUser[0][2] == 'A'){
-                  sharedPreferences.setString('MenuPermissions', UserEntity);
-                  /*sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
+                Map<String, dynamic> userMap = Map();
+                userMap['FormId'] = 'BD_Empinfo';
+                userMap['FilterString'] =
+                "FStaffNumber='$_username' and FPwd='$_password'";
+                userMap['FieldKeys'] =
+                'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX'; /*FWorkShopID.FNumber,FWorkShopID.FName*/
+                Map<String, dynamic> dataMap = Map();
+                dataMap['data'] = userMap;
+                String UserEntity = await CurrencyEntity.polling(dataMap);
+                var resUser = jsonDecode(UserEntity);
+                if (resUser.length > 0) {
+                  if (resUser[0][2] == 'A') {
+                    /*sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
                   sharedPreferences.setString('FWorkShopName', resUser[0][3]);*/
-                  ToastUtil.showInfo('登录成功');
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return IndexPage();
-                      },
-                    ),
-                  );
-                }else{
-                  ToastUtil.showInfo('该账号无登录权限');
+                    Map<String, dynamic> authorMap = Map();
+                    authorMap['auth'] = resUser[0][3];
+                    ApiResponse<AuthorizeEntity> author =
+                    await AuthorizeEntity.getAuthorize(authorMap);
+                    if (author.data.data.fStatus == "0") {
+                      Map<String, dynamic> empMap = Map();
+                      empMap['FormId'] = 'BD_Empinfo';
+                      empMap['FilterString'] =
+                      "FAuthCode='"+resUser[0][3]+"'";
+                      empMap['FieldKeys'] =
+                      'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode';
+                      Map<String, dynamic> empDataMap = Map();
+                      empDataMap['data'] = empMap;
+                      String EmpEntity = await CurrencyEntity.polling(empDataMap);
+                      var resEmp = jsonDecode(EmpEntity);
+                      if(author.data.data.fAuthNums > resEmp.length && resEmp.length > 0){
+                        sharedPreferences.setString('menuList', jsonEncode(author.data.data));
+                        sharedPreferences.setString('FStaffNumber', _username);
+                        sharedPreferences.setString('FPwd', _password);
+                        sharedPreferences.setString('MenuPermissions', UserEntity);
+                        if(author.data.data.fMessage == null){
+                          ToastUtil.showInfo('登录成功');
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return IndexPage();
+                              },
+                            ),
+                          );
+                        }else{
+                          this.message = author.data.data.fMessage;
+                          showExitDialog();
+                        }
+                      }else{
+                        ToastUtil.showInfo('无授予权限或者授权数量超过限定，请检查!');
+                      }
+                    }else{
+                      ToastUtil.errorDialog(context,
+                          author.data.data.fMessage);
+                    }
+                  } else {
+                    if (!resUser[0][0]['Result']['ResponseStatus']['IsSuccess']) {
+                      ToastUtil.showInfo(resUser[0][0]['Result']['ResponseStatus']
+                      ['Errors'][0]['Message']);
+                    } else {
+                      ToastUtil.showInfo('该账号无登录权限');
+                    }
+                  }
+                } else {
+                  ToastUtil.showInfo('用户名或密码错误');
                 }
-              }else {
-                ToastUtil.showInfo('用户名或密码错误');
+              } else {
+                ToastUtil.showInfo('登录失败');
               }
-            } else {
-              ToastUtil.showInfo('登录失败');
+            }else{
+              ToastUtil.showInfo('请配置登录信息,在登录页右上角,点击设置按钮进行配置');
             }
             //todo 登录操作
             print("$_username + $_password");
@@ -284,6 +605,10 @@ class _LoginPageState extends State<LoginPage> {
           appBar: AppBar(
             title: new Text('登录'),
             centerTitle: true,
+            actions: <Widget>[
+              new IconButton(
+                  icon: new Icon(Icons.settings), onPressed: _pushSaved),
+            ],
           ),
           // 外层添加一个手势，用于点击空白部分，回收键盘
           body: new GestureDetector(

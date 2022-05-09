@@ -124,7 +124,11 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
   getStockList() async {
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -134,7 +138,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
     });
   }
 
-  // 用户的爱好集合
+  // 查询数据集合
   List hobby = [];
 
   //获取订单信息
@@ -227,7 +231,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
     });
   }
 
-  Widget _item(title, var data, selectData, hobby, {String label}) {
+  Widget _item(title, var data, selectData, hobby, {String label,var stock}) {
     if (selectData == null) {
       selectData = "";
     }
@@ -237,9 +241,9 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => _onClickItem(data, selectData, hobby, label: label),
+            onTap: () => _onClickItem(data, selectData, hobby, label: label,stock: stock),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(hobby['value']['label'] ?? '暂无',
+              MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
                   color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
@@ -309,7 +313,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, hobby, {String label}) {
+  void _onClickItem(var data, var selectData, hobby, {String label,var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,
@@ -320,7 +324,9 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
-          hobby['value']['label'] = p;
+          setState(() {
+            hobby['value']['label'] = p;
+          });
           var elementIndex = 0;
           stockList.forEach((element) {
             if (element == p) {
@@ -379,8 +385,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
             );
           } else if (j == 6) {
             comList.add(
-              _item('仓库:', stockList, this.hobby[i][j]['label'],
-                  this.hobby[i][j]),
+              _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],stock:this.hobby[i]),
             );
           } else {
             comList.add(
@@ -446,7 +452,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                           style: TextStyle(color: Colors.black87),
                           keyboardType: TextInputType.number,
                           controller: this._textNumber,
-                          decoration: InputDecoration(hintText: "输入数量"),
+                          decoration: InputDecoration(hintText: "输入"),
                           onChanged: (value) {
                             setState(() {
                               this._FNumber = value;

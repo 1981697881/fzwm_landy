@@ -73,8 +73,8 @@ class _StockPageState extends State<StockPage> {
       orderDate = [];
       orderDate = jsonDecode(order);
       print(orderDate);
-      if (orderDate.length > 0) {
-        hobby = [];
+    hobby = [];
+    if (orderDate.length > 0) {
         orderDate.forEach((value) {
           List arr = [];
           arr.add({

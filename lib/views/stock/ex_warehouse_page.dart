@@ -6,19 +6,19 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:fzwm_landy/views/workshop/report_warehousing_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'ex_warehouse_detail.dart';
+import 'other_warehousing_detail.dart';
 
-class ReportWarehousingPage extends StatefulWidget {
-  ReportWarehousingPage({Key key}) : super(key: key);
+class ExWarehousePage extends StatefulWidget {
+  ExWarehousePage({Key key}) : super(key: key);
 
   @override
-  _ReportWarehousingPageState createState() => _ReportWarehousingPageState();
+  _ExWarehousePageState createState() => _ExWarehousePageState();
 }
 
-class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
+class _ExWarehousePageState extends State<ExWarehousePage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -67,20 +67,20 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FFinishQty>0 and FBillType.FNumber ='SCHBD01_SYS'";
+    userMap['FilterString'] = "FInStockQty >0";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FFinishQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FBillType.FNumber ='SCHBD01_SYS''";
+      "FInStockQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =
-      "FMaterialId.FNumber='$keyWord' and FFinishQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FBillType.FNumber ='SCHBD01_SYS'";
+      "FMaterialId.FNumber='$keyWord' and FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'PRD_MORPT';
+    userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkshipId.FNumber,FWorkshipId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FProduceDate,FQuaQty,FSrcBillNo,FStockInSelQty,FID';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FInStockQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -98,10 +98,11 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "生产组织",
-          "name": "FPrdOrgId",
+          "title": "采购组织",
+          "name": "FPurchaseOrgId",
           "isHide": false,
-          "value": {"label": value[2], "value": value[1]}
+          "value": {"label": value[9], "value": value[8]}
+
         });
         arr.add({
           "title": "单据日期",
@@ -128,22 +129,16 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "完成数量",
-          "name": "FBaseQty",
+          "title": "入库数量",
+          "name": "FQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
-          "title": "生产日期",
-          "name": "FProduceDate",
+          "title": "供应商",
+          "name": "FSupplierID",
           "isHide": false,
-          "value": {"label": value[13], "value": value[13]}
-        });
-        arr.add({
-          "title": "合格数量",
-          "name": "FBaseQty",
-          "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
+          "value": {"label": value[2], "value": value[1]}
         });
         hobby.add(arr);
       });
@@ -192,7 +187,7 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ReportWarehousingDetail(
+                          return ExWarehouseDetail(
                               FBillNo: this.hobby[i][0]['value']
                             // 路由参数
                           );
@@ -278,7 +273,6 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
     DateTime selectStart = selectTimeRange.start;
     //选择结果中的结束时间
     DateTime selectEnd = selectTimeRange.end;
-    print(_dateSelectText);
     setState(() {});
   }
 
@@ -298,7 +292,7 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("汇报入库"),
+            title: Text("其他出库"),
             centerTitle: true,
           ),
           body: CustomScrollView(

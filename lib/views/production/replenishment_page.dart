@@ -6,29 +6,35 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:fzwm_landy/views/workshop/report_warehousing_detail.dart';
+import 'package:fzwm_landy/views/production/picking_detail.dart';
+import 'package:fzwm_landy/views/production/replenishment_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ReportWarehousingPage extends StatefulWidget {
-  ReportWarehousingPage({Key key}) : super(key: key);
+class ReplenishmentPage extends StatefulWidget {
+  ReplenishmentPage({Key key}) : super(key: key);
 
   @override
-  _ReportWarehousingPageState createState() => _ReportWarehousingPageState();
+  _ReplenishmentPageState createState() => _ReplenishmentPageState();
 }
 
-class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
+class _ReplenishmentPageState extends State<ReplenishmentPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
   String endDate = '';
+
+  //生产车间
+  String FName = '';
+  String FNumber = '';
+  String username = '';
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
 
   static const scannerPlugin =
-  const EventChannel('com.shinow.pda_scanner/plugin');
+      const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
 
@@ -38,9 +44,10 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
-    DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    DateTime dateTime = DateTime.now();
+    DateTime newDate = dateTime.add(Duration(days: 4));
+    _dateSelectText =
+        "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
 
     /// 开启监听
     /* if (_subscription == null) {
@@ -64,89 +71,212 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
   // 集合
   List hobby = [];
 
+  void getWorkShop() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      if (sharedPreferences.getString('FWorkShopName') != null) {
+        username = sharedPreferences.getString('FStaffNumber');
+        FName = sharedPreferences.getString('FWorkShopName');
+        FNumber = sharedPreferences.getString('FWorkShopNumber');
+      }
+    });
+  }
+
   getOrderList() async {
-    EasyLoading.show(status: 'loading...');
+    setState(() {
+      hobby = [];
+      this._getHobby();
+    });
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FFinishQty>0 and FBillType.FNumber ='SCHBD01_SYS'";
+    userMap['FilterString'] = "FNoStockInQty>0";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
-      userMap['FilterString'] =
-      "FFinishQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FBillType.FNumber ='SCHBD01_SYS''";
     }
-    if (this.keyWord != '') {
+    if(this.keyWord != ''){
       userMap['FilterString'] =
-      "FMaterialId.FNumber='$keyWord' and FFinishQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FBillType.FNumber ='SCHBD01_SYS'";
+      "FSaleOrderNo='$keyWord' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'PRD_MORPT';
+    userMap['FilterString'] =
+    "FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+    userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkshipId.FNumber,FWorkshipId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FProduceDate,FQuaQty,FSrcBillNo,FStockInSelQty,FID';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
-    print(order);
     orderDate = [];
     orderDate = jsonDecode(order);
+    print(orderDate);
+    //获取当前的时间
+    DateTime now = DateTime.now();
+    DateTime start = DateTime(2022, 05, 30);
+    final difference = start.difference(now).inDays;
     hobby = [];
     if (orderDate.length > 0) {
-      orderDate.forEach((value) {
+      for (var value = 0; value < orderDate.length; value++) {
+        /* orderDate.forEach((value) async {*/
+        /* Map<String, dynamic> instockMap = Map();
+        instockMap['FilterString'] =
+        "FMoBillNo='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][19]}'";
+        instockMap['FormId'] = 'PRD_INSTOCK';
+        instockMap['FieldKeys'] = 'FID,FDocumentStatus';
+        Map<String, dynamic> dataMap1 = Map();
+        dataMap1['data'] = instockMap;
+        String order1 = await CurrencyEntity.polling(dataMap1);
+        Map<String, dynamic> pickmtrlMap = Map();
+        pickmtrlMap['FilterString'] =
+        "FMoBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][19]}'";
+        pickmtrlMap['FormId'] = 'PRD_PickMtrl';
+        pickmtrlMap['FieldKeys'] = 'FID,FDocumentStatus';
+        Map<String, dynamic> dataMap2 = Map();
+        dataMap2['data'] = pickmtrlMap;
+        String order2 = await CurrencyEntity.polling(dataMap2);
+        print(order1);
+        print(order2);*/
         List arr = [];
         arr.add({
           "title": "单据编号",
           "name": "FBillNo",
           "isHide": false,
-          "value": {"label": value[0], "value": value[0]}
+          "value": {"label": orderDate[value][0], "value": orderDate[value][0]}
         });
         arr.add({
           "title": "生产组织",
           "name": "FPrdOrgId",
-          "isHide": false,
-          "value": {"label": value[2], "value": value[1]}
+          "isHide": true,
+          "value": {"label": orderDate[value][2], "value": orderDate[value][1]}
         });
         arr.add({
           "title": "单据日期",
           "name": "FDate",
           "isHide": false,
-          "value": {"label": value[3], "value": value[3]}
+          "value": {"label": orderDate[value][3], "value": orderDate[value][3]}
         });
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": orderDate[value][5], "value": orderDate[value][4]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": false,
-          "value": {"label": value[7], "value": value[7]}
+          "value": {"label": orderDate[value][6], "value": orderDate[value][6]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
-          "value": {"label": value[11], "value": value[10]}
+          "value": {
+            "label": orderDate[value][11],
+            "value": orderDate[value][10]
+          }
         });
         arr.add({
-          "title": "完成数量",
+          "title": "数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {
+            "label": orderDate[value][12],
+            "value": orderDate[value][12]
+          }
         });
         arr.add({
-          "title": "生产日期",
-          "name": "FProduceDate",
+          "title": "生产序号",
+          "name": "FProdOrder",
           "isHide": false,
-          "value": {"label": value[13], "value": value[13]}
+          "value": {
+            /*"label": orderDate[value][18],
+            "value": orderDate[value][18]*/
+          }
         });
         arr.add({
-          "title": "合格数量",
+          "title": "计划开工日期",
           "name": "FBaseQty",
-          "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][13],
+            "value": orderDate[value][13]
+          }
         });
+        arr.add({
+          "title": "未入库数量",
+          "name": "FBaseQty",
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][16],
+            "value": orderDate[value][16]
+          }
+        });
+        arr.add({
+          "title": "行号",
+          "name": "FSeq",
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][18],
+            "value": orderDate[value][18]
+          }
+        });
+        arr.add({
+          "title": "分录内码",
+          "name": "FEntryId",
+          "isHide": true,
+          "value": {"label": orderDate[value][4], "value": orderDate[value][4]}
+        });
+        arr.add({
+          "title": "FID",
+          "name": "FID",
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][17],
+            "value": orderDate[value][17]
+          }
+        });
+        /*arr.add({
+          "title": "状态",
+          "name": "FStatus",
+          "isHide": false,
+          "value": {
+            "label": orderDate[value][20] == "3" ? "下达" : "开工",
+            "value": orderDate[value][20]
+          }
+        });
+        arr.add({
+          "title": "checked",
+          "name": "checked",
+          "isHide": true,
+          "value": false
+        });
+         var order1Date = jsonDecode(order1);
+        var order2Date = jsonDecode(order2);
+        if (order1Date.length > 0) {
+          arr.add({
+            "title": "入库单状态",
+            "name": "PRD_INSTOCK",
+            "isHide": false,
+            "value": {
+              "label": order1Date[0][1] == "A" ? "创建" : "审核中",
+              "value": order1Date[0][0]
+            }
+          });
+        }
+        if (order2Date.length > 0) {
+          arr.add({
+            "title": "领料单状态",
+            "name": "PRD_PickMtrl",
+            "isHide": false,
+            "value": {
+              "label": order2Date[0][1] == "A" ? "创建" : "审核中",
+              "value": order2Date[0][0]
+            }
+          });
+        }*/
         hobby.add(arr);
-      });
+      }
+      /*)*/;
+      print(hobby);
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -192,29 +322,28 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ReportWarehousingDetail(
-                              FBillNo: this.hobby[i][0]['value']
+                          return ReplenishmentDetail(
+                            FBillNo: this.hobby[i][0]['value'],
+                            FSeq: this.hobby[i][10]['value'],
                             // 路由参数
                           );
                         },
                       ),
                     ).then((data) {
                       //延时500毫秒执行
-                      Future.delayed(
-                          const Duration(milliseconds: 500),
-                              () {
-                            setState(() {
-                              //延时更新状态
-                              this.getOrderList();
-                            });
-                          });
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        setState(() {
+                          //延时更新状态
+                          this.getOrderList();
+                        });
+                      });
                     });
                   },
                   title: Text(this.hobby[i][j]["title"] +
                       '：' +
                       this.hobby[i][j]["value"]["label"].toString()),
                   trailing:
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                     /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
                   ]),
@@ -261,13 +390,13 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
     DateTime end = DateTime(start.year, start.month, start.day);
     //显示时间选择器
     DateTimeRange selectTimeRange = await showDateRangePicker(
-      //语言环境
+        //语言环境
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
-        firstDate: DateTime(now.year-3, now.month),
+        firstDate: DateTime(now.year - 3, now.month),
         //结束时间
-        lastDate: DateTime(now.year, now.month+1),
+        lastDate: DateTime(now.year, now.month + 1),
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
@@ -278,7 +407,6 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
     DateTime selectStart = selectTimeRange.start;
     //选择结果中的结束时间
     DateTime selectEnd = selectTimeRange.end;
-    print(_dateSelectText);
     setState(() {});
   }
 
@@ -298,7 +426,7 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("汇报入库"),
+            title: Text("补料"),
             centerTitle: true,
           ),
           body: CustomScrollView(
@@ -332,12 +460,12 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
-                                                    ._dateSelectText
-                                                    .substring(0, 10)),
+                                                        ._dateSelectText
+                                                        .substring(0, 10)),
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 decoration:
-                                                TextDecoration.none))),
+                                                    TextDecoration.none))),
                                   ),
                                   Expanded(
                                     flex: 1,
@@ -350,12 +478,12 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
-                                                    ._dateSelectText
-                                                    .substring(26, 36)),
+                                                        ._dateSelectText
+                                                        .substring(26, 36)),
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 decoration:
-                                                TextDecoration.none))),
+                                                    TextDecoration.none))),
                                   ),
                                 ],
                               ),
@@ -367,48 +495,48 @@ class _ReportWarehousingPageState extends State<ReportWarehousingPage> {
                                   child: new Card(
                                     child: new Container(
                                         child: Row(
-                                          crossAxisAlignment:
+                                      crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            SizedBox(
-                                              width: 6.0,
-                                            ),
-                                            Icon(
-                                              Icons.search,
-                                              color: Colors.grey,
-                                            ),
-                                            Expanded(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                child: TextField(
-                                                  controller: this.controller,
-                                                  decoration: new InputDecoration(
-                                                      contentPadding:
+                                      children: <Widget>[
+                                        SizedBox(
+                                          width: 6.0,
+                                        ),
+                                        Icon(
+                                          Icons.search,
+                                          color: Colors.grey,
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            child: TextField(
+                                              controller: this.controller,
+                                              decoration: new InputDecoration(
+                                                  contentPadding:
                                                       EdgeInsets.only(
                                                           bottom: 12.0),
-                                                      hintText: '输入关键字',
-                                                      border: InputBorder.none),
-                                                  onSubmitted: (value) {
-                                                    setState(() {
-                                                      this.keyWord = value;
-                                                      this.getOrderList();
-                                                    });
-                                                  },
-                                                  // onChanged: onSearchTextChanged,
-                                                ),
-                                              ),
-                                            ),
-                                            new IconButton(
-                                              icon: new Icon(Icons.cancel),
-                                              color: Colors.grey,
-                                              iconSize: 18.0,
-                                              onPressed: () {
-                                                this.controller.clear();
-                                                // onSearchTextChanged('');
+                                                  hintText: '输入关键字',
+                                                  border: InputBorder.none),
+                                              onSubmitted: (value) {
+                                                setState(() {
+                                                  this.keyWord = value;
+                                                  this.getOrderList();
+                                                });
                                               },
+                                              // onChanged: onSearchTextChanged,
                                             ),
-                                          ],
-                                        )),
+                                          ),
+                                        ),
+                                        new IconButton(
+                                          icon: new Icon(Icons.cancel),
+                                          color: Colors.grey,
+                                          iconSize: 18.0,
+                                          onPressed: () {
+                                            this.controller.clear();
+                                            // onSearchTextChanged('');
+                                          },
+                                        ),
+                                      ],
+                                    )),
                                   )),
                             ),
                           ],
@@ -437,8 +565,8 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
 
   StickyTabBarDelegate(
       {@required this.minHeight,
-        @required this.maxHeight,
-        @required this.child});
+      @required this.maxHeight,
+      @required this.child});
 
   @override
   Widget build(

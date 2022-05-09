@@ -2,16 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm_landy/utils/menu_permissions.dart';
-import 'package:fzwm_landy/views/drawing/drawing_page.dart';
-import 'package:fzwm_landy/views/production/warehousing_detail.dart';
-import 'package:fzwm_landy/views/production/warehousing_page.dart';
-import 'package:fzwm_landy/views/sale/retrieval_detail.dart';
-import 'package:fzwm_landy/views/sale/retrieval_page.dart';
-import 'package:fzwm_landy/views/sale/return_goods_detail.dart';
-import 'package:fzwm_landy/views/sale/return_goods_page.dart';
-import 'package:fzwm_landy/views/stock/stock_page.dart';
-import 'package:fzwm_landy/views/workshop/report_warehousing_page.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class MiddleLayerPage extends StatefulWidget {
@@ -27,6 +18,7 @@ class MiddleLayerPage extends StatefulWidget {
 class _MiddleLayerPageState extends State<MiddleLayerPage> {
   int currentIndex;
   String menuTitle;
+  SharedPreferences sharedPreferences;
   _MiddleLayerPageState(int menuId, String menuTitle){
     this.currentIndex = menuId;
     this.menuTitle = menuTitle;
@@ -36,10 +28,14 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
 
   @override
   void initState() {
-    MenuPermissions.getMenu();
     super.initState();
+    Future.delayed(Duration.zero, () => setState(() {
+      _load();
+    }));
   }
-
+  _load() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+  }
   @override
   void dispose() {
     super.dispose();
@@ -59,7 +55,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
                     offset: Offset(4.0, 15.0), //阴影xy轴偏移量
                     blurRadius: 15.0, //阴影模糊程度
                     spreadRadius: 1.0 //阴影扩散程度
-                    )
+                )
               ],
               borderRadius: BorderRadius.all(
                 //圆角
@@ -95,8 +91,8 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
 
   // tabs 容器
   Widget buildAppBarTabs() {
-    var menu = MenuPermissions.getMenuChild();
-    /*[
+    var menu = MenuPermissions.getMenuChild(sharedPreferences.getString('MenuPermissions'));
+    /* [
       {
         "icon": Icons.loupe,
         "text": "生产入库",
@@ -132,6 +128,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
         "router": ReportWarehousingPage()
       },
     ];*/
+    print(menu);
     var childMenu = List<Map<String, dynamic>>();
     menu.forEach((value) {
       if(value['parentId'] == this.currentIndex){

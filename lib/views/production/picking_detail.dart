@@ -28,7 +28,7 @@ class PickingDetail extends StatefulWidget {
   var FSeq;
   var FEntryId;
   var FID;
-  var f_wk_xh;
+  var FProdOrder;
   var FBarcode;
 
   PickingDetail(
@@ -38,14 +38,13 @@ class PickingDetail extends StatefulWidget {
       @required this.FEntryId,
       @required this.FID,
       @required this.FBarcode,
-      @required this.f_wk_xh})
+      @required this.FProdOrder})
       : super(key: key);
 
   @override
   _PickingDetailState createState() =>
-      _PickingDetailState(FBillNo, FSeq, FEntryId, FID, f_wk_xh,FBarcode);
+      _PickingDetailState(FBillNo, FSeq, FEntryId, FID, FProdOrder,FBarcode);
 }
-
 class _PickingDetailState extends State<PickingDetail> {
   GlobalKey<TextWidgetState> textKey = GlobalKey();
   GlobalKey<TextWidgetState> FBillNoKey = GlobalKey();
@@ -89,15 +88,15 @@ class _PickingDetailState extends State<PickingDetail> {
   var fBillNo;
   var fEntryId;
   var fid;
-  var f_wk_xh;
+  var FProdOrder;
   var FBarcode;
 
-  _PickingDetailState(fBillNo, FSeq, fEntryId, fid, f_wk_xh,FBarcode) {
+  _PickingDetailState(fBillNo, FSeq, fEntryId, fid, FProdOrder,FBarcode) {
     this.fBillNo = fBillNo['value'];
     this.FSeq = FSeq['value'];
     this.fEntryId = fEntryId['value'];
     this.fid = fid['value'];
-    this.f_wk_xh = f_wk_xh['value'];
+    this.FProdOrder = FProdOrder['value'];
     this.FBarcode = FBarcode;
     this.getOrderList();
   }
@@ -108,7 +107,6 @@ class _PickingDetailState extends State<PickingDetail> {
     DateTime dateTime = DateTime.now();
     var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     selectData[DateMode.YMD] = nowDate;
-
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
@@ -147,7 +145,11 @@ class _PickingDetailState extends State<PickingDetail> {
   getStockList() async {
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -157,12 +159,11 @@ class _PickingDetailState extends State<PickingDetail> {
     });
   }
 
-  // 用户的爱好集合
+  // 查询数据集合
   List hobby = [];
 
   //获取订单信息
   getOrderList() async {
-
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] =
         "FNoPickedQty>0 and FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq'";
@@ -177,10 +178,10 @@ class _PickingDetailState extends State<PickingDetail> {
     DateTime dateTime = DateTime.now();
     FDate =
         "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
+    hobby = [];
     if (orderDate.length > 0) {
       FStockOrgId = orderDate[0][1].toString();
       FPrdOrgId = orderDate[0][1].toString();
-      hobby = [];
       orderDate.forEach((value) {
         List arr = [];
         arr.add({
@@ -245,16 +246,19 @@ class _PickingDetailState extends State<PickingDetail> {
     });
   }
 
-  Widget _item(title, var data, var selectData, {String label}) {
+  Widget _item(title, var data, selectData, hobby, {String label,var stock}) {
+    if (selectData == null) {
+      selectData = "";
+    }
     return Column(
       children: [
         Container(
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => _onClickItem(data, selectData, label: label),
+            onTap: () => _onClickItem(data, selectData, hobby, label: label,stock: stock),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(selectData.toString() ?? '暂无',
+              MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
                   color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
@@ -324,7 +328,7 @@ class _PickingDetailState extends State<PickingDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, {String label}) {
+  void _onClickItem(var data, var selectData, hobby, {String label,var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,
@@ -349,7 +353,6 @@ class _PickingDetailState extends State<PickingDetail> {
       },
     );
   }
-
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
@@ -457,7 +460,7 @@ class _PickingDetailState extends State<PickingDetail> {
                           style: TextStyle(color: Colors.black87),
                           keyboardType: TextInputType.number,
                           controller: this._textNumber,
-                          decoration: InputDecoration(hintText: "输入数量"),
+                          decoration: InputDecoration(hintText: "输入"),
                           onChanged: (value) {
                             setState(() {
                               this._FNumber = value;
@@ -528,14 +531,14 @@ class _PickingDetailState extends State<PickingDetail> {
     var startRes = await this.alterStatus(dataMap);
     print(startRes);
     if (startRes['Result']['ResponseStatus']['IsSuccess']) {
-      var serialNum = f_wk_xh.truncate();
+      var serialNum = FProdOrder.truncate();
       for(var i = serialNum;i<=4;i++){
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum).toString() + " and f_wk_xh <" + (serialNum + 1).toString();
+        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum).toString() + " and FProdOrder <" + (serialNum + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
-        'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
+        'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
         Map<String, dynamic> proMoDataMap = Map();
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
@@ -546,10 +549,10 @@ class _PickingDetailState extends State<PickingDetail> {
       }
       //查询生产订单
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum+1).toString() + " and f_wk_xh <" + (serialNum + 2).toString();
+      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum+1).toString() + " and FProdOrder <" + (serialNum + 2).toString();
       userMap['FormId'] = "PRD_MO";
       userMap['FieldKeys'] =
-      'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
+      'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
       Map<String, dynamic> proMoDataMap = Map();
       proMoDataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(proMoDataMap);
@@ -683,7 +686,12 @@ class _PickingDetailState extends State<PickingDetail> {
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
           //提交清空页面
-          handlerStatus();
+          /*handlerStatus();*/
+          this.hobby = [];
+          this.orderDate = [];
+          this.FBillNo = '';
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");
         } else {
           unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
           /*setState(() {
@@ -821,7 +829,6 @@ class _PickingDetailState extends State<PickingDetail> {
         collarOrderDate = resData;
         saveOrder();
       } else {
-
         setState(() {
           this.isSubmit = false;
           ToastUtil.errorDialog(context,

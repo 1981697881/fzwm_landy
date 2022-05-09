@@ -28,6 +28,9 @@ class HandlerOrder {
   // 订单删除
   // ignore: missing_return
   static void orderDelete(BuildContext context,Map<String, dynamic> map, title) async {
+    if(title==null){
+      title = "";
+    }
     var subData = await SubmitEntity.delete(map);
     var res = jsonDecode(subData);
     if (res != null) {
@@ -36,7 +39,7 @@ class HandlerOrder {
             title);
       } else {
         ToastUtil.errorDialog(context,
-            res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            "保存反馈："+title+"、删除反馈："+res['Result']['ResponseStatus']['Errors'][0]['Message']);
       }
     }
   }
