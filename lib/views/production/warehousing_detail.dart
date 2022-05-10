@@ -59,6 +59,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   var isScanWork = false;
   var isSubmit = false;
   var checkData;
+  var fOrgID;
   var checkDataChild;
   //仓库
   var stockList = [];
@@ -102,9 +103,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           .listen(_onEvent, onError: _onError);
     }
    /* getWorkShop();*/
-    getStockList();
+
   }
-//获取仓库
+  //获取仓库
   getStockList() async {
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
@@ -112,7 +113,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    if(fOrgID == null){
+      this.fOrgID = deptData[1];
+    }
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ="+fOrgID;
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -167,6 +171,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         selectData[DateMode.YMDHMS] = orderDate[0][3].substring(0, 10);
         FSaleOrderNo = orderDate[0][4];
         globalKey.currentState.update();
+        this.fOrgID = orderDate[0][1];
         /*FBillNoKey.currentState.onPressed(orderDate[0][0]);
     FSaleOrderNoKey.currentState.onPressed(orderDate[0][4]);*/
         hobby = [];
@@ -226,6 +231,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         });
         ToastUtil.showInfo('无数据');
       }
+      getStockList();
     } else {
       EasyLoading.dismiss();
       _code = '';
@@ -237,6 +243,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         checkItem = 'FBillNo';
         ToastUtil.showInfo('请扫描生产单号');
       }
+      getStockList();
       scanDialog();
     }
   }
@@ -494,12 +501,12 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               divider,
             ]),
           );
-        } else if (j == 5 || j == 7) {
+        } else if (j == 5) {
           comList.add(
             _item('良品仓库:', stockList, this.hobby[i][j]['value']['label'],
                 this.hobby[i][j],stock:this.hobby[i]),
           );
-        } else if (j == 5 || j == 7) {
+        } else if (j == 7) {
           comList.add(
             _item('不良品仓库:', stockList, this.hobby[i][j]['value']['label'],
                 this.hobby[i][j],stock:this.hobby[i]),

@@ -3,39 +3,46 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm_landy/utils/menu_permissions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class MiddleLayerPage extends StatefulWidget {
   final int menuId;
   final String menuTitle;
 
-  MiddleLayerPage({Key key,@required this.menuId,@required this.menuTitle}) : super(key: key);
+  MiddleLayerPage({Key key, @required this.menuId, @required this.menuTitle})
+      : super(key: key);
 
   @override
-  _MiddleLayerPageState createState() => _MiddleLayerPageState(menuId,menuTitle);
+  _MiddleLayerPageState createState() =>
+      _MiddleLayerPageState(menuId, menuTitle);
 }
 
 class _MiddleLayerPageState extends State<MiddleLayerPage> {
   int currentIndex;
   String menuTitle;
   SharedPreferences sharedPreferences;
-  _MiddleLayerPageState(int menuId, String menuTitle){
+
+  _MiddleLayerPageState(int menuId, String menuTitle) {
     this.currentIndex = menuId;
     this.menuTitle = menuTitle;
     print(currentIndex);
   }
 
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () => setState(() {
-      _load();
-    }));
+    Future.delayed(
+        Duration.zero,
+        () => setState(() {
+              _load();
+            }));
   }
+
   _load() async {
     sharedPreferences = await SharedPreferences.getInstance();
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -44,54 +51,53 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   /*一个渐变颜色的正方形集合*/
   List<Widget> Boxs(List<Map<String, dynamic>> menu) =>
       List.generate(menu.length, (index) {
-        return Container(
-            width: 130,
-            height: 60,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black12,
-                    offset: Offset(4.0, 15.0), //阴影xy轴偏移量
-                    blurRadius: 15.0, //阴影模糊程度
-                    spreadRadius: 1.0 //阴影扩散程度
-                )
-              ],
-              borderRadius: BorderRadius.all(
-                //圆角
-                Radius.circular(10.0),
-              ),
-              gradient: LinearGradient(colors: [
-                Colors.lightBlueAccent,
-                Colors.blue,
-                Colors.blueAccent
-              ]),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => menu[index]['router']),
-                    );
-                  },
-                  child: Container(
-                    child: Text(
-                      menu[index]['text'],
-                      style: TextStyle(color: Colors.white),
-                    ),
+        return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => menu[index]['router']),
+              );
+            },
+            child: Container(
+                width: 130,
+                height: 60,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black12,
+                        offset: Offset(4.0, 15.0), //阴影xy轴偏移量
+                        blurRadius: 15.0, //阴影模糊程度
+                        spreadRadius: 1.0 //阴影扩散程度
+                        )
+                  ],
+                  borderRadius: BorderRadius.all(
+                    //圆角
+                    Radius.circular(10.0),
                   ),
+                  gradient: LinearGradient(colors: [
+                    Colors.lightBlueAccent,
+                    Colors.blue,
+                    Colors.blueAccent
+                  ]),
                 ),
-              ],
-            ));
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      child: Text(
+                        menu[index]['text'],
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                )));
       });
 
   // tabs 容器
   Widget buildAppBarTabs() {
-    var menu = MenuPermissions.getMenuChild(sharedPreferences.getString('MenuPermissions'));
+    var menu = MenuPermissions.getMenuChild(
+        sharedPreferences.getString('MenuPermissions'));
     /* [
       {
         "icon": Icons.loupe,
@@ -131,7 +137,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
     print(menu);
     var childMenu = List<Map<String, dynamic>>();
     menu.forEach((value) {
-      if(value['parentId'] == this.currentIndex){
+      if (value['parentId'] == this.currentIndex) {
         print(value);
         childMenu.add(value);
       }
