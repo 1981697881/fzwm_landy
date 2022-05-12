@@ -302,12 +302,12 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     var deptData = jsonDecode(menuData)[0];
     var scanCode = _code.split(",");
     userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockOrgId.FNumber = "+deptData[1];
-    if(scanCode[1] != ""){
+    /*if(scanCode.length > 1){
       userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockOrgId.FNumber = "+deptData[1];
-    }
-    userMap['FormId'] = 'STK_Inventory';
+    }*/
+    userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-    'FID,FMaterialName,FMaterialId.FNumber,FModel,FBaseUnitId.FName,FBaseUnitId.FNumber,FLot.FNumber,FQty,FStockId.FNumber,FStockName,FStockLocId,FStockId.FIsOpenLocation,FMaterialId.FIsBatchManage';
+    'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -371,7 +371,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             "value": {"label": value[4], "value": value[5]}
           });
           arr.add({
-            "title": "出库数量",
+            "title": "入库数量",
             "name": "FRealQty",
             "isHide": false,
             "value": {"label": "1", "value": "1"}
@@ -380,19 +380,19 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             "title": "仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": value[9], "value": value[8]}
+            "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "批号",
             "name": "FLot",
-            "isHide": value[12] != true,
-            "value": {"label": value[6], "value": value[6]}
+            "isHide": value[6] != true,
+            "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):''}
           });
           arr.add({
             "title": "仓位",
             "name": "FStockLocID",
             "isHide": false,
-            "value": {"label": "", "value": "","hide": value[11]}
+            "value": {"label": "", "value": "","hide": false}
           });
           arr.add({
             "title": "加工费",
