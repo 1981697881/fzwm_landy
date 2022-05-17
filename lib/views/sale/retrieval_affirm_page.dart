@@ -8,17 +8,17 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fzwm_landy/views/sale/retrieval_affirm_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
-import 'purchase_warehousing_detail.dart';
 
-class PurchaseWarehousingPage extends StatefulWidget {
-  PurchaseWarehousingPage({Key key}) : super(key: key);
+class RetrievalAffirmPage extends StatefulWidget {
+  RetrievalAffirmPage({Key key}) : super(key: key);
 
   @override
-  _PurchaseWarehousingPageState createState() => _PurchaseWarehousingPageState();
+  _RetrievalAffirmPageState createState() => _RetrievalAffirmPageState();
 }
 
-class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
+class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -73,11 +73,11 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FDate>= '$startDate' and FCloseStatus = 'A' and FDate <= '$endDate'";
+      "FDate>= '$startDate' and FDocumentStatus in ('A','D') and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =/*and FInStockQty>0*/
-      "FBillNo='"+scanCode[0]+"' and FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['FieldKeys'] =
@@ -187,7 +187,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return PurchaseWarehousingDetail(
+                          return RetrievalAffirmDetail(
                               FBillNo: this.hobby[i][0]['value']
                             // 路由参数
                           );
@@ -294,7 +294,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("采购入库"),
+            title: Text("销售出库确认"),
             centerTitle: true,
           ),
           body: CustomScrollView(

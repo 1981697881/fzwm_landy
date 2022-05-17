@@ -321,7 +321,9 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(_code) == -1){
-              element[0]['value']['barcode'].add(_code);
+              if(scanCode.length>4 && scanCode[3] == "N"){
+                element[0]['value']['barcode'].add(_code);
+              }
               element[3]['value']['label']=(double.parse(element[3]['value']['label'])+1).toString();
               element[3]['value']['value']=(double.parse(element[3]['value']['label'])+1).toString();
               number++;
@@ -336,14 +338,18 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(_code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
-                element[0]['value']['barcode'].add(_code);
+                if(scanCode.length>4 && scanCode[3] == "N"){
+                  element[0]['value']['barcode'].add(_code);
+                }
                 element[3]['value']['label']=(double.parse(element[3]['value']['label'])+1).toString();
                 element[3]['value']['value']=(double.parse(element[3]['value']['label'])+1).toString();
                 number++;
                 break;
               }else{
                 if(element[5]['value']['value'] == ""){
-                  element[0]['value']['barcode'].add(_code);
+                  if(scanCode.length>4 && scanCode[3] == "N"){
+                    element[0]['value']['barcode'].add(_code);
+                  }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   element[3]['value']['label']=(double.parse(element[3]['value']['label'])+1).toString();
@@ -397,7 +403,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             "title": "批号",
             "name": "FLot",
             "isHide": value[6] != true,
-            "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):''}
+            "value": {"label": value[6]?scanCode[1]:'', "value": value[6]?scanCode[1]:''}
           });
           arr.add({
             "title": "仓位",

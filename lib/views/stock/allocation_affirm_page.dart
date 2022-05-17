@@ -8,17 +8,17 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fzwm_landy/views/stock/allocation_affirm_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
-import 'purchase_warehousing_detail.dart';
 
-class PurchaseWarehousingPage extends StatefulWidget {
-  PurchaseWarehousingPage({Key key}) : super(key: key);
+class AllocationAffirmPage extends StatefulWidget {
+  AllocationAffirmPage({Key key}) : super(key: key);
 
   @override
-  _PurchaseWarehousingPageState createState() => _PurchaseWarehousingPageState();
+  _AllocationAffirmPageState createState() => _AllocationAffirmPageState();
 }
 
-class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
+class _AllocationAffirmPageState extends State<AllocationAffirmPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -67,21 +67,20 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FInStockQty >0";
     var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FDate>= '$startDate' and FCloseStatus = 'A' and FDate <= '$endDate'";
+      "FDate>= '$startDate' and FDocumentStatus in ('A','D') and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =/*and FInStockQty>0*/
-      "FBillNo='"+scanCode[0]+"' and FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'PUR_ReceiveBill';
+    userMap['FormId'] = 'STK_TransferDirect';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID';
+    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FBillEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOutOrgId.FNumber,FStockOutOrgId.FName,FUnitID.FNumber,FUnitID.FName,FQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -98,8 +97,8 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "采购组织",
-          "name": "FPurchaseOrgId",
+          "title": "调入库存组织",
+          "name": "",
           "isHide": false,
           "value": {"label": value[9], "value": value[8]}
 
@@ -133,12 +132,6 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "name": "FQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
-        });
-        arr.add({
-          "title": "供应商",
-          "name": "FSupplierID",
-          "isHide": false,
-          "value": {"label": value[2], "value": value[1]}
         });
         hobby.add(arr);
       });
@@ -187,7 +180,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return PurchaseWarehousingDetail(
+                          return AllocationAffirmDetail(
                               FBillNo: this.hobby[i][0]['value']
                             // 路由参数
                           );
@@ -294,7 +287,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("采购入库"),
+            title: Text("领料确认"),
             centerTitle: true,
           ),
           body: CustomScrollView(

@@ -20,6 +20,7 @@ import 'package:flutter_pickers/utils/check.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fzwm_landy/components/my_text.dart';
+
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class WarehousingDetail extends StatefulWidget {
@@ -30,15 +31,19 @@ class WarehousingDetail extends StatefulWidget {
   var FProdOrder;
   var FBarcode;
 
-  WarehousingDetail({Key key,  @required this.FBillNo,
-    @required this.FSeq,
-    @required this.FEntryId,
-    @required this.FID,
-    @required this.FBarcode,
-    @required this.FProdOrder}) : super(key: key);
+  WarehousingDetail(
+      {Key key,
+      @required this.FBillNo,
+      @required this.FSeq,
+      @required this.FEntryId,
+      @required this.FID,
+      @required this.FBarcode,
+      @required this.FProdOrder})
+      : super(key: key);
 
   @override
-  _WarehousingDetailState createState() => _WarehousingDetailState(FBillNo, FSeq, FEntryId, FID, FProdOrder,FBarcode);
+  _WarehousingDetailState createState() => _WarehousingDetailState(
+      FBillNo, FSeq, FEntryId, FID, FProdOrder, FBarcode);
 }
 
 class _WarehousingDetailState extends State<WarehousingDetail> {
@@ -61,6 +66,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   var checkData;
   var fOrgID;
   var checkDataChild;
+
   //仓库
   var stockList = [];
   List<dynamic> stockListObj = [];
@@ -68,11 +74,12 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     DateMode.YMDHMS: '',
   };
   List<dynamic> orderDate = [];
+  List<dynamic> materialDate = [];
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
-  const EventChannel('com.shinow.pda_scanner/plugin');
+      const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
   var _FNumber;
@@ -82,7 +89,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   var fid;
   var FProdOrder;
   var FBarcode;
-  _WarehousingDetailState(fBillNo, FSeq, fEntryId, fid, FProdOrder,FBarcode) {
+
+  _WarehousingDetailState(fBillNo, FSeq, fEntryId, fid, FProdOrder, FBarcode) {
     this.FBillNo = fBillNo['value'];
     this.FSeq = FSeq['value'];
     this.fEntryId = fEntryId['value'];
@@ -102,9 +110,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-   /* getWorkShop();*/
-
+    /* getWorkShop();*/
   }
+
   //获取仓库
   getStockList() async {
     Map<String, dynamic> userMap = Map();
@@ -113,10 +121,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    if(fOrgID == null){
+    if (fOrgID == null) {
       this.fOrgID = deptData[1];
     }
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ="+fOrgID;
+    userMap['FilterString'] =
+        "FForbidStatus = 'A' and FUseOrgId.FNumber =" + fOrgID;
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -125,6 +134,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       stockList.add(element[1]);
     });
   }
+
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -135,7 +145,6 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       } else {
         isScanWork = false;
       }
-
     });
   }
 
@@ -157,10 +166,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     if (FBillNo != '') {
       Map<String, dynamic> userMap = Map();
       userMap['FilterString'] =
-      "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (4)";
+          "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (4)";
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
-      'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FStatus,FStockId.FNumber,FStockId.FName,FRequestOrgId.FNumber';
+          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FStatus,FStockId.FNumber,FStockId.FName,FRequestOrgId.FNumber,FMaterialId.FIsBatchManage';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -180,41 +189,49 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           arr.add({
             "title": "物料子码",
             "name": "FMaterialId",
-            "value": {"label": value[6], "value": value[6]}
+            "isHide": false,
+            "value": {"label": value[6], "value": value[6], "barcode": []}
           });
           arr.add({
             "title": "生产车间",
             "name": "FWorkShopID",
+            "isHide": false,
             "value": {"label": value[10], "value": value[9]}
           });
           arr.add({
             "title": "预测批号",
             "name": "",
+            "isHide": value[23] != true,
             "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "需生产数量",
             "name": "FQty",
+            "isHide": false,
             "value": {"label": value[13], "value": value[13]}
           });
           arr.add({
             "title": "良品数量",
             "name": "goodProductNumber",
-            "value": {"label": value[13], "value": value[13]}
+            "isHide": false,
+            "value": {"label": "0", "value": "0"}
           });
           arr.add({
             "title": "良品仓库",
             "name": "goodProductStock",
+            "isHide": false,
             "value": {"label": value[21], "value": value[20]}
           });
           arr.add({
             "title": "不合格数量",
             "name": "rejectsNumber",
+            "isHide": false,
             "value": {"label": "0", "value": "0"}
           });
           arr.add({
             "title": "不合格仓库",
             "name": "rejectsStock",
+            "isHide": false,
             "value": {"label": "", "value": ""}
           });
           hobby.add(arr);
@@ -278,17 +295,161 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           Navigator.pop(context);
           setState(() {
             this.hobby[checkData][checkDataChild]["value"]['label'] =
-            _code.split(',')[1];
+                _code.split(',')[1];
             this.hobby[checkData][checkDataChild]['value']["value"] =
-            _code.split(',')[0];
+                _code.split(',')[0];
           });
           break;
       }
     } else {
-      ToastUtil.showInfo('请点击扫描行扫描图标');
+      this.getMaterialList();
+     /* ToastUtil.showInfo('请点击扫描行扫描图标');*/
     }
     print("ChannelPage: $event");
     /*});*/
+  }
+
+  getMaterialList() async {
+    Map<String, dynamic> userMap = Map();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    var scanCode = _code.split(",");
+    userMap['FilterString'] = "FNumber='" +
+        scanCode[0] +
+        "' and FForbidStatus = 'A' and FUseOrgId.FNumber = " +
+        deptData[1];
+    userMap['FormId'] = 'BD_MATERIAL';
+    userMap['FieldKeys'] =
+    'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String order = await CurrencyEntity.polling(dataMap);
+    materialDate = [];
+    materialDate = jsonDecode(order);
+    if (materialDate.length > 0) {
+      var number = 0;
+      for (var element in hobby) {
+        //判断是否启用批号
+        if (element[2]['isHide']) {
+          //不启用
+          if (element[0]['value']['value'] == scanCode[0]) {
+            if (element[0]['value']['barcode'].indexOf(_code) == -1) {
+              element[0]['value']['barcode'].add(_code);
+              element[4]['value']['label'] =
+                  (double.parse(element[4]['value']['label']) + 1).toString();
+              element[4]['value']['value'] =
+                  (double.parse(element[4]['value']['label']) + 1).toString();
+              number++;
+              break;
+            } else {
+              ToastUtil.showInfo('该标签已扫描');
+              number++;
+              break;
+            }
+          }
+        } else {
+          if (element[0]['value']['value'] == scanCode[0]) {
+            if (element[0]['value']['barcode'].indexOf(_code) == -1) {
+              if (element[2]['value']['value'] == scanCode[1]) {
+                element[0]['value']['barcode'].add(_code);
+                element[4]['value']['label'] =
+                    (double.parse(element[4]['value']['label']) + 1).toString();
+                element[4]['value']['value'] =
+                    (double.parse(element[4]['value']['label']) + 1).toString();
+                number++;
+                break;
+              } else {
+                if (element[2]['value']['value'] == "") {
+                  element[0]['value']['barcode'].add(_code);
+                  element[2]['value']['label'] = scanCode[1];
+                  element[2]['value']['value'] = scanCode[1];
+                  element[4]['value']['label'] =
+                      (double.parse(element[4]['value']['label']) + 1)
+                          .toString();
+                  element[4]['value']['value'] =
+                      (double.parse(element[4]['value']['label']) + 1)
+                          .toString();
+                  number++;
+                  break;
+                }
+              }
+            } else {
+              ToastUtil.showInfo('该标签已扫描');
+              number++;
+              break;
+            }
+          }
+        }
+      }
+      if (number == 0 && this.fBillNo == "") {
+        materialDate.forEach((value) {
+          List arr = [];
+          arr.add({
+            "title": "物料子码",
+            "name": "FMaterialId",
+            "isHide": false,
+            "value": {"label": value[1], "value": value[2], "barcode": []}
+          });
+          arr.add({
+            "title": "生产车间",
+            "name": "FWorkShopID",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "预测批号",
+            "name": "",
+            "isHide": value[6] != true,
+            "value": {
+              "label": value[6] ? (scanCode.length > 1 ? scanCode[1] : '') : '',
+              "value": value[6] ? (scanCode.length > 1 ? scanCode[1] : '') : ''
+            }
+          });
+          arr.add({
+            "title": "需生产数量",
+            "name": "FQty",
+            "isHide": false,
+            "value": {"label": "0", "value": "0"}
+          });
+          arr.add({
+            "title": "良品数量",
+            "name": "goodProductNumber",
+            "isHide": false,
+            "value": {"label": "0", "value": "0"}
+          });
+          arr.add({
+            "title": "良品仓库",
+            "name": "goodProductStock",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "不合格数量",
+            "name": "rejectsNumber",
+            "isHide": false,
+            "value": {"label": "0", "value": "0"}
+          });
+          arr.add({
+            "title": "不合格仓库",
+            "name": "rejectsStock",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          hobby.add(arr);
+        });
+      }
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+    } else {
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+      ToastUtil.showInfo('无数据');
+    }
   }
 
   void _onError(Object error) {
@@ -297,7 +458,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     });
   }
 
-  Widget _item(title, var data, selectData, hobby, {String label,var stock}) {
+  Widget _item(title, var data, selectData, hobby, {String label, var stock}) {
     if (selectData == null) {
       selectData = "";
     }
@@ -307,9 +468,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => _onClickItem(data, selectData, hobby, label: label,stock: stock),
+            onTap: () => _onClickItem(data, selectData, hobby,
+                label: label, stock: stock),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
+              MyText(selectData.toString() == "" ? '暂无' : selectData.toString(),
                   color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
@@ -379,7 +541,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, hobby, {String label,var stock}) {
+  void _onClickItem(var data, var selectData, hobby,
+      {String label, var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,
@@ -430,7 +593,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                 title: Text('退出登录'),
                 onTap: () async {
                   SharedPreferences prefs =
-                  await SharedPreferences.getInstance();
+                      await SharedPreferences.getInstance();
                   prefs.clear();
                   Navigator.pushReplacement(
                     context,
@@ -459,77 +622,86 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
-        if (j == 4 || j == 6) {
-          /*comList.add(
+        if (!this.hobby[i][j]['isHide']) {
+          if (j == 4 || j == 6) {
+            /*comList.add(
             _item(this.hobby[j]["title"], ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'],
                 this.hobby[j]["value"]),
           );*/
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+                                this._textNumber.text = this
+                                    .hobby[i][j]["value"]["label"]
+                                    .toString();
+                                this._FNumber = this
+                                    .hobby[i][j]["value"]["label"]
+                                    .toString();
+                                checkItem = 'FNumber';
+                                this.show = false;
+                                checkData = i;
+                                checkDataChild = j;
+                                scanDialog();
+                                print(this.hobby[i][j]["value"]["label"]);
+                                if (this.hobby[i][j]["value"]["label"] != 0) {
+                                  this._textNumber.value =
+                                      _textNumber.value.copyWith(
+                                    text: this
+                                        .hobby[i][j]["value"]["label"]
+                                        .toString(),
+                                  );
+                                }
+                              },
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
+            );
+          } else if (j == 5) {
+            comList.add(
+              _item('良品仓库:', stockList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],
+                  stock: this.hobby[i]),
+            );
+          } else if (j == 7) {
+            comList.add(
+              _item('不良品仓库:', stockList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],
+                  stock: this.hobby[i]),
+            );
+          } else {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
-                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                      IconButton(
-                        icon: new Icon(Icons.filter_center_focus),
-                        tooltip: '点击扫描',
-                        onPressed: () {
-                          this._textNumber.text =
-                              this.hobby[i][j]["value"]["label"].toString();
-                          this._FNumber =
-                              this.hobby[i][j]["value"]["label"].toString();
-                          checkItem = 'FNumber';
-                          this.show = false;
-                          checkData = i;
-                          checkDataChild = j;
-                          scanDialog();
-                          print(this.hobby[i][j]["value"]["label"]);
-                          if (this.hobby[i][j]["value"]["label"] != 0) {
-                            this._textNumber.value = _textNumber.value.copyWith(
-                              text:
-                              this.hobby[i][j]["value"]["label"].toString(),
-                            );
-                          }
-                        },
-                      ),
-                    ])),
-              ),
-              divider,
-            ]),
-          );
-        } else if (j == 5) {
-          comList.add(
-            _item('良品仓库:', stockList, this.hobby[i][j]['value']['label'],
-                this.hobby[i][j],stock:this.hobby[i]),
-          );
-        } else if (j == 7) {
-          comList.add(
-            _item('不良品仓库:', stockList, this.hobby[i][j]['value']['label'],
-                this.hobby[i][j],stock:this.hobby[i]),
-          );
-        } else {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  title: Text(this.hobby[i][j]["title"] +
-                      '：' +
-                      this.hobby[i][j]["value"]["label"].toString()),
-                  trailing:
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    /* MyText(orderDate[i][j],
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
-                  ]),
+                    ]),
+                  ),
                 ),
-              ),
-              divider,
-            ]),
-          );
+                divider,
+              ]),
+            );
+          }
         }
       }
       tempList.add(
@@ -571,18 +743,18 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                         padding: EdgeInsets.only(top: 8),
                         child: Card(
                             child: Column(children: <Widget>[
-                              TextField(
-                                style: TextStyle(color: Colors.black87),
-                                keyboardType: TextInputType.number,
-                                controller: this._textNumber,
-                                decoration: InputDecoration(hintText: "输入或者扫描数量"),
-                                onChanged: (value) {
-                                  setState(() {
-                                    this._FNumber = value;
-                                  });
-                                },
-                              ),
-                            ]))),
+                          TextField(
+                            style: TextStyle(color: Colors.black87),
+                            keyboardType: TextInputType.number,
+                            controller: this._textNumber,
+                            decoration: InputDecoration(hintText: "输入或者扫描数量"),
+                            onChanged: (value) {
+                              setState(() {
+                                this._FNumber = value;
+                              });
+                            },
+                          ),
+                        ]))),
                   if (show)
                     Padding(
                       padding: EdgeInsets.only(top: 8),
@@ -598,9 +770,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                           if (checkItem == 'FNumber') {
                             setState(() {
                               this.hobby[checkData][checkDataChild]["value"]
-                              ["label"] = _FNumber;
+                                  ["label"] = _FNumber;
                               this.hobby[checkData][checkDataChild]['value']
-                              ["value"] = _FNumber;
+                                  ["value"] = _FNumber;
                             });
                           }
                         },
@@ -620,7 +792,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   }
 
   //删除
-  deleteOrder(Map<String, dynamic> map,msg) async {
+  deleteOrder(Map<String, dynamic> map, msg) async {
     var subData = await SubmitEntity.delete(map);
     print(subData);
     if (subData != null) {
@@ -634,8 +806,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           Navigator.of(context).pop("refresh");*/
           setState(() {
             this.isSubmit = false;
-            ToastUtil.errorDialog(context,
-                msg);
+            ToastUtil.errorDialog(context, msg);
           });
         } else {
           setState(() {
@@ -649,7 +820,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   }
 
   //反审核
-  unAuditOrder(Map<String, dynamic> map,msg) async {
+  unAuditOrder(Map<String, dynamic> map, msg) async {
     var subData = await SubmitEntity.unAudit(map);
     print(subData);
     if (subData != null) {
@@ -664,7 +835,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };
-          deleteOrder(deleteMap,msg);
+          deleteOrder(deleteMap, msg);
         } else {
           setState(() {
             this.isSubmit = false;
@@ -675,6 +846,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       }
     }
   }
+
   //修改状态
   alterStatus(dataMap) async {
     var status = await SubmitEntity.alterStatus(dataMap);
@@ -687,6 +859,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       }
     }
   }
+
   // 入库后操作
   handlerStatus() async {
     //修改为开工状态
@@ -703,34 +876,41 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     print(startRes);
     if (startRes['Result']['ResponseStatus']['IsSuccess']) {
       var serialNum = FProdOrder.truncate();
-      for(var i = serialNum;i<=4;i++){
+      for (var i = serialNum; i <= 4; i++) {
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FStatus in (2) and FProdOrder >= " + (i).toString() + " and FProdOrder <" + (i + 1).toString();
+        userMap['FilterString'] =
+            "FSaleOrderNo='$FBarcode' and FStatus in (2) and FProdOrder >= " +
+                (i).toString() +
+                " and FProdOrder <" +
+                (i + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
-        'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
+            'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
         Map<String, dynamic> proMoDataMap = Map();
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
         var orderRes = jsonDecode(order);
         serialNum = i;
         //判断同级
-        if(orderRes.length > 0){
+        if (orderRes.length > 0) {
           break;
         }
       }
       //查询生产订单
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum).toString() + " and FProdOrder <" + (serialNum + 1).toString();
+      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " +
+          (serialNum).toString() +
+          " and FProdOrder <" +
+          (serialNum + 1).toString();
       userMap['FormId'] = "PRD_MO";
       userMap['FieldKeys'] =
-      'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
+          'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
       Map<String, dynamic> proMoDataMap = Map();
       proMoDataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(proMoDataMap);
       var orderRes = jsonDecode(order);
-      if(orderRes.length > 0){
+      if (orderRes.length > 0) {
         orderRes.forEach((element) async {
           //查询用料清单
           Map<String, dynamic> materialsMap = Map();
@@ -741,12 +921,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               " and FMOEntrySeq = " +
               FMOEntrySeq.toString();
           materialsMap['FormId'] = 'PRD_PPBOM';
-          materialsMap['FieldKeys'] =
-          'FID';
+          materialsMap['FieldKeys'] = 'FID';
           Map<String, dynamic> materialsDataMap = Map();
           materialsDataMap['data'] = materialsMap;
           String materialsMapOrder =
-          await CurrencyEntity.polling(materialsDataMap);
+              await CurrencyEntity.polling(materialsDataMap);
           //修改用料清单为审核状态
           Map<String, dynamic> auditDataMap = Map();
           auditDataMap = {
@@ -775,11 +954,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           } else {
             setState(() {
               ToastUtil.showInfo(releaseRes['Result']['ResponseStatus']
-              ['Errors'][0]['Message']);
+                  ['Errors'][0]['Message']);
             });
           }
         });
-      }else{
+      } else {
         this.hobby = [];
         this.orderDate = [];
         this.FBillNo = '';
@@ -792,42 +971,43 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         ToastUtil.errorDialog(context,
             startRes['Result']['ResponseStatus']['Errors'][0]['Message']);
       });
-
     }
   }
+
   //审核
-  auditOrder(Map<String, dynamic> auditMap,index, bool type) async {
+  auditOrder(Map<String, dynamic> auditMap, index, bool type) async {
     await SubmitEntity.submit(auditMap);
     var subData = await SubmitEntity.audit(auditMap);
     var res = jsonDecode(subData);
     if (res != null) {
       if (res['Result']['ResponseStatus']['IsSuccess']) {
-        if(type){
-          if(index == 1){
+        if (type) {
+          if (index == 1) {
             /*this.handlerStatus();*/
             setState(() {
-                this.hobby = [];
-                this.orderDate = [];
-                this.FBillNo = '';
-                this.FSaleOrderNo = '';
-              });
-              ToastUtil.showInfo('提交成功');
-              Navigator.of(context).pop("refresh");
+              this.hobby = [];
+              this.orderDate = [];
+              this.FBillNo = '';
+              this.FSaleOrderNo = '';
+            });
+            ToastUtil.showInfo('提交成功');
+            Navigator.of(context).pop("refresh");
           }
-        }else{
+        } else {
           /*this.handlerStatus();*/
           setState(() {
-                this.hobby = [];
-                this.orderDate = [];
-                this.FBillNo = '';
-                this.FSaleOrderNo = '';
-              });
-              ToastUtil.showInfo('提交成功');
-              Navigator.of(context).pop("refresh");
+            this.hobby = [];
+            this.orderDate = [];
+            this.FBillNo = '';
+            this.FSaleOrderNo = '';
+          });
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");
         }
         //提交清空页面
       } else {
-        unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        unAuditOrder(
+            auditMap, res['Result']['ResponseStatus']['Errors'][0]['Message']);
         /*setState(() {
             ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
@@ -846,19 +1026,19 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     pushMap['IsDraftWhenSaveFail'] = "false";
     print(pushMap);
     var downData =
-    await SubmitEntity.pushDown({"formid": "PRD_MO", "data": pushMap});
+        await SubmitEntity.pushDown({"formid": "PRD_MO", "data": pushMap});
     print(downData);
     var res = jsonDecode(downData);
     //判断成功
     if (res['Result']['ResponseStatus']['IsSuccess']) {
       //查询入库单
       var entitysNumber =
-      res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
+          res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
       Map<String, dynamic> inOrderMap = Map();
       inOrderMap['FormId'] = 'PRD_INSTOCK';
       inOrderMap['FilterString'] = "FBillNo='$entitysNumber'";
       inOrderMap['FieldKeys'] =
-      'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber,FMoBillNo';
+          'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber,FMoBillNo';
       String order = await CurrencyEntity.polling({'data': inOrderMap});
       print(order);
       var resData = jsonDecode(order);
@@ -890,7 +1070,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
               FEntityItem['FInStockType'] = '1';
               FEntityItem['FRealQty'] =
-              this.hobby[element][4]['value']['value'];
+                  this.hobby[element][4]['value']['value'];
               FEntityItem['FStockId'] = {
                 "FNumber": this.hobby[element][5]['value']['value']
               };
@@ -901,7 +1081,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
               FEntityItem['FEntryID'] = resData[entity][0];
               FEntityItem['FRealQty'] =
-              this.hobby[element][6]['value']['value'];
+                  this.hobby[element][6]['value']['value'];
               FEntityItem['FStockId'] = {
                 "FNumber": this.hobby[element][7]['value']['value']
               };
@@ -1006,18 +1186,18 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                     "formid": "PRD_INSTOCK",
                     "data": {
                       'Ids': res['Result']['ResponseStatus']['SuccessEntitys']
-                      [0]['Id']
+                          [0]['Id']
                     }
                   };
-                  await auditOrder(auditMap,i,EntryIds2 != '');
+                  await auditOrder(auditMap, i, EntryIds2 != '');
                 } else {
                   Map<String, dynamic> deleteMap = Map();
                   deleteMap = {
                     "formid": "PRD_INSTOCK",
                     "data": {'Ids': resCheck['data']["Model"]["FID"]}
                   };
-                  deleteOrder(deleteMap,res['Result']['ResponseStatus']['Errors'][0]
-                  ['Message']);
+                  deleteOrder(deleteMap,
+                      res['Result']['ResponseStatus']['Errors'][0]['Message']);
                 }
               }
             } else {
@@ -1042,18 +1222,18 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                     "formid": "PRD_INSTOCK",
                     "data": {
                       'Ids': res['Result']['ResponseStatus']['SuccessEntitys']
-                      [0]['Id']
+                          [0]['Id']
                     }
                   };
-                  await auditOrder(auditMap,i,EntryIds1 != '');
+                  await auditOrder(auditMap, i, EntryIds1 != '');
                 } else {
                   Map<String, dynamic> deleteMap = Map();
                   deleteMap = {
                     "formid": "PRD_INSTOCK",
                     "data": {'Ids': resCheck['data']["Model"]["FID"]}
                   };
-                  deleteOrder(deleteMap,res['Result']['ResponseStatus']['Errors'][0]
-                  ['Message']);
+                  deleteOrder(deleteMap,
+                      res['Result']['ResponseStatus']['Errors'][0]['Message']);
                 }
               }
             } else {
@@ -1065,7 +1245,6 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             }
           }
         }
-
       }
     } else {
       ToastUtil.showInfo('无提交数据');
@@ -1196,7 +1375,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                             : Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         onPressed: () async =>
-                        this.isSubmit ? null : submitOder(),
+                            this.isSubmit ? null : submitOder(),
                         /*onPressed: () async {
                           if(this.hobby.length>0){
                             setState(() {

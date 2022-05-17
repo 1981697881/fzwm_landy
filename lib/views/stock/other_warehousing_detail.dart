@@ -923,7 +923,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             title: Text("其他入库"),
             centerTitle: true,
             leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-              Navigator.of(context).pop("refresh");
+              Navigator.of(context).pop();
             }),
           ),
           body: Column(

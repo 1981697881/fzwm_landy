@@ -8,17 +8,17 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fzwm_landy/views/purchase/purchase_affirm_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
-import 'purchase_warehousing_detail.dart';
 
-class PurchaseWarehousingPage extends StatefulWidget {
-  PurchaseWarehousingPage({Key key}) : super(key: key);
+class PurchaseAffirmPage extends StatefulWidget {
+  PurchaseAffirmPage({Key key}) : super(key: key);
 
   @override
-  _PurchaseWarehousingPageState createState() => _PurchaseWarehousingPageState();
+  _PurchaseAffirmPageState createState() => _PurchaseAffirmPageState();
 }
 
-class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
+class _PurchaseAffirmPageState extends State<PurchaseAffirmPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -67,21 +67,20 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FInStockQty >0";
     var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FDate>= '$startDate' and FCloseStatus = 'A' and FDate <= '$endDate'";
+      "FDate>= '$startDate' and FDocumentStatus in ('A','D') and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =/*and FInStockQty>0*/
-      "FBillNo='"+scanCode[0]+"' and FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'PUR_ReceiveBill';
+    userMap['FormId'] = 'STK_InStock';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FUnitId.FNumber,FUnitId.FName,FRealQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -187,7 +186,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return PurchaseWarehousingDetail(
+                          return PurchaseAffirmDetail(
                               FBillNo: this.hobby[i][0]['value']
                             // 路由参数
                           );
@@ -294,7 +293,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("采购入库"),
+            title: Text("采购入库确认"),
             centerTitle: true,
           ),
           body: CustomScrollView(
