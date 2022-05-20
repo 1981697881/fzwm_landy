@@ -113,7 +113,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
     var deptData = jsonDecode(menuData)[0];
     userMap['FormId'] = 'BD_Department';
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);

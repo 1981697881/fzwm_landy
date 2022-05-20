@@ -118,7 +118,7 @@ class _ReportDetailState extends State<ReportDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -135,7 +135,7 @@ class _ReportDetailState extends State<ReportDetail> {
     var deptData = jsonDecode(menuData)[0];
     userMap['FormId'] = 'BD_Empinfo';
     userMap['FilterString'] =
-    "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1];
+    "FForbidStatus='A' and FUseOrgId.FNumber ='"+deptData[1]+"'";
     userMap['FieldKeys'] = 'FUseOrgId.FNumber,FName,FNumber,FForbidStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;

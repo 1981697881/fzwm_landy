@@ -78,6 +78,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
   var _FNumber;
   var fBillNo;
   var fOrgID;
+  var fBarCodeList;
 
   _AllocationAffirmDetailState(FBillNo) {
     if (FBillNo != null) {
@@ -116,7 +117,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
     var deptData = jsonDecode(menuData)[0];
     userMap['FormId'] = 'BD_Department';
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -214,7 +215,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
     selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     hobby = [];
     if (orderDate.length > 0) {
-      this.fOrgID = orderDate[0][16];
+      this.fOrgID = orderDate[0][8];
       orderDate.forEach((value) {
         List arr = [];
         arr.add({
@@ -236,7 +237,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "入库数量",
+          "title": "调拨数量",
           "name": "FRealQty",
           "isHide": false,/*value[12]*/
           "value": {"label": "0", "value": "0"}
@@ -294,19 +295,40 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
   }
 
   void _onEvent(Object event) async {
-    /*  setState(() {*/
-    _code = event;
-    this.getMaterialList();
-    print("ChannelPage: $event");
-    /*});*/
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var deptData = sharedPreferences.getString('menuList');
+    var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
+    fBarCodeList = menuList['FBarCodeList'];
+    if(fBarCodeList == 1){
+      Map<String, dynamic> barcodeMap = Map();
+      barcodeMap['FilterString'] = "FBarCode='"+event+"'";
+      barcodeMap['FormId'] = 'QDEP_BarCodeList';
+      barcodeMap['FieldKeys'] =
+      'FID,FInQtyTotla,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = barcodeMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      var barcodeData = jsonDecode(order);
+      if (barcodeData.length>0) {
+        _code = event;
+        this.getMaterialList(barcodeData);
+        print("ChannelPage: $event");
+      }else{
+        ToastUtil.showInfo('该标签不存在');
+      }
+    }else{
+      _code = event;
+      this.getMaterialList("");
+      print("ChannelPage: $event");
+    }
   }
-  getMaterialList() async {
+  getMaterialList(barcodeData) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = _code.split(",");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = "+deptData[1];
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';/*,SubHeadEntity1.FStoreUnitID.FNumber*/
@@ -742,6 +764,10 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                             ["label"] = _FNumber;
                             this.hobby[checkData][checkDataChild]['value']
                             ["value"] = _FNumber;
+                            if(this.hobby[checkData][checkDataChild]['value']['kingDeeCode'].length >0){
+                              var kingDeeCode =this.hobby[checkData][checkDataChild]['value']['kingDeeCode'][0].split("-");
+                              this.hobby[checkData][checkDataChild]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
+                            }
                           });
                         },
                         child: Text(
@@ -819,8 +845,34 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                 1,
                 "STK_TransferDirect",
                 SubmitEntity.audit(submitMap))
-                .then((auditResult) {
+                .then((auditResult) async {
               if (auditResult) {
+                if(fBarCodeList == 1){
+                  for (int i = 0; i < this.hobby.length; i++) {
+                    if (this.hobby[i][3]['value']['value'] != '0') {
+                      var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
+                      for(int j = 0;j<kingDeeCode.length;j++){
+                        Map<String, dynamic> dataCodeMap = Map();
+                        dataCodeMap['formid'] = 'QDEP_BarCodeList';
+                        Map<String, dynamic> orderCodeMap = Map();
+                        orderCodeMap['NeedReturnFields'] = [];
+                        orderCodeMap['IsDeleteEntry'] = false;
+                        Map<String, dynamic> codeModel = Map();
+                        var itemCode = kingDeeCode[j].split("-");
+                        codeModel['FID'] = itemCode[0];
+                        Map<String, dynamic> codeFEntityItem = Map();
+                        codeFEntityItem['FBillDate'] = FDate;
+                        codeFEntityItem['FOutQty'] = itemCode[1];
+                        var codeFEntity = [codeFEntityItem];
+                        codeModel['FEntity'] = codeFEntity;
+                        orderCodeMap['Model'] = codeModel;
+                        dataCodeMap['data'] = orderCodeMap;
+                        String codeRes = await SubmitEntity.save(dataCodeMap);
+                        print(codeRes);
+                      }
+                    }
+                  }
+                }
                 //提交清空页面
                 setState(() {
                   this.hobby = [];

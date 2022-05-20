@@ -67,7 +67,6 @@ dependencies:
   flutter_downloader: 1.5.0
   progress_dialog: 1.2.0
   url_launcher: any
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

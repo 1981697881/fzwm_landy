@@ -106,7 +106,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     /*getWorkShop();*/
     getStockList();
    /* getTypeList();*/
-    getCustomer();
+    /*getCustomer();*/
     getDepartmentList();
   }
   //获取部门
@@ -116,8 +116,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     userMap['FormId'] = 'BD_Department';
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -134,7 +134,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -284,9 +284,11 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
 
   void _onEvent(Object event) async {
     /*  setState(() {*/
-    _code = event;
-    this.getMaterialList();
-    print("ChannelPage: $event");
+
+      _code = event;
+      this.getMaterialList();
+      print("ChannelPage: $event");
+
     /*});*/
   }
 
@@ -303,8 +305,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     var scanCode = _code.split(",");
     userMap['FilterString'] = "FNumber='" +
         scanCode[0] +
-        "' and FForbidStatus = 'A' and FUseOrgId.FNumber = " +
-        deptData[1];
+        "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
@@ -371,10 +372,10 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             "value": {"label": value[4], "value": value[5]}
           });
           arr.add({
-            "title": "入库数量",
+            "title": "出库数量",
             "name": "FRealQty",
             "isHide": false,
-            "value": {"label": "1", "value": "1"}
+            "value": {"label": scanCode[4].toString(), "value": scanCode[4].toString()}
           });
           arr.add({
             "title": "仓库",
@@ -866,6 +867,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       String order = await SubmitEntity.save(dataMap);
       var res = jsonDecode(order);
       print(res);
+
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         Map<String, dynamic> submitMap = Map();
         submitMap = {
@@ -892,6 +894,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) {
               if (auditResult) {
+
                 //提交清空页面
                 setState(() {
                   this.hobby = [];

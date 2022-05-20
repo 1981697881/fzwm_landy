@@ -71,6 +71,7 @@ class Data {
     this.fSupplier,
     this.fAuthNums,
     this.fStatus,
+    this.fBarCodeList,
   });
 
   int fid;
@@ -93,6 +94,7 @@ class Data {
   String fSrvSDate;
   String fSupplier;
   String fStatus;
+  int fBarCodeList;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     fid: json["FID"],
@@ -115,6 +117,7 @@ class Data {
     fSupplier: json["FSupplier"],
     fStatus: json["FStatus"],
     fAuthNums: json["FAuthNums"],
+    fBarCodeList: json["FBarCodeList"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -138,5 +141,6 @@ class Data {
     "FSupplier": fSupplier,
     "FStatus": fStatus,
     "FAuthNums": fAuthNums,
+    "FBarCodeList": fBarCodeList,
   };
 }

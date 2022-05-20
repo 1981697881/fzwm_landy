@@ -67,7 +67,6 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FInStockQty >0";
     var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
@@ -79,9 +78,9 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
       userMap['FilterString'] =/*and FInStockQty>0*/
       "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'PUR_ReceiveBill';
+    userMap['FormId'] = 'SAL_OUTSTOCK';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID';
+    'FBillNo,FCustomerID.FNumber,FCustomerID.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FSaleOrgId.FNumber,FSaleOrgId.FName,FUnitID.FNumber,FUnitID.FName,FRealQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -98,8 +97,8 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "采购组织",
-          "name": "FPurchaseOrgId",
+          "title": "销售组织",
+          "name": "",
           "isHide": false,
           "value": {"label": value[9], "value": value[8]}
 
@@ -130,13 +129,13 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
         });
         arr.add({
           "title": "数量",
-          "name": "FQty",
+          "name": "",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
-          "title": "供应商",
-          "name": "FSupplierID",
+          "title": "客户",
+          "name": "",
           "isHide": false,
           "value": {"label": value[2], "value": value[1]}
         });
