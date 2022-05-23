@@ -341,6 +341,7 @@ class _LoginPageState extends State<LoginPage> {
                               },
                             )
                         ),
+                        obscureText: false,
                         controller: this.passwordContent,
                         //改变回调
                         onChanged: (value) {

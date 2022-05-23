@@ -205,7 +205,7 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'STK_InStock';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FMustQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FUnitID.FNumber,FRealQty';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FMustQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FUnitID.FNumber,FRealQty,FOwnerIdHead.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -275,7 +275,7 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
         arr.add({
           "title": "实收数量",
           "name": "",
-          "isHide": true,
+          "isHide": false,
           "value": {"label": value[19], "value": value[19]}
         });
         hobby.add(arr);
@@ -293,7 +293,6 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
     }
     /* getStockList();*/
   }
-
   void _onEvent(Object event) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var deptData = sharedPreferences.getString('menuList');
@@ -304,7 +303,7 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
       barcodeMap['FilterString'] = "FBarCode='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotla,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -353,7 +352,7 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(_code) == -1){
               //判断是否可重复扫码
-              if(scanCode.length>4 && scanCode[3] == "N"){
+              if(scanCode.length>4 && scanCode[5] == "N"){
                 element[0]['value']['barcode'].add(_code);
               }
               //判断扫描数量是否大于单据数量
@@ -403,7 +402,7 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
             if(element[0]['value']['barcode'].indexOf(_code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
-                if(scanCode.length>4 && scanCode[3] == "N"){
+                if(scanCode.length>4 && scanCode[5] == "N"){
                   element[0]['value']['barcode'].add(_code);
                 }
                 //判断扫描数量是否大于单据数量
@@ -446,7 +445,7 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
               }else{
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
-                  if(scanCode.length>4 && scanCode[3] == "N"){
+                  if(scanCode.length>4 && scanCode[5] == "N"){
                     element[0]['value']['barcode'].add(_code);
                   }
                   element[5]['value']['label'] = scanCode[1];
@@ -933,9 +932,22 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
                         Map<String, dynamic> codeModel = Map();
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
+                        codeModel['FOwnerID'] = {
+                          "FNUMBER": orderDate[i][20]
+                        };
+                        codeModel['FStockOrgID'] = {
+                          "FNUMBER": orderDate[i][8]
+                        };
+                        codeModel['FStockID'] = {
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };
                         Map<String, dynamic> codeFEntityItem = Map();
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];
+                        codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                        codeFEntityItem['FEntryStockID'] ={
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };
                         var codeFEntity = [codeFEntityItem];
                         codeModel['FEntity'] = codeFEntity;
                         orderCodeMap['Model'] = codeModel;

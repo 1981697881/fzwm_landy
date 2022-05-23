@@ -208,7 +208,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'PRD_INSTOCK';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FStockUnitID.FNumber,FRealQty,FInStockType';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FStockUnitID.FNumber,FRealQty,FInStockType,FOwnerId0.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -278,7 +278,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
         arr.add({
           "title": "实收数量",
           "name": "",
-          "isHide": true,
+          "isHide": false,
           "value": {"label": value[19], "value": value[19]}
         });arr.add({
           "title": "入库类型",
@@ -312,7 +312,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       barcodeMap['FilterString'] = "FBarCode='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotla,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -361,7 +361,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(_code) == -1){
               //判断是否可重复扫码
-              if(scanCode.length>4 && scanCode[3] == "N"){
+              if(scanCode.length>4 && scanCode[5] == "N"){
                 element[0]['value']['barcode'].add(_code);
               }
               //判断扫描数量是否大于单据数量
@@ -411,7 +411,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
             if(element[0]['value']['barcode'].indexOf(_code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
-                if(scanCode.length>4 && scanCode[3] == "N"){
+                if(scanCode.length>4 && scanCode[5] == "N"){
                   element[0]['value']['barcode'].add(_code);
                 }
                 //判断扫描数量是否大于单据数量
@@ -454,7 +454,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
               }else{
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
-                  if(scanCode.length>4 && scanCode[3] == "N"){
+                  if(scanCode.length>4 && scanCode[5] == "N"){
                     element[0]['value']['barcode'].add(_code);
                   }
                   element[5]['value']['label'] = scanCode[1];
@@ -943,9 +943,22 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         Map<String, dynamic> codeModel = Map();
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
+                        codeModel['FOwnerID'] = {
+                          "FNUMBER": orderDate[i][21]
+                        };
+                        codeModel['FStockOrgID'] = {
+                          "FNUMBER": orderDate[i][8]
+                        };
+                        codeModel['FStockID'] = {
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };
                         Map<String, dynamic> codeFEntityItem = Map();
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];
+                        codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                        codeFEntityItem['FEntryStockID'] ={
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };
                         var codeFEntity = [codeFEntityItem];
                         codeModel['FEntity'] = codeFEntity;
                         orderCodeMap['Model'] = codeModel;
