@@ -5,9 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:fzwm_landy/http/api_response.dart';
-import 'package:fzwm_landy/model/authorize_entity.dart';
 import 'package:fzwm_landy/model/version_entity.dart';
-import 'package:fzwm_landy/utils/menu_permissions.dart';
 import 'package:fzwm_landy/views/login/login_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -209,7 +207,9 @@ class _IndexPageState extends State<IndexPage> {
     });
     return path;
   }
-
+  double hc_ScreenWidth() {
+    return window.physicalSize.width / window.devicePixelRatio;
+  }
 /*一个渐变颜色的正方形集合*/
   List<Widget> Boxs(List<Map<String, dynamic>> menu) =>
       List.generate(menu.length, (index) {
@@ -221,7 +221,7 @@ class _IndexPageState extends State<IndexPage> {
               );
             },
             child: Container(
-                width: 80,
+                width: hc_ScreenWidth()/4,
                 height: 80,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
@@ -231,7 +231,7 @@ class _IndexPageState extends State<IndexPage> {
                         offset: Offset(0.0, 15.0), //阴影xy轴偏移量
                         blurRadius: 15.0, //阴影模糊程度
                         spreadRadius: 1.0 //阴影扩散程度
-                        )
+                    )
                   ],
                   borderRadius: BorderRadius.all(
                     //圆角
@@ -328,8 +328,7 @@ class _IndexPageState extends State<IndexPage> {
           menu.add(obj);
           break;
       }
-    }
-    ;
+    };
     print(menu);
     return Wrap(
         /*mainAxisSize: MainAxisSize.min,
