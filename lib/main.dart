@@ -175,10 +175,6 @@ class _MyHomePageState extends State {
     _getpsw = sharedPreferences.getString('password');
     username = sharedPreferences.getString('FStaffNumber');
     password = sharedPreferences.getString('FPwd');
-    print(validateUserName(_getaname) &&
-        validatePassWord(_getpsw) &&
-        validateUserName(username) &&
-        validatePassWord(password));
     if (validateUserName(_getaname) &&
         validatePassWord(_getpsw) &&
         validateUserName(username) &&
@@ -272,6 +268,16 @@ class _MyHomePageState extends State {
               ),
             );
           }
+        }else{
+          ToastUtil.showInfo('该账号无登录权限');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return LoginPage();
+              },
+            ),
+          );
         }
       } else {
         ToastUtil.showInfo('登录失败，重新登录');

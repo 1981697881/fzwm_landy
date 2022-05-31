@@ -20,8 +20,10 @@ import 'package:fzwm_landy/views/stock/allocation_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_detail.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_page.dart';
 import 'package:fzwm_landy/views/stock/grounding_page.dart';
+import 'package:fzwm_landy/views/stock/other_Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/other_warehousing_detail.dart';
 import 'package:fzwm_landy/views/stock/other_warehousing_page.dart';
+import 'package:fzwm_landy/views/stock/scheme_Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/stock_page.dart';
 import 'package:fzwm_landy/views/stock/undercarriage_page.dart';
 import 'package:fzwm_landy/views/workshop/dispatch_detail.dart';
@@ -138,7 +140,7 @@ class MenuPermissions {
           if (list[i] == true) {
             var obj = {
               "icon": Icons.loupe,
-              "text": "盘点",
+              "text": "动态盘点",
               "parentId": 3,
               "color": Colors.pink.withOpacity(0.7),
               "router": list[i + 1].length>1?InventoryPage():InventoryDetail(FBillNo: null),
@@ -278,6 +280,22 @@ class MenuPermissions {
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": AllocationAffirmPage(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "其他盘点",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": OtherInventoryDetail(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "方案盘点",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": SchemeInventoryDetail(),
       "source": '',
     });
     return menu;

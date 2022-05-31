@@ -155,17 +155,20 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
         width: double.infinity,
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              margin: EdgeInsets.only(bottom: 10.0),
-              padding: EdgeInsets.symmetric(
-                // 同appBar的titleSpacing一致
-                horizontal: NavigationToolbar.kMiddleSpacing,
-                vertical: 20.0,
+            Expanded(
+              child:Container(
+                width: double.infinity,
+                color: Colors.white,
+                margin: EdgeInsets.only(bottom: 10.0),
+                padding: EdgeInsets.symmetric(
+                  // 同appBar的titleSpacing一致
+                  horizontal: NavigationToolbar.kMiddleSpacing,
+                  vertical: 20.0,
+                ),
+                child: buildAppBarTabs(),
               ),
-              child: buildAppBarTabs(),
-            ),
+            )
+
           ],
         ),
       ),

@@ -454,7 +454,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => _onClickItem(data, selectData, hobby, label: label,stock: stock),
+            onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
               MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
                   color: Colors.grey, rightpadding: 18),
@@ -674,7 +674,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            new MaterialButton(
+                            new FlatButton(
                               color: Colors.red,
                               textColor: Colors.white,
                               child: new Text('删除'),

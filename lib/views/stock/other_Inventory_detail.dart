@@ -21,15 +21,16 @@ import 'package:fzwm_landy/components/my_text.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UndercarriagePage extends StatefulWidget {
+class OtherInventoryDetail extends StatefulWidget {
+  var FBillNo;
 
-  UndercarriagePage({Key key}) : super(key: key);
+  OtherInventoryDetail({Key key, @required this.FBillNo}) : super(key: key);
 
   @override
-  _UndercarriagePageState createState() => _UndercarriagePageState();
+  _OtherInventoryDetailState createState() => _OtherInventoryDetailState(FBillNo);
 }
 
-class _UndercarriagePageState extends State<UndercarriagePage> {
+class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
   var _remarkContent = new TextEditingController();
   GlobalKey<TextWidgetState> textKey = GlobalKey();
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
@@ -45,6 +46,8 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
   var customerNumber;
   var departmentName;
   var departmentNumber;
+  var stockName;
+  var stockNumber;
   var show = false;
   var isSubmit = false;
   var isScanWork = false;
@@ -57,6 +60,8 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
   List<dynamic> stockListObj = [];
   var departmentList = [];
   List<dynamic> departmentListObj = [];
+  var customerList = [];
+  List<dynamic> customerListObj = [];
   List<dynamic> orderDate = [];
   List<dynamic> collarOrderDate = [];
   final divider = Divider(height: 1, indent: 20);
@@ -69,22 +74,28 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
   var _FNumber;
   var fBillNo;
 
+  _OtherInventoryDetailState(FBillNo) {
+    if (FBillNo != null) {
+      this.fBillNo = FBillNo['value'];
+      this.getOrderList();
+    }else{
+      this.fBillNo = '';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     DateTime dateTime = DateTime.now();
     var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     selectData[DateMode.YMD] = nowDate;
-
     /// 开启监听
     if (_subscription == null && this.fBillNo == '') {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-    getWorkShop();
     getStockList();
-    getDepartmentList();
   }
   //获取部门
   getDepartmentList() async {
@@ -111,7 +122,7 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ="+deptData[1];
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -120,20 +131,6 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
       stockList.add(element[1]);
     });
   }
-
-  void getWorkShop() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      if (sharedPreferences.getString('FWorkShopName') != null) {
-        FName = sharedPreferences.getString('FWorkShopName');
-        FNumber = sharedPreferences.getString('FWorkShopNumber');
-        isScanWork = true;
-      } else {
-        isScanWork = false;
-      }
-    });
-  }
-
   @override
   void dispose() {
     this._textNumber.dispose();
@@ -148,11 +145,92 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
   // 查询数据集合
   List hobby = [];
 
+  getOrderList() async {
+    Map<String, dynamic> userMap = Map();
+    print(fBillNo);
+    userMap['FilterString'] = "FRemainStockINQty>0 and FBillNo='$fBillNo'";
+    userMap['FormId'] = 'PUR_PurchaseOrder';
+    userMap['FieldKeys'] =
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FInStockQty,FSrcBillNo,FID,FStockId.FNumber,FStockOrgId.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber';
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String order = await CurrencyEntity.polling(dataMap);
+    orderDate = [];
+    orderDate = jsonDecode(order);
+    FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+    selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+    if (orderDate.length > 0) {
+      hobby = [];
+      orderDate.forEach((value) {
+        List arr = [];
+        arr.add({
+          "title": "物料名称",
+          "name": "FMaterial",
+          "isHide": false,
+          "value": {"label": value[6], "value": value[5]}
+        });
+        arr.add({
+          "title": "规格型号",
+          "isHide": false,
+          "name": "FMaterialIdFSpecification",
+          "value": {"label": value[7], "value": value[7]}
+        });
+        arr.add({
+          "title": "单位名称",
+          "name": "FUnitId",
+          "isHide": false,
+          "value": {"label": value[11], "value": value[10]}
+        });
+        arr.add({
+          "title": "帐存数量",
+          "name": "FRealQty",
+          "isHide": false,
+          "value": {"label": value[12], "value": value[12]}
+        });
+        arr.add({
+          "title": "盘点数量",
+          "name": "FRealQty",
+          "isHide": false,
+          "value": {"label": "0", "value": "0"}
+        });
+        arr.add({
+          "title": "仓库",
+          "name": "FStockID",
+          "isHide": false,
+          "value": {"label": value[15], "value": value[15]}
+        });
+        arr.add({
+          "title": "FStockOrgId",
+          "name": "FStockOrgId",
+          "isHide": true,
+          "value": {"label": value[15], "value": value[15]}
+        });
+        hobby.add(arr);
+      });
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+    } else {
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+      ToastUtil.showInfo('无数据');
+    }
+  }
+
   void _onEvent(Object event) async {
     /*  setState(() {*/
-    _code = event;
-    this.getMaterialList();
-    print("ChannelPage: $event");
+    if(stockNumber == null || stockNumber == ""){
+      ToastUtil.showInfo('请选择仓库');
+    }else{
+      _code = event;
+      EasyLoading.show(status: 'loading...');
+      this.getMaterialList("");
+      print("ChannelPage: $event");
+    }
+
     /*});*/
   }
 
@@ -161,67 +239,129 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
       _code = "扫描异常";
     });
   }
-  getMaterialList() async {
+  getMaterialList(barcodeData) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = _code.split(",");
-    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockOrgId.FNumber = '"+deptData[1]+"'";
+    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber'";
     if(scanCode.length > 1){
-      userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockOrgId.FNumber = '"+deptData[1]+"'";
+      if(scanCode[1] == ''){
+        userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber'";
+      }else{
+        userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber'";
+      }
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-    'FID,FMaterialName,FMaterialId.FNumber,FModel,FBaseUnitId.FName,FBaseUnitId.FNumber,FLot.FNumber,FQty,FStockId.FNumber,FStockName,FStockLocId'; Map<String, dynamic> dataMap = Map();
+    'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FBaseQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber';
+    Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
     FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
-    hobby = [];
     if (orderDate.length > 0) {
-      orderDate.forEach((value) {
-        List arr = [];
-        arr.add({
-          "title": "物料名称",
-          "name": "FMaterial",
-          "isHide": false,
-          "value": {"label": value[1], "value": value[2]}
-        });
-        arr.add({
-          "title": "规格型号",
-          "isHide": false,
-          "name": "FMaterialIdFSpecification",
-          "value": {"label": value[3], "value": value[3]}
-        });
-        arr.add({
-          "title": "单位名称",
-          "name": "FUnitId",
-          "isHide": false,
-          "value": {"label": value[4], "value": value[5]}
-        });
-        arr.add({
-          "title": "批号",
-          "name": "FLot",
-          "isHide": false,
-          "value": {"label": value[5], "value": value[5]}
-        });
-        arr.add({
-          "title": "数量",
+      var number = 0;
+      for (var element in hobby) {
+        if(element[0]['value']['value'] == scanCode[0]){
+          number++;
+          ToastUtil.showInfo('该标签已扫描');
+          break;
+        }
+      }
+      if(number == 0){
+        orderDate.forEach((value) {
+          List arr = [];
+          arr.add({
+            "title": "物料名称",
+            "name": "FMaterial",
+            "isHide": false,
+            "value": {"label": value[1], "value": value[2]}
+          });
+          arr.add({
+            "title": "规格型号",
+            "isHide": false,
+            "name": "FMaterialIdFSpecification",
+            "value": {"label": value[3], "value": value[3]}
+          });
+          arr.add({
+            "title": "单位名称",
+            "name": "FUnitId",
+            "isHide": false,
+            "value": {"label": value[4], "value": value[5]}
+          });
+          arr.add({
+            "title": "账存数量",
+            "name": "FRealQty",
+            "isHide": false,
+            "value": {"label": value[7], "value": value[7]}
+          });
+          /*arr.add({
+          "title": "实存数量",
           "name": "FRealQty",
           "isHide": false,
           "value": {"label": value[6], "value": value[6]}
+        });*/
+          arr.add({
+            "title": "盘点数量",
+            "name": "FCountQty",
+            "isHide": false,
+            "value": {"label": scanCode[4].toString(), "value": scanCode[4].toString()}
+          });
+          arr.add({
+            "title": "仓库",
+            "name": "FStockID",
+            "isHide": false,
+            "value": {"label": value[8], "value": value[6]}
+          });
+          arr.add({
+            "title": "批号",
+            "name": "FLot",
+            "isHide": false,
+            "value": {"label": value[9]==null?"":value[9], "value": value[9]==null?"":value[9]}
+          });
+          arr.add({
+            "title": "FStockOrgId",
+            "name": "FStockOrgId",
+            "isHide": true,
+            "value": {"label": value[0], "value": value[0]}
+          });
+          arr.add({
+            "title": "操作",
+            "name": "",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "FOwnerid",
+            "name": "FOwnerid",
+            "isHide": true,
+            "value": {"label": value[13], "value": value[13]}
+          });
+          arr.add({
+            "title": "FStockStatusId",
+            "name": "FStockStatusId",
+            "isHide": true,
+            "value": {"label": value[10], "value": value[10]}
+          });
+          arr.add({
+            "title": "FKeeperTypeId",
+            "name": "FKeeperTypeId",
+            "isHide": true,
+            "value": {"label": value[11], "value": value[11]}
+          });
+          arr.add({
+            "title": "FKeeperId",
+            "name": "FKeeperId",
+            "isHide": true,
+            "value": {"label": value[12], "value": value[12]}
+          });
+          hobby.add(arr);
         });
-        arr.add({
-          "title": "仓库",
-          "name": "FStockID",
-          "isHide": false,
-          "value": {"label": value[8], "value": value[7]}
-        });
-        hobby.add(arr);
-      });
+      }
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -327,7 +467,14 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
           if(hobby  == 'customer'){
-
+            customerName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                customerNumber = customerListObj[elementIndex][2];
+              }
+              elementIndex++;
+            });
           } else if(hobby  == 'department'){
             departmentName = p;
             var elementIndex = 0;
@@ -337,10 +484,19 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
               }
               elementIndex++;
             });
+          }else if(hobby  == 'stock'){
+            stockName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                stockNumber = stockListObj[elementIndex][2];
+              }
+              elementIndex++;
+            });
           }else{
             setState(() {
-          hobby['value']['label'] = p;
-        });;
+              hobby['value']['label'] = p;
+            });
             var elementIndex = 0;
             data.forEach((element) {
               if (element == p) {
@@ -397,10 +553,31 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
                 divider,
               ]),
             );
-          } else if (j == 5) {
+          } else if (j == 8) {
             comList.add(
-              _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
-                  this.hobby[i][j],stock:this.hobby[i]),
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            new FlatButton(
+                              color: Colors.red,
+                              textColor: Colors.white,
+                              child: new Text('删除'),
+                              onPressed: () {
+                                this.hobby.removeAt(i);
+                                setState(() {});
+                              },
+                            )
+                          ])),
+                ),
+                divider,
+              ]),
             );
           }else {
             comList.add(
@@ -506,39 +683,35 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
   saveOrder() async {
     if (this.hobby.length > 0) {
       setState(() {
-        this.isSubmit = true;
+        /*this.isSubmit = true;*/
       });
-      if (this.departmentNumber  == null) {
+      /* if (this.departmentNumber == null) {
         this.isSubmit = false;
         ToastUtil.showInfo('请选择部门');
         return;
-      }if (this.customerNumber  == null) {
-        this.isSubmit = false;
-        ToastUtil.showInfo('请选择客户');
-        return;
-      }
+      }*/
       Map<String, dynamic> dataMap = Map();
-      dataMap['formid'] = 'STK_MisDelivery';
       Map<String, dynamic> orderMap = Map();
       orderMap['NeedReturnFields'] = [];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
-      Model['FBillType'] = {"FNUMBER": "QTCKD01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       var menuData = sharedPreferences.getString('MenuPermissions');
       var deptData = jsonDecode(menuData)[0];
-      Model['FStockOrgId'] = {"FNumber": deptData[1]};
-      Model['FPickOrgId'] = {"FNumber": deptData[1]};
-      Model['FDeptId'] = {"FNumber": this.departmentNumber};
-      Model['FCustId'] = {"FNumber": this.customerNumber};
-      Model['FOwnerTypeIdHead'] = {"FNumber": "BD_Customer"};
+      Model['FStockOrgId'] = {"FNumber": this.orderDate[0][0]};
+      Model['FOwnerIdHead'] = {"FNumber": this.orderDate[0][13]};
+      /* Model['FDeptId'] = {"FNumber": this.departmentNumber};*/
+      Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
+      var FEntity1 = [];
       var FEntity = [];
+      var FEntity2 = [];
       var hobbyIndex = 0;
+      print(this.orderDate);
       this.hobby.forEach((element) {
-        if (element[1]['value']['value'] != '0' &&
-            element[0]['value']['value'] != '') {
+        if (element[4]['value']['value'] != '0' &&
+            element[4]['value']['value'] != '' && double.parse(element[4]['value']['value']) != element[3]['value']['value']) {
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FMaterialId'] = {
             "FNumber": element[0]['value']['value']
@@ -547,85 +720,190 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
             "FNumber": element[2]['value']['value']
           };
           FEntityItem['FStockId'] = {
-            "FNumber": element[4]['value']['value']
+            "FNumber": element[5]['value']['value']
+          };
+          FEntityItem['FOwnerid'] = {
+            "FNumber": element[9]['value']['value']
+          };
+          FEntityItem['FLOT'] = {
+            "FNumber": element[6]['value']['value']
+          };
+          FEntityItem['FStockStatusId'] = {
+            "FNumber": element[10]['value']['value']
+          };
+          FEntityItem['FKeeperTypeId'] = element[11]['value']['value'];
+          FEntityItem['FKeeperId'] = {
+            "FNumber": element[12]['value']['value']
           };
           /*FEntityItem['FReturnType'] = 1;*/
-          FEntityItem['FRealQty'] = element[1]['value']['value'];
+          FEntityItem['FCountQty'] = element[4]['value']['value'];
+          FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
+          if(double.parse(element[4]['value']['value']) > element[3]['value']['value']){
+            FEntity1.add(FEntityItem);
+          }else{
+            FEntity2.add(FEntityItem);
+          }
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
       });
-      if (FEntity.length == 0) {
+      if (FEntity.length == 0 ) {
         this.isSubmit = false;
-        ToastUtil.showInfo('请输入数量和仓库');
+        ToastUtil.showInfo('盘点数量未录入或盘点数量无差异，无须保存');
         return;
       }
-      Model['FTreeEntity'] = FEntity;
-      orderMap['Model'] = Model;
-      dataMap['data'] = orderMap;
-      print(jsonEncode(dataMap));
-      String order = await SubmitEntity.save(dataMap);
-      var res = jsonDecode(order);
-      print(res);
-      if (res['Result']['ResponseStatus']['IsSuccess']) {
-        Map<String, dynamic> submitMap = Map();
-        submitMap = {
-          "formid": "STK_InStock",
-          "data": {
-            'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
-          }
-        };
-        //提交
-        HandlerOrder.orderHandler(
-            context,
-            submitMap,
-            1,
-            "STK_InStock",
-            SubmitEntity.submit(submitMap))
-            .then((submitResult) {
-          if (submitResult) {
-            //审核
+      for(var i=0;i<2;i++){
+        //盘盈
+        if(FEntity1.length>0){
+          dataMap['formid'] = 'STK_StockCountGain';
+          Model['FBillTypeID'] = {"FNUMBER": "PY01_SYS"};
+          Model['FBillEntry'] = FEntity1;
+          orderMap['Model'] = Model;
+          dataMap['data'] = orderMap;
+          print(jsonEncode(dataMap));
+          String order = await SubmitEntity.save(dataMap);
+          var res = jsonDecode(order);
+          print(res);
+          if (res['Result']['ResponseStatus']['IsSuccess']) {
+            Map<String, dynamic> submitMap = Map();
+            FEntity1 =  [];
+            submitMap = {
+              "formid": "STK_StockCountGain",
+              "data": {
+                'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+              }
+            };
+            //提交
             HandlerOrder.orderHandler(
                 context,
                 submitMap,
                 1,
-                "STK_InStock",
-                SubmitEntity.audit(submitMap))
-                .then((auditResult) {
-              if (auditResult) {
-                //提交清空页面
-                setState(() {
-                  this.hobby = [];
-                  this.orderDate = [];
-                  this.FBillNo = '';
-                  ToastUtil.showInfo('提交成功');
-                  Navigator.of(context).pop("refresh");
-                });
-              } else {
-                //失败后反审
+                "STK_StockCountGain",
+                SubmitEntity.submit(submitMap))
+                .then((submitResult) {
+              if (submitResult) {
+                //审核
                 HandlerOrder.orderHandler(
                     context,
                     submitMap,
-                    0,
-                    "STK_InStock",
-                    SubmitEntity.unAudit(submitMap))
-                    .then((unAuditResult) {
-                  if (unAuditResult) {
-                    this.isSubmit = false;
+                    1,
+                    "STK_StockCountGain",
+                    SubmitEntity.audit(submitMap))
+                    .then((auditResult) {
+                  if (auditResult) {
+                    //提交清空页面
+                    setState(() {
+                      if(FEntity1.length == 0 && FEntity2.length == 0){
+                        this.hobby = [];
+                        this.orderDate = [];
+                        this.FBillNo = '';
+                        this.isSubmit = false;
+                        ToastUtil.showInfo('提交成功');
+                        /* Navigator.of(context).pop();*/
+                      }
+                    });
+                  } else {
+                    //失败后反审
+                    HandlerOrder.orderHandler(
+                        context,
+                        submitMap,
+                        0,
+                        "STK_StockCountGain",
+                        SubmitEntity.unAudit(submitMap))
+                        .then((unAuditResult) {
+                      if (unAuditResult) {
+                        this.isSubmit = false;
+                      }
+                    });
                   }
                 });
+              } else {
+                this.isSubmit = false;
               }
             });
           } else {
-            this.isSubmit = false;
+            setState(() {
+              this.isSubmit = false;
+              ToastUtil.errorDialog(
+                  context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
           }
-        });
-      } else {
-        setState(() {
-          this.isSubmit = false;
-          ToastUtil.errorDialog(
-              context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
-        });
+        }else if(FEntity2.length>0){
+          //盘亏
+          dataMap['formid'] = 'STK_StockCountLoss';
+          Model['FBillTypeID'] = {"FNUMBER": "PK01_SYS"};
+          Model['FBillEntry'] = FEntity2;
+          orderMap['Model'] = Model;
+          dataMap['data'] = orderMap;
+          print(jsonEncode(dataMap));
+          String order = await SubmitEntity.save(dataMap);
+          var res = jsonDecode(order);
+          print(res);
+          if (res['Result']['ResponseStatus']['IsSuccess']) {
+            Map<String, dynamic> submitMap = Map();
+            FEntity2 =  [];
+            submitMap = {
+              "formid": "STK_StockCountLoss",
+              "data": {
+                'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+              }
+            };
+            //提交
+            HandlerOrder.orderHandler(
+                context,
+                submitMap,
+                1,
+                "STK_StockCountLoss",
+                SubmitEntity.submit(submitMap))
+                .then((submitResult) {
+              if (submitResult) {
+                //审核
+                HandlerOrder.orderHandler(
+                    context,
+                    submitMap,
+                    1,
+                    "STK_StockCountLoss",
+                    SubmitEntity.audit(submitMap))
+                    .then((auditResult) {
+                  if (auditResult) {
+                    //提交清空页面
+                    setState(() {
+                      if(FEntity1.length == 0 && FEntity2.length == 0){
+                        this.hobby = [];
+                        this.orderDate = [];
+                        this.FBillNo = '';
+                        this.isSubmit = false;
+                        ToastUtil.showInfo('提交成功');
+                        /*Navigator.of(context).pop();*/
+                      }
+                    });
+                  } else {
+                    //失败后反审
+                    HandlerOrder.orderHandler(
+                        context,
+                        submitMap,
+                        0,
+                        "STK_StockCountLoss",
+                        SubmitEntity.unAudit(submitMap))
+                        .then((unAuditResult) {
+                      if (unAuditResult) {
+                        this.isSubmit = false;
+                      }
+                    });
+                  }
+                });
+              } else {
+                this.isSubmit = false;
+              }
+            });
+          } else {
+            setState(() {
+              this.isSubmit = false;
+              ToastUtil.errorDialog(
+                  context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+          }
+        }
       }
     } else {
       ToastUtil.showInfo('无提交数据');
@@ -636,32 +914,29 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
     return FlutterEasyLoading(
       child: Scaffold(
           appBar: AppBar(
-            title: Text("下架"),
+            title: Text("盘点"),
             centerTitle: true,
-            leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-              Navigator.of(context).pop("refresh");
-            }),
           ),
           body: Column(
             children: <Widget>[
               Expanded(
                 child: ListView(children: <Widget>[
-                  Column(
+                  /*Column(
                     children: [
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                          /* title: TextWidget(FBillNoKey, '生产订单：'),*/
+                          *//* title: TextWidget(FBillNoKey, '生产订单：'),*//*
                           title: Text("单号：$fBillNo"),
                         ),
                       ),
                       divider,
                     ],
-                  ),
+                  ),*/
                   _dateItem('日期：', DateMode.YMD),
-                  _item('部门',  this.departmentList, this.departmentName,
-                      'department'),
-                  Column(
+                  _item('仓库',  this.stockList, this.stockName,
+                      'stock'),
+                  /*Column(
                     children: [
                       Container(
                         color: Colors.white,
@@ -690,7 +965,7 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
                       ),
                       divider,
                     ],
-                  ),
+                  ),*/
                   Column(
                     children: this._getHobby(),
                   ),

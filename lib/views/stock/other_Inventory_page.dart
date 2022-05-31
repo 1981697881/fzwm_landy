@@ -9,17 +9,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'other_Inventory_detail.dart';
 
-import 'Inventory_detail.dart';
-
-class InventoryPage extends StatefulWidget {
-  InventoryPage({Key key}) : super(key: key);
-
+class OtherInventoryPage extends StatefulWidget {
+  OtherInventoryPage({Key key}) : super(key: key);
   @override
-  _InventoryPageState createState() => _InventoryPageState();
+  _OtherInventoryPageState createState() => _OtherInventoryPageState();
 }
-
-class _InventoryPageState extends State<InventoryPage> {
+class _OtherInventoryPageState extends State<OtherInventoryPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -44,7 +41,7 @@ class _InventoryPageState extends State<InventoryPage> {
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
 
     /// 开启监听
-     if (_subscription == null) {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
@@ -187,7 +184,7 @@ class _InventoryPageState extends State<InventoryPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return InventoryDetail(
+                          return OtherInventoryDetail(
                               FBillNo: this.hobby[i][0]['value']
                             // 路由参数
                           );
