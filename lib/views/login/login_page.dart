@@ -29,14 +29,14 @@ class _LoginPageState extends State<LoginPage> {
   var passwordContent = new TextEditingController();
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+   StreamSubscription ?_subscription;
   var _code;
   //用户名输入框控制器，此控制器可以监听用户名输入框操作
   TextEditingController _userNameController = new TextEditingController();
 
   //表单状态
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  SharedPreferences sharedPreferences;
+  late SharedPreferences sharedPreferences;
   var _password = ''; //用户名
   var _username = ''; //密码
   var message = ''; //密码
@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
     passwordContent.text = sharedPreferences.getString('password');
     /*lcidContent.text = sharedPreferences.getString('lcid');*/
   }
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     var content = _code.split(',');
@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();
     }
   }
 
@@ -131,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
   /**
    * 验证用户名
    */
-  String validateUserName(value) {
+  String? validateUserName(value) {
     // 正则匹配手机号
     /*RegExp exp = RegExp(r'^((13[0-9])|(14[0-9])|(15[0-9])|(16[0-9])|(17[0-9])|(18[0-9])|(19[0-9]))\d{8}$');*/
     if (value.isEmpty) {
@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
   /**
    * 验证密码
    */
-  String validatePassWord(value) {
+  String? validatePassWord(value) {
     if (value.isEmpty) {
       return '密码不能为空';
     } else if (value.trim().length < 6 || value.trim().length > 18) {
@@ -479,8 +479,8 @@ class _LoginPageState extends State<LoginPage> {
               //验证用户名
               validator: validateUserName,
               //保存数据
-              onSaved: (String value) {
-                _username = value;
+              onSaved: (value) {
+                _username = value!;
               },
             ),
             new TextFormField(
@@ -504,8 +504,8 @@ class _LoginPageState extends State<LoginPage> {
               //密码验证
               validator: validatePassWord,
               //保存数据
-              onSaved: (String value) {
-                _password = value;
+              onSaved: (value) {
+                _password = value!;
               },
             )
           ],
@@ -529,9 +529,9 @@ class _LoginPageState extends State<LoginPage> {
           //点击登录按钮，解除焦点，回收键盘
           _focusNodePassWord.unfocus();
           _focusNodeUserName.unfocus();
-          if (_formKey.currentState.validate()) {
+          if (_formKey.currentState!.validate()) {
             //只有输入通过验证，才会执行这里
-            _formKey.currentState.save();
+            _formKey.currentState!.save();
             if(this.acctidContent.text != '' && this.urlContent.text != '' && this.passwordContent.text != '' && this.usernameContent.text != ''){
               Map<String, dynamic> map = Map();
               map['username'] = sharedPreferences.getString('username');

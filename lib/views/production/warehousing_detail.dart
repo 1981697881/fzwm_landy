@@ -32,7 +32,7 @@ class WarehousingDetail extends StatefulWidget {
   var FBarcode;
 
   WarehousingDetail(
-      {Key key,
+      {Key ?key,
       @required this.FBillNo,
       @required this.FSeq,
       @required this.FEntryId,
@@ -80,7 +80,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+   StreamSubscription ?_subscription;
   var _code;
   var _FNumber;
   var FSeq;
@@ -155,7 +155,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();
     }
   }
 
@@ -179,7 +179,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         FDate = orderDate[0][3].substring(0, 10);
         selectData[DateMode.YMDHMS] = orderDate[0][3].substring(0, 10);
         FSaleOrderNo = orderDate[0][4];
-        globalKey.currentState.update();
+        globalKey.currentState!.update();
         this.fOrgID = orderDate[0][1];
         /*FBillNoKey.currentState.onPressed(orderDate[0][0]);
     FSaleOrderNoKey.currentState.onPressed(orderDate[0][4]);*/
@@ -252,7 +252,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     } else {
       EasyLoading.dismiss();
       _code = '';
-      textKey.currentState.onPressed(_code);
+      textKey.currentState!.onPressed(_code);
       if (FNumber == '') {
         checkItem = 'FPrdOrgId';
         ToastUtil.showInfo('请扫描生产车间');
@@ -265,11 +265,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     if (textKey.currentState != null) {
-      textKey.currentState.onPressed(_code);
+      textKey.currentState!.onPressed(_code);
       switch (checkItem) {
         case 'FBillNo':
           EasyLoading.show(status: 'loading...');
@@ -458,7 +458,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     });
   }
 
-  Widget _item(title, var data, selectData, hobby, {String label, var stock}) {
+  Widget _item(title, var data, selectData, hobby, {String ?label, var stock}) {
     if (selectData == null) {
       selectData = "";
     }
@@ -495,9 +495,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               PartRefreshWidget(globalKey, () {
                 //2、使用 创建一个widget
                 return MyText(
-                    PicketUtil.strEmpty(selectData[model])
+                    (PicketUtil.strEmpty(selectData[model])
                         ? '暂无'
-                        : selectData[model],
+                        : selectData[model])!,
                     color: Colors.grey,
                     rightpadding: 18);
               }),
@@ -541,7 +541,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   }
 
   void _onClickItem(var data, var selectData, hobby,
-      {String label, var stock}) {
+      {String ?label, var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,

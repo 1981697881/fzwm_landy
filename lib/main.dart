@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -105,7 +105,7 @@ class _MyHomePageState extends State {
       if (count >= 3) {
 //取消定时器，避免无限回调
         timer.cancel();
-        timer = null;
+        /*timer = null;*/
         toLoing();
       }
     });

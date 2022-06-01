@@ -11,16 +11,17 @@ class MiddleLayerPage extends StatefulWidget {
   final int menuId;
   final String menuTitle;
 
-  MiddleLayerPage({Key key,@required this.menuId,@required this.menuTitle}) : super(key: key);
+  MiddleLayerPage({Key ?key, required this.menuId, required this.menuTitle}) : super(key: key);
 
   @override
   _MiddleLayerPageState createState() => _MiddleLayerPageState(menuId,menuTitle);
 }
 
 class _MiddleLayerPageState extends State<MiddleLayerPage> {
-  int currentIndex;
-  String menuTitle;
-  SharedPreferences sharedPreferences;
+  late int currentIndex;
+  late String menuTitle;
+  late SharedPreferences sharedPreferences;
+  var menu;
   _MiddleLayerPageState(int menuId, String menuTitle){
     this.currentIndex = menuId;
     this.menuTitle = menuTitle;
@@ -37,6 +38,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   }
   _load() async {
     sharedPreferences = await SharedPreferences.getInstance();
+    menu = sharedPreferences.getString('MenuPermissions');
   }
   @override
   void dispose() {
@@ -93,7 +95,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
 
   // tabs 容器
   Widget buildAppBarTabs() {
-    var menu = MenuPermissions.getMenuChild(sharedPreferences.getString('MenuPermissions'));
+    var menu = MenuPermissions.getMenuChild(this.menu);
     /* [
       {
         "icon": Icons.loupe,
@@ -131,7 +133,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
       },
     ];*/
     print(menu);
-    var childMenu = List<Map<String, dynamic>>();
+    var childMenu = <Map<String, dynamic>>[];
     menu.forEach((value) {
       if(value['parentId'] == this.currentIndex){
         print(value);
