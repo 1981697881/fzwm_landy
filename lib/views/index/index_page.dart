@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:fzwm_landy/http/api_response.dart';
 import 'package:fzwm_landy/model/version_entity.dart';
+import 'package:fzwm_landy/utils/SqfLiteQueueDataOffline.dart';
+import 'package:fzwm_landy/utils/SqfLiteQueueDataScheme.dart';
 import 'package:fzwm_landy/views/login/login_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -79,10 +81,10 @@ class _IndexPageState extends State<IndexPage> {
   /// 执行版本更新的网络请求
   _getNewVersionAPP(context) async {
     ApiResponse<VersionEntity> entity = await VersionEntity.getVersion();
-    serviceVersionCode = entity.data.data.buildVersionNo;
-    buildVersion = entity.data.data.buildVersion;
-    buildUpdateDescription = entity.data.data.buildUpdateDescription;
-    downloadUrl = entity.data.data.downloadUrl;
+    serviceVersionCode = entity.data!.data.buildVersionNo;
+    buildVersion = entity.data!.data.buildVersion;
+    buildUpdateDescription = entity.data!.data.buildUpdateDescription;
+    downloadUrl = entity.data!.data.downloadUrl;
     _checkVersionCode();
   }
 
@@ -329,7 +331,6 @@ class _IndexPageState extends State<IndexPage> {
           break;
       }
     };
-    print(menu);
     return Wrap(
         /*mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,*/
@@ -406,6 +407,8 @@ class _IndexPageState extends State<IndexPage> {
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   /*prefs.clear();*/
+                  SqfLiteQueueDataOffline.deleteDataTable();
+                  SqfLiteQueueDataScheme.deleteDataTable();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

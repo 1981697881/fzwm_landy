@@ -540,7 +540,7 @@ class _LoginPageState extends State<LoginPage> {
               map['password'] = sharedPreferences.getString('password');
               ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
               print(entity);
-              if (entity.data.loginResultType == 1) {
+              if (entity.data!.loginResultType == 1) {
                 //  print("登录成功");
                 Map<String, dynamic> userMap = Map();
                 userMap['FormId'] = 'BD_Empinfo';
@@ -560,7 +560,7 @@ class _LoginPageState extends State<LoginPage> {
                     authorMap['auth'] = resUser[0][3];
                     ApiResponse<AuthorizeEntity> author =
                     await AuthorizeEntity.getAuthorize(authorMap);
-                    if (author.data.data.fStatus == "0") {
+                    if (author.data!.data.fStatus == "0") {
                       Map<String, dynamic> empMap = Map();
                       empMap['FormId'] = 'BD_Empinfo';
                       empMap['FilterString'] =
@@ -571,12 +571,12 @@ class _LoginPageState extends State<LoginPage> {
                       empDataMap['data'] = empMap;
                       String EmpEntity = await CurrencyEntity.polling(empDataMap);
                       var resEmp = jsonDecode(EmpEntity);
-                      if(author.data.data.fAuthNums > resEmp.length && resEmp.length > 0){
-                        sharedPreferences.setString('menuList', jsonEncode(author.data.data));
+                      if(author.data!.data.fAuthNums > resEmp.length && resEmp.length > 0){
+                        sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
                         sharedPreferences.setString('FStaffNumber', _username);
                         sharedPreferences.setString('FPwd', _password);
                         sharedPreferences.setString('MenuPermissions', UserEntity);
-                        if(author.data.data.fMessage == null){
+                        if(author.data!.data.fMessage == null){
                           ToastUtil.showInfo('登录成功');
                           Navigator.pushReplacement(
                             context,
@@ -587,7 +587,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           );
                         }else{
-                          this.message = author.data.data.fMessage;
+                          this.message = author.data!.data.fMessage;
                           showExitDialog();
                         }
                       }else{
@@ -595,7 +595,7 @@ class _LoginPageState extends State<LoginPage> {
                       }
                     }else{
                       ToastUtil.errorDialog(context,
-                          author.data.data.fMessage);
+                          author.data!.data.fMessage);
                     }
                   } else {
                     if (!resUser[0][0]['Result']['ResponseStatus']['IsSuccess']) {

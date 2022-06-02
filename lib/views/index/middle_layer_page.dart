@@ -25,7 +25,6 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   _MiddleLayerPageState(int menuId, String menuTitle){
     this.currentIndex = menuId;
     this.menuTitle = menuTitle;
-    print(currentIndex);
   }
 
 
@@ -132,11 +131,9 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
         "router": ReportWarehousingPage()
       },
     ];*/
-    print(menu);
     var childMenu = <Map<String, dynamic>>[];
     menu.forEach((value) {
       if(value['parentId'] == this.currentIndex){
-        print(value);
         childMenu.add(value);
       }
     });
