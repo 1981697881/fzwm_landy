@@ -38,30 +38,6 @@ class SqfLiteQueueDataScheme {
   SqfLiteQueueDataScheme.internal();
   //数据库句柄
   late Database _database;
-  Future<Database> get database async {
-    String path = await getDatabasesPath() + "/$_databaseName";
-    _database = await openDatabase(path, version: _version,
-      onConfigure: (Database db) {
-        print("数据库创建前、降级前、升级前调用");
-      },
-      onDowngrade: (Database db, int version, int x) {
-        print("降级时调用");
-      },
-      onUpgrade: (Database db, int version, int x) {
-        print("升级时调用");
-      },
-      onCreate: (Database db, int version) async {
-        print("创建时调用");
-      },
-      onOpen: (Database db) async {
-        print("重新打开时调用");
-        await _createTable(db,
-            '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty INTEGER,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
-      },
-    );
-    return _database;
-  }
-
   /// 添加数据
   static Future insertData(int fid,
       String schemeName,
@@ -80,8 +56,8 @@ class SqfLiteQueueDataScheme {
       String stockName,
       String stockNumber,
       String lot,
-      String ownerId,
       String stockOrgId,
+      String ownerId,
       String stockStatusId,
       String keeperTypeId,
       String keeperId,
@@ -124,6 +100,30 @@ class SqfLiteQueueDataScheme {
     await db.batch().commit();
 
     /*await SqfLiteQueueDataScheme.internal().close();*/
+  }
+
+  Future<Database> get database async {
+    String path = await getDatabasesPath() + "/$_databaseName";
+    _database = await openDatabase(path, version: _version,
+      onConfigure: (Database db) {
+        print("数据库创建前、降级前、升级前调用");
+      },
+      onDowngrade: (Database db, int version, int x) {
+        print("降级时调用");
+      },
+      onUpgrade: (Database db, int version, int x) {
+        print("升级时调用");
+      },
+      onCreate: (Database db, int version) async {
+        print("创建时调用");
+      },
+      onOpen: (Database db) async {
+        print("重新打开时调用");
+        await _createTable(db,
+            '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+      },
+    );
+    return _database;
   }
 
   /// 创建表

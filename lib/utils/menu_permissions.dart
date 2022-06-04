@@ -20,6 +20,7 @@ import 'package:fzwm_landy/views/stock/allocation_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_detail.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_page.dart';
 import 'package:fzwm_landy/views/stock/grounding_page.dart';
+import 'package:fzwm_landy/views/stock/offline_Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/other_Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/other_warehousing_detail.dart';
 import 'package:fzwm_landy/views/stock/other_warehousing_page.dart';
@@ -296,6 +297,14 @@ class MenuPermissions {
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": SchemeInventoryDetail(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "离线盘点",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": OfflineInventoryDetail(),
       "source": '',
     });
     return menu;
