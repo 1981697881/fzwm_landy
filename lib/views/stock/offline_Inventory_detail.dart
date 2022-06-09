@@ -59,6 +59,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
   var show = false;
   var isSubmit = false;
   var isScanWork = false;
+  var isCumulative = "否";
   var checkData;
   var checkDataChild;
   var selectData = {
@@ -80,7 +81,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
-  const EventChannel('com.shinow.pda_scanner/plugin');
+      const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription? _subscription;
   var _code;
   var _FNumber;
@@ -121,27 +122,67 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       Map<String, dynamic> userMap = Map();
       userMap['FilterString'] = "FSchemeNo = '$schemeNumber' ";
       userMap['FormId'] = 'STK_StockCountInput';
-      userMap['FieldKeys'] = 'FID';
+      userMap['FieldKeys'] =
+          'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
       var resData = jsonDecode(order);
       if (resData.length > 0) {
-        fID = resData[0][0];
-        SqfLiteQueueDataOffline.searchDates(
-            "select * from scheme_Inventory where schemeNumber =$schemeNumber")
-            .then((value) {
-          var res = jsonEncode(value);
-          if (jsonDecode(res).length > 0) {
-            var resInventory = jsonDecode(res);
-            _showInventoryDialog(resInventory);
-          }
-        });
+        fID = resData[0][15];
+        SqfLiteQueueDataOffline.deleteTableData();
+        for (var value in resData) {
+          /*resData.forEach((value) {*/
+          /*element[0]['value']['label'],value[1] + "- (" + value[2] + ")",
+          element[0]['value']['value'],value[2]
+          element[1]['value']['value'],value[3]
+          element[2]['value']['label'],value[4]
+          element[2]['value']['value'],value[5]
+          element[3]['value']['value'],value[7]
+          element[4]['value']['value'],scanCode[4].toString()
+          element[5]['value']['label'],value[8]
+          element[5]['value']['value'],value[6]
+          element[6]['value']['value'],value[9] == null ? "" : value[9]
+          element[7]['value']['value'],value[0]
+          element[9]['value']['value'],value[13]
+          element[10]['value']['value'],value[10]
+          element[11]['value']['value'],value[11]
+          element[12]['value']['value'],value[12]
+          element[13]['value']['value'],value[14]
+          jsonEncode(element[0]['value']['barcode']));*/
+          SqfLiteQueueDataOffline.insertData(
+              this.fID,
+              this.schemeName,
+              this.schemeNumber,
+              this.organizationsName == null ? "" : this.organizationsName,
+              this.organizationsNumber == null ? "" : this.organizationsNumber,
+              this.stockName == null ? "" : this.stockName,
+              this.stockNumber == null ? "" : this.stockNumber,
+              value[1] + "- (" + value[2] + ")",
+              value[2],
+              value[3],
+              value[4],
+              value[5],
+              value[7],
+              "0",
+              value[8],
+              value[6],
+              value[9] == null ? "" : value[9],
+              value[0],
+              value[13],
+              value[10],
+              value[11],
+              value[12],
+              value[14],
+              "");
+        }
+        ;
       } else {
         ToastUtil.showInfo('该盘点作业无数据');
       }
     }
   } //获取盘点方案
+
   getSchemeList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -229,9 +270,8 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
   // 查询数据集合
   List hobby = [];
 
-  getOrderList() async {
+  getOrderList() async {}
 
-  }
   void _onEvent(event) async {
     /*  setState(() {*/
     if ((stockNumber == null || stockNumber == "") ||
@@ -244,7 +284,6 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       this.getMaterialList("");
       print("ChannelPage: $event");
     }
-
     /*});*/
   }
 
@@ -253,36 +292,52 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       _code = "扫描异常";
     });
   }
+
   getMaterialList(barcodeData) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = _code.split(",");
-    userMap['FilterString'] = "FMaterialId.FNumber='" +
-        scanCode[0] +
-        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+    var resInventory = [];
     if (scanCode.length > 1) {
       if (scanCode[1] == '') {
-        userMap['FilterString'] = "FMaterialId.FNumber='" +
-            scanCode[0] +
-            "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+        await SqfLiteQueueDataOffline.searchDates(
+                "select * from offline_Inventory where materialNumber='" +
+                    scanCode[0] +
+                    "' and schemeNumber = '$schemeNumber' and ownerId ='$organizationsNumber' and stockNumber = '$stockNumber'")
+            .then((value) {
+          var res = jsonEncode(value);
+          if (jsonDecode(res).length > 0) {
+            resInventory = jsonDecode(res);
+          }
+        });
       } else {
-        userMap['FilterString'] = "FMaterialId.FNumber='" +
-            scanCode[0] +
-            "' and FLot.FNumber='" +
-            scanCode[1] +
-            "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
+        await SqfLiteQueueDataOffline.searchDates(
+                "select * from offline_Inventory where materialNumber='" +
+                    scanCode[0] +
+                    "' and lot='" +
+                    scanCode[1] +
+                    "' and schemeNumber = '$schemeNumber' and ownerId ='$organizationsNumber' and stockNumber = '$stockNumber'")
+            .then((value) {
+          var res = jsonEncode(value);
+          if (jsonDecode(res).length > 0) {
+            resInventory = jsonDecode(res);
+          }
+        });
       }
+    } else {
+      await SqfLiteQueueDataOffline.searchDates(
+              "select * from offline_Inventory where materialNumber='" +
+                  scanCode[0] +
+                  "' and schemeNumber = '$schemeNumber' and ownerId ='$organizationsNumber' and stockNumber = '$stockNumber'")
+          .then((value) {
+        var res = jsonEncode(value);
+        if (jsonDecode(res).length > 0) {
+          resInventory = jsonDecode(res);
+        }
+      });
     }
-    userMap['FormId'] = 'STK_StockCountInput';
-    userMap['FieldKeys'] =
-    'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID';
-    Map<String, dynamic> dataMap = Map();
-    dataMap['data'] = userMap;
-    String order = await CurrencyEntity.polling(dataMap);
-    orderDate = [];
-    orderDate = jsonDecode(order);
     FDate = formatDate(DateTime.now(), [
       yyyy,
       "-",
@@ -297,9 +352,9 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       "-",
       dd,
     ]);
-    if (orderDate.length > 0) {
+    print(resInventory);
+    if (resInventory.length > 0) {
       var number = 0;
-      fID = this.orderDate[0][15];
       for (var element in hobby) {
         if (element[0]['value']['barcode'].indexOf(_code) != -1) {
           number++;
@@ -310,7 +365,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             scanCode[0] + "-" + scanCode[1]) {
           element[4]['value']['label'] =
               (double.parse(element[4]['value']['label']) +
-                  double.parse(scanCode[4]))
+                      double.parse(scanCode[4]))
                   .toString();
           element[4]['value']['value'] = element[4]['value']['label'];
           element[0]['value']['barcode'].add(_code);
@@ -319,16 +374,186 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         }
       }
       if (number == 0) {
-        orderDate.forEach((value) {
+        List arr = [];
+        arr.add({
+          "title": "物料",
+          "name": "FMaterial",
+          "id": "",
+          "isHide": false,
+          "value": {
+            "label": resInventory[0]['materialName'],
+            "value": resInventory[0]['materialNumber'],
+            "barcode": [_code]
+          }
+        });
+        arr.add({
+          "title": "规格型号",
+          "isHide": false,
+          "name": "FMaterialIdFSpecification",
+          "value": {
+            "label": resInventory[0]['specification'],
+            "value": resInventory[0]['specification']
+          }
+        });
+        arr.add({
+          "title": "单位名称",
+          "name": "FUnitId",
+          "isHide": false,
+          "value": {
+            "label": resInventory[0]['unitName'],
+            "value": resInventory[0]['unitNumber']
+          }
+        });
+        arr.add({
+          "title": "账存数量",
+          "name": "FRealQty",
+          "isHide": false,
+          "value": {
+            "label": resInventory[0]['realQty'],
+            "value": resInventory[0]['realQty']
+          }
+        });
+        arr.add({
+          "title": "盘点数量",
+          "name": "FCountQty",
+          "isHide": false,
+          "value": {
+            "label": scanCode[4].toString(),
+            "value": scanCode[4].toString()
+          }
+        });
+        arr.add({
+          "title": "仓库",
+          "name": "FStockID",
+          "isHide": false,
+          "value": {
+            "label": resInventory[0]['stockName'],
+            "value": resInventory[0]['stockNumber']
+          }
+        });
+        arr.add({
+          "title": "批号",
+          "name": "FLot",
+          "isHide": false,
+          "value": {
+            "label": resInventory[0]['lot'],
+            "value": resInventory[0]['lot']
+          }
+        });
+        arr.add({
+          "title": "FStockOrgId",
+          "name": "FStockOrgId",
+          "isHide": true,
+          "value": {
+            "label": resInventory[0]['stockOrgId'],
+            "value": resInventory[0]['stockOrgId']
+          }
+        });
+        arr.add({
+          "title": "操作",
+          "name": "",
+          "isHide": false,
+          "value": {"label": "", "value": ""}
+        });
+        arr.add({
+          "title": "FOwnerid",
+          "name": "FOwnerid",
+          "isHide": true,
+          "value": {
+            "label": resInventory[0]['ownerId'],
+            "value": resInventory[0]['ownerId']
+          }
+        });
+        arr.add({
+          "title": "FStockStatusId",
+          "name": "FStockStatusId",
+          "isHide": true,
+          "value": {
+            "label": resInventory[0]['stockStatusId'],
+            "value": resInventory[0]['stockStatusId']
+          }
+        });
+        arr.add({
+          "title": "FKeeperTypeId",
+          "name": "FKeeperTypeId",
+          "isHide": true,
+          "value": {
+            "label": resInventory[0]['keeperTypeId'],
+            "value": resInventory[0]['keeperTypeId']
+          }
+        });
+        arr.add({
+          "title": "FKeeperId",
+          "name": "FKeeperId",
+          "isHide": true,
+          "value": {
+            "label": resInventory[0]['keeperId'],
+            "value": resInventory[0]['keeperId']
+          }
+        });
+        arr.add({
+          "title": "FBillEntry_FEntryID",
+          "name": "FBillEntry_FEntryID",
+          "isHide": true,
+          "value": {
+            "label": resInventory[0]['entryID'],
+            "value": resInventory[0]['entryID']
+          }
+        });
+        hobby.add(arr);
+      }
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+        _scrollController.jumpTo(globalListKey.currentContext!.size!.height);
+      });
+    } else {
+      /*Map<String, dynamic> materialMap = Map();
+      materialMap['FilterString'] = "FNumber='" +
+          scanCode[0] +
+          "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
+          deptData[1] +
+          "'";
+      materialMap['FormId'] = 'BD_MATERIAL';
+      materialMap['FieldKeys'] =
+      'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
+      Map<String, dynamic> materialDataMap = Map();
+      materialDataMap['data'] = materialMap;
+      String order = await CurrencyEntity.polling(materialDataMap);
+      var materialDate = [];
+      materialDate = jsonDecode(order);*/
+      if (scanCode.length > 2) {
+        var number = 0;
+        for (var element in hobby) {
+          if (element[0]['value']['barcode'].indexOf(_code) != -1) {
+            number++;
+            ToastUtil.showInfo('该标签已扫描');
+            break;
+          }
+          if (element[0]['value']['value'] +
+                  "-" +
+                  element[6]['value']['value'] ==
+              scanCode[0] + "-" + scanCode[1]) {
+            element[4]['value']['label'] =
+                (double.parse(element[4]['value']['label']) +
+                        double.parse(scanCode[4]))
+                    .toString();
+            element[4]['value']['value'] = element[4]['value']['label'];
+            element[0]['value']['barcode'].add(_code);
+            number++;
+            break;
+          }
+        }
+        if (number == 0) {
           List arr = [];
           arr.add({
             "title": "物料",
             "name": "FMaterial",
-            "id": "",
             "isHide": false,
+            "id": "",
             "value": {
-              "label": value[1] + "- (" + value[2] + ")",
-              "value": value[2],
+              "label": scanCode[0],
+              "value": scanCode[0],
               "barcode": [_code]
             }
           });
@@ -336,19 +561,19 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             "title": "规格型号",
             "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "单位名称",
             "name": "FUnitId",
             "isHide": false,
-            "value": {"label": value[4], "value": value[5]}
+            "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "账存数量",
             "name": "FRealQty",
             "isHide": false,
-            "value": {"label": value[7], "value": value[7]}
+            "value": {"label": 0, "value": 0}
           });
           arr.add({
             "title": "盘点数量",
@@ -363,22 +588,19 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             "title": "仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": value[8], "value": value[6]}
+            "value": {"label": this.stockName, "value": this.stockNumber}
           });
           arr.add({
             "title": "批号",
             "name": "FLot",
             "isHide": false,
-            "value": {
-              "label": value[9] == null ? "" : value[9],
-              "value": value[9] == null ? "" : value[9]
-            }
+            "value": {"label": scanCode[1], "value": scanCode[1]}
           });
           arr.add({
             "title": "FStockOrgId",
             "name": "FStockOrgId",
             "isHide": true,
-            "value": {"label": value[0], "value": value[0]}
+            "value": {"label": deptData[1], "value": deptData[1]}
           });
           arr.add({
             "title": "操作",
@@ -390,177 +612,36 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             "title": "FOwnerid",
             "name": "FOwnerid",
             "isHide": true,
-            "value": {"label": value[13], "value": value[13]}
+            "value": {
+              "label": this.organizationsNumber,
+              "value": this.organizationsNumber
+            }
           });
           arr.add({
             "title": "FStockStatusId",
             "name": "FStockStatusId",
             "isHide": true,
-            "value": {"label": value[10], "value": value[10]}
+            "value": {"label": "KCZT01_SYS", "value": "KCZT01_SYS"}
           });
           arr.add({
             "title": "FKeeperTypeId",
             "name": "FKeeperTypeId",
             "isHide": true,
-            "value": {"label": value[11], "value": value[11]}
+            "value": {"label": "BD_KeeperOrg", "value": "BD_KeeperOrg"}
           });
           arr.add({
             "title": "FKeeperId",
             "name": "FKeeperId",
             "isHide": true,
-            "value": {"label": value[12], "value": value[12]}
+            "value": {"label": deptData[1], "value": deptData[1]}
           });
           arr.add({
             "title": "FBillEntry_FEntryID",
             "name": "FBillEntry_FEntryID",
             "isHide": true,
-            "value": {"label": value[14], "value": value[14]}
+            "value": {"label": "0", "value": "0"}
           });
           hobby.add(arr);
-        });
-      }
-      setState(() {
-        EasyLoading.dismiss();
-        this._getHobby();
-        _scrollController.jumpTo(globalListKey.currentContext!.size!.height);
-      });
-    } else {
-      Map<String, dynamic> materialMap = Map();
-      materialMap['FilterString'] = "FNumber='" +
-          scanCode[0] +
-          "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
-          deptData[1] +
-          "'";
-      materialMap['FormId'] = 'BD_MATERIAL';
-      materialMap['FieldKeys'] =
-      'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
-      Map<String, dynamic> materialDataMap = Map();
-      materialDataMap['data'] = materialMap;
-      String order = await CurrencyEntity.polling(materialDataMap);
-      var materialDate = [];
-      materialDate = jsonDecode(order);
-      if (materialDate.length > 0) {
-        var number = 0;
-        for (var element in hobby) {
-          if (element[0]['value']['barcode'].indexOf(_code) != -1) {
-            number++;
-            ToastUtil.showInfo('该标签已扫描');
-            break;
-          }
-          if (element[0]['value']['value'] +
-              "-" +
-              element[6]['value']['value'] ==
-              scanCode[0] + "-" + scanCode[1]) {
-            element[4]['value']['label'] =
-                (double.parse(element[4]['value']['label']) +
-                    double.parse(scanCode[4]))
-                    .toString();
-            element[4]['value']['value'] = element[4]['value']['label'];
-            element[0]['value']['barcode'].add(_code);
-            number++;
-            break;
-          }
-        }
-        if (number == 0) {
-          materialDate.forEach((value) {
-            List arr = [];
-            arr.add({
-              "title": "物料",
-              "name": "FMaterial",
-              "isHide": false,
-              "id": "",
-              "value": {
-                "label": value[1] + "- (" + value[2] + ")",
-                "value": value[2],
-                "barcode": [_code]
-              }
-            });
-            arr.add({
-              "title": "规格型号",
-              "isHide": false,
-              "name": "FMaterialIdFSpecification",
-              "value": {"label": value[3], "value": value[3]}
-            });
-            arr.add({
-              "title": "单位名称",
-              "name": "FUnitId",
-              "isHide": false,
-              "value": {"label": value[4], "value": value[5]}
-            });
-            arr.add({
-              "title": "账存数量",
-              "name": "FRealQty",
-              "isHide": false,
-              "value": {"label": 0, "value": 0}
-            });
-            arr.add({
-              "title": "盘点数量",
-              "name": "FCountQty",
-              "isHide": false,
-              "value": {
-                "label": scanCode[4].toString(),
-                "value": scanCode[4].toString()
-              }
-            });
-            arr.add({
-              "title": "仓库",
-              "name": "FStockID",
-              "isHide": false,
-              "value": {"label": this.stockName, "value": this.stockNumber}
-            });
-            arr.add({
-              "title": "批号",
-              "name": "FLot",
-              "isHide": false,
-              "value": {"label": scanCode[1], "value": scanCode[1]}
-            });
-            arr.add({
-              "title": "FStockOrgId",
-              "name": "FStockOrgId",
-              "isHide": true,
-              "value": {"label": deptData[1], "value": deptData[1]}
-            });
-            arr.add({
-              "title": "操作",
-              "name": "",
-              "isHide": false,
-              "value": {"label": "", "value": ""}
-            });
-            arr.add({
-              "title": "FOwnerid",
-              "name": "FOwnerid",
-              "isHide": true,
-              "value": {
-                "label": this.organizationsNumber,
-                "value": this.organizationsNumber
-              }
-            });
-            arr.add({
-              "title": "FStockStatusId",
-              "name": "FStockStatusId",
-              "isHide": true,
-              "value": {"label": "KCZT01_SYS", "value": "KCZT01_SYS"}
-            });
-            arr.add({
-              "title": "FKeeperTypeId",
-              "name": "FKeeperTypeId",
-              "isHide": true,
-              "value": {"label": "BD_KeeperOrg", "value": "BD_KeeperOrg"}
-            });
-            arr.add({
-              "title": "FKeeperId",
-              "name": "FKeeperId",
-              "isHide": true,
-              "value": {"label": deptData[1], "value": deptData[1]}
-            });
-            arr.add({
-              "title": "FBillEntry_FEntryID",
-              "name": "FBillEntry_FEntryID",
-              "isHide": true,
-              "value": {"label": "0", "value": "0"}
-            });
-            hobby.add(arr);
-          });
         }
         setState(() {
           EasyLoading.dismiss();
@@ -575,6 +656,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       }
     }
   }
+
   Widget _item(title, var data, selectData, hobby, {String? label, var stock}) {
     if (selectData == null) {
       selectData = "";
@@ -587,7 +669,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             title: Text(title),
             onTap: () => data.length > 0
                 ? _onClickItem(data, selectData, hobby,
-                label: label, stock: stock)
+                    label: label, stock: stock)
                 : {ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
               MyText(selectData.toString() == "" ? '暂无' : selectData.toString(),
@@ -715,7 +797,6 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               }
               elementIndex++;
             });
-            getInventorySessions();
           } else if (hobby == 'organizations') {
             organizationsName = p;
             var elementIndex = 0;
@@ -725,7 +806,6 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               }
               elementIndex++;
             });
-            getInventorySessions();
           } else if (hobby == 'scheme') {
             schemeName = p;
             var elementIndex = 0;
@@ -736,6 +816,8 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               elementIndex++;
             });
             getInventorySessions();
+          } else if (hobby == 'cumulative') {
+            isCumulative = p;
           } else {
             setState(() {
               hobby['value']['label'] = p;
@@ -790,10 +872,10 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                                 if (this.hobby[i][j]["value"]["label"] != 0) {
                                   this._textNumber.value =
                                       _textNumber.value.copyWith(
-                                        text: this
-                                            .hobby[i][j]["value"]["label"]
-                                            .toString(),
-                                      );
+                                    text: this
+                                        .hobby[i][j]["value"]["label"]
+                                        .toString(),
+                                  );
                                 }
                               },
                             ),
@@ -838,7 +920,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
-                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
                     ]),
@@ -888,18 +970,18 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                       padding: EdgeInsets.only(top: 8),
                       child: Card(
                           child: Column(children: <Widget>[
-                            TextField(
-                              style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
-                              controller: this._textNumber,
-                              decoration: InputDecoration(hintText: "输入"),
-                              onChanged: (value) {
-                                setState(() {
-                                  this._FNumber = value;
-                                });
-                              },
-                            ),
-                          ]))),
+                        TextField(
+                          style: TextStyle(color: Colors.black87),
+                          keyboardType: TextInputType.number,
+                          controller: this._textNumber,
+                          decoration: InputDecoration(hintText: "输入"),
+                          onChanged: (value) {
+                            setState(() {
+                              this._FNumber = value;
+                            });
+                          },
+                        ),
+                      ]))),
                   Padding(
                     padding: EdgeInsets.only(top: 15, bottom: 8),
                     child: FlatButton(
@@ -909,9 +991,9 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                           Navigator.pop(context);
                           setState(() {
                             this.hobby[checkData][checkDataChild]["value"]
-                            ["label"] = _FNumber;
+                                ["label"] = _FNumber;
                             this.hobby[checkData][checkDataChild]['value']
-                            ["value"] = _FNumber;
+                                ["value"] = _FNumber;
                           });
                         },
                         child: Text(
@@ -956,185 +1038,6 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         });
   }
 
-  /// 缓存数据确认弹窗
-  Future<void> _showInventoryDialog(inventoryData) async {
-    return showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: new Text("检测到缓存数据，是否提取", style: TextStyle(fontSize: 14.0)),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text('不了'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: new Text('清空缓存'),
-                onPressed: () async {
-                  SqfLiteQueueDataOffline.deleteData(this.schemeNumber);
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: new Text('确定'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  setState(() {
-                    print(inventoryData);
-                    this.organizationsName =
-                    inventoryData[0]['organizationsName'];
-                    this.organizationsNumber =
-                    inventoryData[0]["organizationsNumber"];
-                    this.schemeName = inventoryData[0]["schemeName"];
-                    this.schemeNumber = inventoryData[0]["schemeNumber"];
-                    this.stockName = inventoryData[0]["stockIdName"];
-                    this.stockNumber = inventoryData[0]["stockIdNumber"];
-                    hobby = [];
-                    for (var element in inventoryData) {
-                      List arr = [];
-                      arr.add({
-                        "title": "物料",
-                        "name": "FMaterial",
-                        "isHide": false,
-                        "value": {
-                          "label": element["materialName"] +
-                              "- (" +
-                              element["materialNumber"] +
-                              ")",
-                          "value": element["materialNumber"],
-                          "barcode": jsonDecode(element["barcode"])
-                        }
-                      });
-                      arr.add({
-                        "title": "规格型号",
-                        "isHide": false,
-                        "name": "FMaterialIdFSpecification",
-                        "value": {
-                          "label": element["specification"],
-                          "value": element["specification"]
-                        }
-                      });
-                      arr.add({
-                        "title": "单位名称",
-                        "name": "FUnitId",
-                        "isHide": false,
-                        "value": {
-                          "label": element["unitName"],
-                          "value": element["unitNumber"]
-                        }
-                      });
-                      arr.add({
-                        "title": "账存数量",
-                        "name": "FRealQty",
-                        "isHide": false,
-                        "value": {
-                          "label": element["realQty"],
-                          "value": element["realQty"]
-                        }
-                      });
-                      arr.add({
-                        "title": "盘点数量",
-                        "name": "FCountQty",
-                        "isHide": false,
-                        "value": {
-                          "label": element["countQty"],
-                          "value": element["countQty"]
-                        }
-                      });
-                      arr.add({
-                        "title": "仓库",
-                        "name": "FStockID",
-                        "isHide": false,
-                        "value": {
-                          "label": element["stockName"],
-                          "value": element["stockNumber"]
-                        }
-                      });
-                      arr.add({
-                        "title": "批号",
-                        "name": "FLot",
-                        "isHide": false,
-                        "value": {
-                          "label": element["lot"],
-                          "value": element["lot"]
-                        }
-                      });
-                      arr.add({
-                        "title": "FStockOrgId",
-                        "name": "FStockOrgId",
-                        "isHide": true,
-                        "value": {
-                          "label": element["stockOrgId"],
-                          "value": element["stockOrgId"]
-                        }
-                      });
-                      arr.add({
-                        "title": "操作",
-                        "name": "",
-                        "isHide": false,
-                        "value": {"label": "", "value": ""}
-                      });
-                      arr.add({
-                        "title": "FOwnerid",
-                        "name": "FOwnerid",
-                        "isHide": true,
-                        "value": {
-                          "label": element["ownerId"],
-                          "value": element["ownerId"]
-                        }
-                      });
-                      arr.add({
-                        "title": "FStockStatusId",
-                        "name": "FStockStatusId",
-                        "isHide": true,
-                        "value": {
-                          "label": element["stockStatusId"],
-                          "value": element["stockStatusId"]
-                        }
-                      });
-                      arr.add({
-                        "title": "FKeeperTypeId",
-                        "name": "FKeeperTypeId",
-                        "isHide": true,
-                        "value": {
-                          "label": element["keeperTypeId"],
-                          "value": element["keeperTypeId"]
-                        }
-                      });
-                      arr.add({
-                        "title": "FKeeperId",
-                        "name": "FKeeperId",
-                        "isHide": true,
-                        "value": {
-                          "label": element["keeperId"],
-                          "value": element["keeperId"]
-                        }
-                      });
-                      arr.add({
-                        "title": "FBillEntry_FEntryID",
-                        "name": "FBillEntry_FEntryID",
-                        "isHide": true,
-                        "value": {
-                          "label": element["entryID"],
-                          "value": element["entryID"]
-                        }
-                      });
-                      hobby.add(arr);
-                    }
-                    this._getHobby();
-                    _scrollController
-                        .jumpTo(globalListKey.currentContext!.size!.height);
-                  });
-                },
-              )
-            ],
-          );
-        });
-  }
-
   //保存
   saveOrder() async {
     if (this.hobby.length > 0) {
@@ -1154,13 +1057,106 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       Model['FID'] = fID;
       /*Model['FDate'] = FDate;*/
       SharedPreferences sharedPreferences =
-      await SharedPreferences.getInstance();
+          await SharedPreferences.getInstance();
       var menuData = sharedPreferences.getString('MenuPermissions');
       var deptData = jsonDecode(menuData)[0];
       var FEntity = [];
       var hobbyIndex = 0;
-      this.hobby.forEach((element) {
+      for (var element in this.hobby) {
         if (element[4]['value']['value'] != '') {
+          if (element[2]['value']['value'] == "") {
+            Map<String, dynamic> materialMap = Map();
+            materialMap['FilterString'] = "FNumber='" +
+                element[0]['value']['value'] +
+                "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
+                deptData[1] +
+                "'";
+            materialMap['FormId'] = 'BD_MATERIAL';
+            materialMap['FieldKeys'] =
+                'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
+            Map<String, dynamic> materialDataMap = Map();
+            materialDataMap['data'] = materialMap;
+            String order = await CurrencyEntity.polling(materialDataMap);
+            var materialDate = [];
+            materialDate = jsonDecode(order);
+            if (materialDate.length > 0) {
+              element[0]['value']['label'] =
+                  materialDate[0][1] + "- (" + materialDate[0][2] + ")";
+              element[0]['value']['label'] = materialDate[0][3];
+              element[0]['value']['value'] = materialDate[0][3];
+              element[0]['value']['label'] = materialDate[0][4];
+              element[0]['value']['value'] = materialDate[0][5];
+            }
+            if (this.isCumulative == "是") {
+              Map<String, dynamic> userMap = Map();
+              if (element[6]['value']['value'] == "") {
+                userMap['FilterString'] = "FMaterialId.FNumber='" +
+                    element[0]['value']['value'] +
+                    "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+              } else {
+                userMap['FilterString'] = "FMaterialId.FNumber='" +
+                        element[0]['value']['value'] +
+                        "' and FLot.FNumber='" +
+                        element[6]['value']['value'] ==
+                    "" +
+                        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
+              }
+              userMap['FormId'] = 'STK_StockCountInput';
+              userMap['FieldKeys'] =
+                  'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
+              Map<String, dynamic> dataMap = Map();
+              dataMap['data'] = userMap;
+              String order = await CurrencyEntity.polling(dataMap);
+              var orderData = [];
+              orderData = jsonDecode(order);
+              if (orderData.length > 0) {
+                if(element[13]['value']['value'] == "0"){
+                  element[13]['value']['label'] =orderData[0][6];
+                  element[13]['value']['label'] = orderData[0][6];
+                }
+                element[4]['value']['label'] =
+                    (double.parse(element[4]['value']['label']) +
+                        orderData[0][7])
+                        .toString();
+                element[4]['value']['value'] = element[4]['value']['label'];
+              }
+            }
+          } else {
+            if (this.isCumulative == "是") {
+              Map<String, dynamic> userMap = Map();
+              if (element[6]['value']['value'] == "") {
+                userMap['FilterString'] = "FMaterialId.FNumber='" +
+                    element[0]['value']['value'] +
+                    "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+              } else {
+                userMap['FilterString'] = "FMaterialId.FNumber='" +
+                    element[0]['value']['value'] +
+                    "' and FLot.FNumber='" +
+                    element[6]['value']['value'] ==
+                    "" +
+                        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
+              }
+              userMap['FormId'] = 'STK_StockCountInput';
+              userMap['FieldKeys'] =
+              'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
+              Map<String, dynamic> dataMap = Map();
+              dataMap['data'] = userMap;
+              String order = await CurrencyEntity.polling(dataMap);
+              var orderData = [];
+              orderData = jsonDecode(order);
+              if (orderData.length > 0) {
+                if(element[13]['value']['value'] == "0"){
+                  element[13]['value']['label'] =orderData[0][6];
+                  element[13]['value']['label'] = orderData[0][6];
+                }
+                element[4]['value']['label'] =
+                    (double.parse(element[4]['value']['label']) +
+                        orderData[0][7])
+                        .toString();
+                element[4]['value']['value'] = element[4]['value']['label'];
+              }
+            }
+          }
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FEntryID'] = element[13]['value']['value'];
           FEntityItem['FMaterialId'] = {
@@ -1181,7 +1177,8 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      });
+      }
+      ;
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('盘点数量未录入');
@@ -1237,12 +1234,13 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             children: <Widget>[
               Expanded(
                 child:
-                ListView(controller: _scrollController, children: <Widget>[
+                    ListView(controller: _scrollController, children: <Widget>[
                   _dateItem('日期：', DateMode.YMD),
                   _item('盘点方案', this.schemeList, this.schemeName, 'scheme'),
                   _item('货主', this.organizationsList, this.organizationsName,
                       'organizations'),
                   _item('仓库', this.stockList, this.stockName, 'stock'),
+                  _item('累计盘点', ['否', '是'], isCumulative, "cumulative"),
                   Column(
                     key: globalListKey,
                     children: this._getHobby(),
@@ -1256,52 +1254,13 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                     Expanded(
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),
-                        child: Text("暂存"),
-                        color: Colors.orange,
-                        textColor: Colors.white,
-                        onPressed: () async {
-                          SqfLiteQueueDataOffline.deleteData(this.schemeNumber);
-                          for (var element in this.hobby) {
-                            SqfLiteQueueDataOffline.insertData(
-                                this.fID,
-                                this.schemeName,
-                                this.schemeNumber,
-                                this.organizationsName,
-                                this.organizationsNumber,
-                                this.stockName,
-                                this.stockNumber,
-                                element[0]['value']['label'],
-                                element[0]['value']['value'],
-                                element[1]['value']['value'],
-                                element[2]['value']['label'],
-                                element[2]['value']['value'],
-                                element[3]['value']['value'],
-                                element[4]['value']['value'],
-                                element[5]['value']['label'],
-                                element[5]['value']['value'],
-                                element[6]['value']['value'],
-                                element[7]['value']['value'],
-                                element[9]['value']['value'],
-                                element[10]['value']['value'],
-                                element[11]['value']['value'],
-                                element[12]['value']['value'],
-                                element[13]['value']['value'],
-                                jsonEncode(element[0]['value']['barcode']));
-                          }
-                          ToastUtil.showInfo('暂存成功');
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: RaisedButton(
-                        padding: EdgeInsets.all(15.0),
                         child: Text("保存"),
                         color: this.isSubmit
                             ? Colors.grey
                             : Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         onPressed: () async =>
-                        this.isSubmit ? null : _showSumbitDialog(),
+                            this.isSubmit ? null : _showSumbitDialog(),
                       ),
                     ),
                   ],

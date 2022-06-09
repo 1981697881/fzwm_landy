@@ -145,6 +145,18 @@ class SqfLiteQueueDataOffline {
     await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
   }
+  /// 清空数据表
+  static Future deleteTableData() async {
+    Database db = await SqfLiteQueueDataOffline.internal().open();
+    //1、普通删除
+    //await db.rawDelete("delete from _tableName where _tableId = ?",[id]);
+    //2、事务删除truncate table
+    db.transaction((txn) async {
+      txn.rawDelete( "delete from $_tableName");
+    });
+    await db.batch().commit();
+    /*await SqfLiteQueueDataOffline.internal().close();*/
+  }
   /// 根据id更新该条记录
   static Future updateData(int id, int fid,
       String schemeName,
@@ -241,7 +253,7 @@ class SqfLiteQueueDataOffline {
     });
     await db.batch().commit();
 
-    await SqfLiteQueueDataOffline.internal().close();
+
   }
 
   ///删除数据库文件

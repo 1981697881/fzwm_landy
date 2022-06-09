@@ -241,7 +241,7 @@ class SqfLiteQueueDataScheme {
     });
     await db.batch().commit();
 
-    await SqfLiteQueueDataScheme.internal().close();
+   /* await SqfLiteQueueDataScheme.internal().close();*/
   }
 
   ///删除数据库文件

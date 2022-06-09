@@ -408,7 +408,10 @@ class _IndexPageState extends State<IndexPage> {
                       await SharedPreferences.getInstance();
                   /*prefs.clear();*/
                   SqfLiteQueueDataOffline.deleteDataTable();
+
                   SqfLiteQueueDataScheme.deleteDataTable();
+                 /* await SqfLiteQueueDataOffline.internal().close();
+                  await SqfLiteQueueDataScheme.internal().close();*/
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
