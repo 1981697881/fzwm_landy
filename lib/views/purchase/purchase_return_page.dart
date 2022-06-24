@@ -9,17 +9,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
-import 'ex_warehouse_detail.dart';
-import 'other_warehousing_detail.dart';
+import 'purchase_warehousing_detail.dart';
 
-class ExWarehousePage extends StatefulWidget {
-  ExWarehousePage({Key ?key}) : super(key: key);
+class PurchaseReturnPage extends StatefulWidget {
+  PurchaseReturnPage({Key ?key}) : super(key: key);
 
   @override
-  _ExWarehousePageState createState() => _ExWarehousePageState();
+  _PurchaseReturnPageState createState() => _PurchaseReturnPageState();
 }
 
-class _ExWarehousePageState extends State<ExWarehousePage> {
+class _PurchaseReturnPageState extends State<PurchaseReturnPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -30,7 +29,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
 
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-   StreamSubscription ?_subscription;
+  StreamSubscription ?_subscription;
   var _code;
 
   List<dynamic> orderDate = [];
@@ -42,9 +41,9 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
-    EasyLoading.dismiss();
+
     /// 开启监听
-     if (_subscription == null) {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
@@ -69,23 +68,23 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FInStockQty >0";
+    var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FInStockQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FDate>= '$startDate' and FCloseStatus = 'A' and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
-      userMap['FilterString'] =
-      "FMaterialId.FNumber='$keyWord' and FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] =/*and FInStockQty>0*/
+      "FBillNo='"+scanCode[0]+"' and FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FInStockQty,FSrcBillNo,FID';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
-    print(order);
     orderDate = [];
     orderDate = jsonDecode(order);
     hobby = [];
@@ -130,7 +129,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "入库数量",
+          "title": "数量",
           "name": "FQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
@@ -188,7 +187,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ExWarehouseDetail(
+                          return PurchaseWarehousingDetail(
                               FBillNo: this.hobby[i][0]['value']
                             // 路由参数
                           );
@@ -297,7 +296,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("其他出库"),
+            title: Text("采购入库"),
             centerTitle: true,
           ),
           body: CustomScrollView(

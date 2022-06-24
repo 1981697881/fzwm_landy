@@ -53,6 +53,7 @@ class _ReportPageState extends State<ReportPage> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
   }
   _initState() {
     this.getOrderList();

@@ -109,7 +109,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-
+    EasyLoading.dismiss();
   }
   //获取部门
   getDepartmentList() async {

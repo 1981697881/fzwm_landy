@@ -59,6 +59,7 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         _isShowClear = false;
       }
+      EasyLoading.dismiss();
       setState(() {});
     });
     super.initState();

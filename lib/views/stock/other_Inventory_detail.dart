@@ -96,6 +96,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           .listen(_onEvent, onError: _onError);
     }
     getStockList();
+    EasyLoading.dismiss();
   }
   //获取部门
   getDepartmentList() async {

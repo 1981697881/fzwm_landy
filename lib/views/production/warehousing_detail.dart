@@ -103,7 +103,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   @override
   void initState() {
     super.initState();
-
+    EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
@@ -147,7 +147,6 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       }
     });
   }
-
   @override
   void dispose() {
     this._textNumber.dispose();
@@ -158,10 +157,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       _subscription!.cancel();
     }
   }
-
   // 查询数据集合
   List hobby = [];
-
   getOrderList() async {
     if (FBillNo != '') {
       Map<String, dynamic> userMap = Map();

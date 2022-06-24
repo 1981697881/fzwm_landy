@@ -106,7 +106,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-
+    EasyLoading.dismiss();
   }
   //获取部门
   getDepartmentList() async {
@@ -967,6 +967,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
                         };
+                        /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         Map<String, dynamic> codeFEntityItem = Map();
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FOutQty'] = itemCode[1];

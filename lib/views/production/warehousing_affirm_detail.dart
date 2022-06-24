@@ -110,7 +110,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-
+    EasyLoading.dismiss();
   }
   //获取部门
   getDepartmentList() async {
@@ -1202,6 +1202,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
                         };
+                        /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         Map<String, dynamic> codeFEntityItem = Map();
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];

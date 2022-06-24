@@ -99,7 +99,7 @@ class _ReportDetailState extends State<ReportDetail> {
   @override
   void initState() {
     super.initState();
-
+    EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin

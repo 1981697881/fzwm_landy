@@ -93,7 +93,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-
+    EasyLoading.dismiss();
   }
 
   //获取客户

@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:fzwm_landy/utils/toast_util.dart';
 import 'package:sqflite/sqflite.dart';
 
 final _version = 1; //数据库版本号
@@ -57,7 +58,11 @@ class SqfLiteQueueDataOffline {
         print("重新打开时调用");
         await _createTable(db,
             '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
-      },
+        await _createTable(db,
+            '''create table if not exists offline_Inventory_cache ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+        await _createTable(db,
+            '''create table if not exists barcode_list (id integer primary key,fid INTEGER,fBillNo text,fCreateOrgId INTEGER,fBarCode text,fOwnerID INTEGER,materialName INTEGER,materialNumber text,fStockOrgID INTEGER,specification text,fStockID INTEGER,fInQtyTotal REAL,fOutQtyTotal REAL,fRemainQty REAL,fMUnitName text,fOrder text,fBatchNo text,fProduceDate text,fLastCheckTime text)''');
+        },
     );
     return _database;
   }
@@ -122,7 +127,68 @@ class SqfLiteQueueDataOffline {
           ]);
     });
     await db.batch().commit();
-
+    /*await SqfLiteQueueDataOffline.internal().close();*/
+  }
+  /// 添加数据
+  static Future insertTData(int fid,
+      String schemeName,
+      String schemeNumber,
+      String organizationsName,
+      String organizationsNumber,
+      String stockIdName,
+      String stockIdNumber,
+      String materialName,
+      String materialNumber,
+      String specification,
+      String unitName,
+      String unitNumber,
+      double realQty,
+      String countQty,
+      String stockName,
+      String stockNumber,
+      String lot,
+      String stockOrgId,
+      String ownerId,
+      String stockStatusId,
+      String keeperTypeId,
+      String keeperId,
+      int entryID,
+      String barcode) async {
+    Database db = await SqfLiteQueueDataOffline.internal().open();
+    //1、普通添加
+    //await db.rawDelete("insert or replace into $_tableName ($_tableId,$_tableFid,$_tableRealQty) values (null,?,?)",[fid, realQty]);
+    //2、事务添加
+    db.transaction((txn) async {
+      await txn.rawInsert(
+          "insert or replace into offline_Inventory_cache ($_tableId,$_tableFid,$_tableSchemeName,$_tableSchemeNumber,$_tableOrganizationsName,$_tableOrganizationsNumber,$_tableStockIdName,$_tableStockIdNumber,$_tableMaterialName,$_tableMaterialNumber,$_tableSpecification,$_tableUnitName,$_tableUnitNumber,$_tableRealQty,$_tableCountQty,$_tableStockName,$_tableStockNumber,$_tableLot,$_tableStockOrgId,$_tableOwnerId,$_tableStockStatusId,$_tableKeeperTypeId,$_tableKeeperId,$_tableEntryID,$_tableBarcode) values (null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+          [
+            fid,
+            schemeName,
+            schemeNumber,
+            organizationsName,
+            organizationsNumber,
+            stockIdName,
+            stockIdNumber,
+            materialName,
+            materialNumber,
+            specification,
+            unitName,
+            unitNumber,
+            realQty,
+            countQty,
+            stockName,
+            stockNumber,
+            lot,
+            stockOrgId,
+            ownerId,
+            stockStatusId,
+            keeperTypeId,
+            keeperId,
+            entryID,
+            barcode
+          ]);
+    });
+    await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
   }
 
@@ -145,6 +211,18 @@ class SqfLiteQueueDataOffline {
     await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
   }
+  /// 根据方案id删除该条记录
+  static Future deleteTData(String schemeNumber) async {
+    Database db = await SqfLiteQueueDataOffline.internal().open();
+    //1、普通删除
+    //await db.rawDelete("delete from _tableName where _tableId = ?",[id]);
+    //2、事务删除
+    db.transaction((txn) async {
+      txn.rawDelete("delete from offline_Inventory_cache where $_tableSchemeNumber = ?", [schemeNumber]);
+    });
+    await db.batch().commit();
+    /*await SqfLiteQueueDataOffline.internal().close();*/
+  }
   /// 清空数据表
   static Future deleteTableData() async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
@@ -153,6 +231,18 @@ class SqfLiteQueueDataOffline {
     //2、事务删除truncate table
     db.transaction((txn) async {
       txn.rawDelete( "delete from $_tableName");
+    });
+    await db.batch().commit();
+    /*await SqfLiteQueueDataOffline.internal().close();*/
+  }
+  /// 清空数据表
+  static Future deleteTTableData() async {
+    Database db = await SqfLiteQueueDataOffline.internal().open();
+    //1、普通删除
+    //await db.rawDelete("delete from _tableName where _tableId = ?",[id]);
+    //2、事务删除truncate table
+    db.transaction((txn) async {
+      txn.rawDelete( "delete from offline_Inventory_cache");
     });
     await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
@@ -227,7 +317,6 @@ class SqfLiteQueueDataOffline {
   static Future<List<Map<String, dynamic>>> searchDates(select) async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
     List<Map<String, dynamic>> maps = await db.rawQuery(select);
-    await SqfLiteQueueDataOffline.internal().close();
     return maps;
   }
 
@@ -252,10 +341,18 @@ class SqfLiteQueueDataOffline {
       txn.rawDelete("drop table $_tableName");
     });
     await db.batch().commit();
-
-
   }
-
+  ///删除数据库表
+  static Future<void> deleteTDataTable() async {
+    Database db = await SqfLiteQueueDataOffline.internal().open();
+    //1、普通删除
+    //await db.rawDelete("drop table $_tableName");
+    //2、事务删除
+    db.transaction((txn) async {
+      txn.rawDelete("drop table offline_Inventory_cache");
+    });
+    await db.batch().commit();
+  }
   ///删除数据库文件
   static Future<void> deleteDataBaseFile() async {
     await SqfLiteQueueDataOffline.internal().close();

@@ -42,7 +42,7 @@ class _InventoryPageState extends State<InventoryPage> {
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
-
+    EasyLoading.dismiss();
     /// 开启监听
      if (_subscription == null) {
       _subscription = scannerPlugin

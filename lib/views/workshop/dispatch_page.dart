@@ -53,6 +53,7 @@ class _DispatchPageState extends State<DispatchPage> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
   }
   _initState() {
     this.getOrderList();

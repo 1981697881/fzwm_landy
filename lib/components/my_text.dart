@@ -18,7 +18,6 @@ class MyText extends StatelessWidget {
 //          'text 不能为空哦~',
 //        ),
         super(key: key);
-
   final String data;
   final double letfpadding;
   final double toppadding;
@@ -28,7 +27,6 @@ class MyText extends StatelessWidget {
   final Color color;
   final FontWeight fontWeight;
   final int maxLines;
-
   @override
   Widget build(BuildContext context) {
     return Padding(

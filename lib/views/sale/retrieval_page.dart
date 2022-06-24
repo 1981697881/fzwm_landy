@@ -50,6 +50,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
   }
   _initState() {
     this.getOrderList();
