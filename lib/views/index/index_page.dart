@@ -7,6 +7,7 @@ import 'package:english_words/english_words.dart';
 import 'package:fzwm_landy/http/api_response.dart';
 import 'package:fzwm_landy/model/version_entity.dart';
 import 'package:fzwm_landy/utils/SqfLiteQueueDataOffline.dart';
+import 'package:fzwm_landy/utils/SqfLiteQueueDataRepertoire.dart';
 import 'package:fzwm_landy/utils/SqfLiteQueueDataScheme.dart';
 import 'package:fzwm_landy/views/login/login_page.dart';
 import 'package:package_info/package_info.dart';
@@ -407,10 +408,18 @@ class _IndexPageState extends State<IndexPage> {
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   /*prefs.clear();*/
-                  SqfLiteQueueDataOffline.deleteDataTable();
-                  SqfLiteQueueDataScheme.deleteDataTable();
-                 /* await SqfLiteQueueDataOffline.internal().close();
-                  await SqfLiteQueueDataScheme.internal().close();*/
+                  if (await SqfLiteQueueDataOffline.isTableExits("offline_Inventory") == true) {
+                    SqfLiteQueueDataOffline.deleteDataTable();
+                  }
+                  if (await SqfLiteQueueDataOffline.isTableExits("offline_Inventory_cache") == true) {
+                    SqfLiteQueueDataOffline.deleteTDataTable();
+                  }
+                  if (await SqfLiteQueueDataRepertoire.isTableExits("barcode_list") == true) {
+                    SqfLiteQueueDataRepertoire.deleteDataTable();
+                  }
+                  if (await SqfLiteQueueDataScheme.isTableExits("scheme_Inventory") == true) {
+                    SqfLiteQueueDataScheme.deleteDataTable();
+                  }
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

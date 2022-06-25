@@ -34,14 +34,17 @@ final _tableKeeperId = "keeperId";
 final _tableEntryID = "entryID";
 final _tableBarcode = "barcode";
 
-
 class SqfLiteQueueDataOffline {
   SqfLiteQueueDataOffline.internal();
+
   //数据库句柄
   late Database _database;
+
   Future<Database> get database async {
     String path = await getDatabasesPath() + "/$_databaseName";
-    _database = await openDatabase(path, version: _version,
+    _database = await openDatabase(
+      path,
+      version: _version,
       onConfigure: (Database db) {
         print("数据库创建前、降级前、升级前调用");
       },
@@ -56,19 +59,33 @@ class SqfLiteQueueDataOffline {
       },
       onOpen: (Database db) async {
         print("重新打开时调用");
-        await _createTable(db,
-            '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
-        await _createTable(db,
-            '''create table if not exists offline_Inventory_cache ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
-        await _createTable(db,
-            '''create table if not exists barcode_list (id integer primary key,fid INTEGER,fBillNo text,fCreateOrgId INTEGER,fBarCode text,fOwnerID INTEGER,materialName INTEGER,materialNumber text,fStockOrgID INTEGER,specification text,fStockID INTEGER,fInQtyTotal REAL,fOutQtyTotal REAL,fRemainQty REAL,fMUnitName text,fOrder text,fBatchNo text,fProduceDate text,fLastCheckTime text)''');
-        },
+        if (await isTableExitss(db,"offline_Inventory") == false) {
+          await _createTable(db,
+              '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+        }
+        if (await isTableExitss(db,"offline_Inventory_cache") == false) {
+          await _createTable(db,
+              '''create table if not exists offline_Inventory_cache ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+        }
+        if (await isTableExitss(db,"barcode_list") == false) {
+          await _createTable(db,
+              '''create table if not exists barcode_list (id integer primary key,fid INTEGER,fBillNo text,fCreateOrgId INTEGER,fBarCode text,fOwnerID INTEGER,materialName INTEGER,materialNumber text,fStockOrgID INTEGER,specification text,fStockID INTEGER,fInQtyTotal REAL,fOutQtyTotal REAL,fRemainQty REAL,fMUnitName text,fOrder text,fBatchNo text,fProduceDate text,fLastCheckTime text)''');
+        }
+      },
     );
     return _database;
   }
-
+//判断表是否存在
+  isTableExitss(Database db,String tableName) async {
+    //内建表sqlite_master
+    var sql ="SELECT * FROM sqlite_master WHERE TYPE = 'table' AND NAME = '$tableName'";
+    var res = await db.rawQuery(sql);
+    var returnRes = res!=null && res.length > 0;
+    return returnRes;
+  }
   /// 添加数据
-  static Future insertData(int fid,
+  static Future insertData(
+      int fid,
       String schemeName,
       String schemeNumber,
       String organizationsName,
@@ -129,8 +146,10 @@ class SqfLiteQueueDataOffline {
     await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
   }
+
   /// 添加数据
-  static Future insertTData(int fid,
+  static Future insertTData(
+      int fid,
       String schemeName,
       String schemeNumber,
       String organizationsName,
@@ -206,11 +225,13 @@ class SqfLiteQueueDataOffline {
     //await db.rawDelete("delete from _tableName where _tableId = ?",[id]);
     //2、事务删除
     db.transaction((txn) async {
-      txn.rawDelete("delete from $_tableName where $_tableSchemeNumber = ?", [schemeNumber]);
+      txn.rawDelete("delete from $_tableName where $_tableSchemeNumber = ?",
+          [schemeNumber]);
     });
     await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
   }
+
   /// 根据方案id删除该条记录
   static Future deleteTData(String schemeNumber) async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
@@ -218,11 +239,14 @@ class SqfLiteQueueDataOffline {
     //await db.rawDelete("delete from _tableName where _tableId = ?",[id]);
     //2、事务删除
     db.transaction((txn) async {
-      txn.rawDelete("delete from offline_Inventory_cache where $_tableSchemeNumber = ?", [schemeNumber]);
+      txn.rawDelete(
+          "delete from offline_Inventory_cache where $_tableSchemeNumber = ?",
+          [schemeNumber]);
     });
     await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
   }
+
   /// 清空数据表
   static Future deleteTableData() async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
@@ -230,11 +254,12 @@ class SqfLiteQueueDataOffline {
     //await db.rawDelete("delete from _tableName where _tableId = ?",[id]);
     //2、事务删除truncate table
     db.transaction((txn) async {
-      txn.rawDelete( "delete from $_tableName");
+      txn.rawDelete("delete from $_tableName");
     });
     await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
   }
+
   /// 清空数据表
   static Future deleteTTableData() async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
@@ -242,13 +267,16 @@ class SqfLiteQueueDataOffline {
     //await db.rawDelete("delete from _tableName where _tableId = ?",[id]);
     //2、事务删除truncate table
     db.transaction((txn) async {
-      txn.rawDelete( "delete from offline_Inventory_cache");
+      txn.rawDelete("delete from offline_Inventory_cache");
     });
     await db.batch().commit();
     /*await SqfLiteQueueDataOffline.internal().close();*/
   }
+
   /// 根据id更新该条记录
-  static Future updateData(int id, int fid,
+  static Future updateData(
+      int id,
+      int fid,
       String schemeName,
       String schemeNumber,
       String organizationsName,
@@ -313,10 +341,22 @@ class SqfLiteQueueDataOffline {
     await SqfLiteQueueDataOffline.internal().close();
   }
 
+  //判断表是否存在
+  static Future isTableExits(String tableName) async {
+    Database db = await SqfLiteQueueDataOffline.internal().open();
+    //内建表sqlite_master
+    var sql =
+        "SELECT * FROM sqlite_master WHERE TYPE = 'table' AND NAME = '$tableName'";
+    var res = await db.rawQuery(sql);
+    var returnRes = res != null && res.length > 0;
+    return returnRes;
+  }
+
   /// 查询所有数据
   static Future<List<Map<String, dynamic>>> searchDates(select) async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
     List<Map<String, dynamic>> maps = await db.rawQuery(select);
+    /*await SqfLiteQueueDataOffline.internal().close();*/
     return maps;
   }
 
@@ -341,7 +381,9 @@ class SqfLiteQueueDataOffline {
       txn.rawDelete("drop table $_tableName");
     });
     await db.batch().commit();
+    await SqfLiteQueueDataOffline.internal().close();
   }
+
   ///删除数据库表
   static Future<void> deleteTDataTable() async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
@@ -352,7 +394,9 @@ class SqfLiteQueueDataOffline {
       txn.rawDelete("drop table offline_Inventory_cache");
     });
     await db.batch().commit();
+    await SqfLiteQueueDataOffline.internal().close();
   }
+
   ///删除数据库文件
   static Future<void> deleteDataBaseFile() async {
     await SqfLiteQueueDataOffline.internal().close();

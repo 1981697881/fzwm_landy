@@ -121,7 +121,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
   getInventorySessions() async {
     if (this.schemeNumber != null) {
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSchemeNo = '$schemeNumber' ";
+      userMap['FilterString'] = "FSchemeNo ='$schemeNumber'";
       userMap['FormId'] = 'STK_StockCountInput';
       userMap['FieldKeys'] = 'FID';
       Map<String, dynamic> dataMap = Map();
@@ -131,7 +131,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       if (resData.length > 0) {
         fID = resData[0][0];
         SqfLiteQueueDataScheme.searchDates(
-                "select * from scheme_Inventory where schemeNumber =$schemeNumber")
+                "select * from scheme_Inventory where schemeNumber='$schemeNumber'")
             .then((value) {
           var res = jsonEncode(value);
           if (jsonDecode(res).length > 0) {
@@ -241,7 +241,6 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     this._textNumber.dispose();
     this._scrollController.dispose();
     super.dispose();
-
     /// 取消监听
     if (_subscription != null) {
       _subscription!.cancel();

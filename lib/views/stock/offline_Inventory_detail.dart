@@ -132,7 +132,9 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       barcodeData = jsonDecode(order);
       if (barcodeData.length > 0) {
         SqfLiteQueueDataRepertoire.deleteTableData();
+        var barcodeDataIndex = 0;
         for (var value in barcodeData) {
+          barcodeDataIndex++;
            SqfLiteQueueDataRepertoire.insertData(
               value[0],
               value[1],
@@ -151,10 +153,9 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               value[14].toString(),
               value[15],
               value[16],
-              value[17]);
+              value[17],barcodeData.length,barcodeDataIndex);
         }
-        ToastUtil.showInfo('查询成功');
-        EasyLoading.dismiss();
+
       } else {
         EasyLoading.dismiss();
         ToastUtil.showInfo('无条码清单数据');
@@ -171,7 +172,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
     fBarCodeList = menuList['FBarCodeList'];
     if (this.schemeNumber != null) {
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSchemeNo = '$schemeNumber' ";
+      userMap['FilterString'] = "FSchemeNo = '$schemeNumber'";
       userMap['FormId'] = 'STK_StockCountInput';
       userMap['FieldKeys'] =
           'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID';
@@ -182,7 +183,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       if (resData.length > 0) {
         fID = resData[0][15];
         SqfLiteQueueDataOffline.searchDates(
-            "select * from offline_Inventory_cache where schemeNumber =$schemeNumber")
+            "select * from offline_Inventory_cache where schemeNumber='$schemeNumber'")
             .then((value) {
           var res = jsonEncode(value);
           if (jsonDecode(res).length > 0) {
@@ -304,6 +305,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
     this._textNumber.dispose();
     this._scrollController.dispose();
     super.dispose();
+
     /// 取消监听
     if (_subscription != null) {
       _subscription!.cancel();
@@ -339,7 +341,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             barCode.add(resBarcode[0]["fInQtyTotal"]);
             barCode.add(resBarcode[0]["fOutQtyTotal"]);
             barCode.add(resBarcode[0]["id"]);
-            barCode.add(resBarcode[0]["fRemainQty"]);
+            barCode.add(resBarcode[0]["fRemainQty"].toString());
             this.getMaterialList(barCode);
             print("ChannelPage: $event");
           } else {
@@ -421,7 +423,6 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       "-",
       dd,
     ]);
-    print(resInventory);
     var barCodeScan;
     if(fBarCodeList == 1){
       barCodeScan = barcodeData;
@@ -442,7 +443,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           element[4]['value']['value'] = element[4]['value']['label'];
           element[14]['value']['label'] = barCodeScan[4].toString();
           element[14]['value']['value'] = barCodeScan[4].toString();
-          element[0]['value']['barcode'].add(_code);
+          element[0]['value']['barcode'].add(barCodeScan[0].toString() + "-" + _code);
           number++;
           break;
         }
@@ -619,7 +620,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             element[4]['value']['value'] = element[4]['value']['label'];
             element[14]['value']['label'] = barCodeScan[4].toString();
             element[14]['value']['value'] = barCodeScan[4].toString();
-            element[0]['value']['barcode'].add(_code);
+            element[0]['value']['barcode'].add(barCodeScan[0].toString() + "-" + _code);
             number++;
             break;
           }
@@ -1476,6 +1477,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         };
         SqfLiteQueueDataOffline.deleteTData(this.schemeNumber);
         SqfLiteQueueDataOffline.deleteData(this.schemeNumber);
+        SqfLiteQueueDataRepertoire.deleteTableData();
         if (fBarCodeList == 1) {
           for (int i = 0; i < this.hobby.length; i++) {
             var barcode = this.hobby[i][0]['value']['barcode'];

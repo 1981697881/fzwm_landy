@@ -2,8 +2,10 @@
 
 import 'dart:io';
 
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fzwm_landy/utils/toast_util.dart';
 import 'package:sqflite/sqflite.dart';
+
 final _version = 1; //数据库版本号
 final _databaseName = "landy.db"; //数据库名称
 final _tableName = "barcode_list"; //表名称
@@ -14,27 +16,30 @@ final _tableFCreateOrgId = "fCreateOrgId"; //创建组织
 final _tableFBarCode = "fBarCode"; //条码
 final _tableFOwnerID = "fOwnerID"; //货主
 final _tableFMATERIALID = "materialName"; //物料名称
-final _tableFQDEPMName = "materialNumber";//物料编码
+final _tableFQDEPMName = "materialNumber"; //物料编码
 final _tableFStockOrgID = "fStockOrgID"; //库存组织
-final _tableFQDEPMSpec  = "specification";//规格型号
-final _tableFStockID = "fStockID";//仓库
-final _tableFInQtyTotal = "fInQtyTotal";//入库数量汇总
-final _tableFOutQtyTotal = "fOutQtyTotal";//出库数量汇总
-final _tableFRemainQty = "fRemainQty";//剩余数量
-final _tableFMUnitName = "fMUnitName";//单位
-final _tableFOrder = "fOrder";//流水号
-final _tableFBatchNo = "fBatchNo";//批号
-final _tableFProduceDate = "fProduceDate";//生产日期
-final _tableFLastCheckTime = "fLastCheckTime";//最后盘点日期
-
+final _tableFQDEPMSpec = "specification"; //规格型号
+final _tableFStockID = "fStockID"; //仓库
+final _tableFInQtyTotal = "fInQtyTotal"; //入库数量汇总
+final _tableFOutQtyTotal = "fOutQtyTotal"; //出库数量汇总
+final _tableFRemainQty = "fRemainQty"; //剩余数量
+final _tableFMUnitName = "fMUnitName"; //单位
+final _tableFOrder = "fOrder"; //流水号
+final _tableFBatchNo = "fBatchNo"; //批号
+final _tableFProduceDate = "fProduceDate"; //生产日期
+final _tableFLastCheckTime = "fLastCheckTime"; //最后盘点日期
 
 class SqfLiteQueueDataRepertoire {
   SqfLiteQueueDataRepertoire.internal();
+
   //数据库句柄
   late Database _database;
+
   Future<Database> get database async {
     String path = await getDatabasesPath() + "/$_databaseName";
-    _database = await openDatabase(path, version: _version,
+    _database = await openDatabase(
+      path,
+      version: _version,
       onConfigure: (Database db) {
         print("数据库创建前、降级前、升级前调用");
       },
@@ -48,14 +53,25 @@ class SqfLiteQueueDataRepertoire {
         print("创建时调用");
       },
       onOpen: (Database db) async {
-        await _createTable(db,
-            '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableFBillNo text,$_tableFCreateOrgId INTEGER,$_tableFBarCode text,$_tableFOwnerID INTEGER,$_tableFMATERIALID INTEGER,$_tableFQDEPMName text,$_tableFStockOrgID INTEGER,$_tableFQDEPMSpec text,$_tableFStockID INTEGER,$_tableFInQtyTotal REAL,$_tableFOutQtyTotal REAL,$_tableFRemainQty REAL,$_tableFMUnitName text,$_tableFOrder text,$_tableFBatchNo text,$_tableFProduceDate text,$_tableFLastCheckTime text)''');
+        if (await isTableExitss(db,"barcode_list") == false) {
+          await _createTable(db,
+              '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableFBillNo text,$_tableFCreateOrgId INTEGER,$_tableFBarCode text,$_tableFOwnerID INTEGER,$_tableFMATERIALID INTEGER,$_tableFQDEPMName text,$_tableFStockOrgID INTEGER,$_tableFQDEPMSpec text,$_tableFStockID INTEGER,$_tableFInQtyTotal REAL,$_tableFOutQtyTotal REAL,$_tableFRemainQty REAL,$_tableFMUnitName text,$_tableFOrder text,$_tableFBatchNo text,$_tableFProduceDate text,$_tableFLastCheckTime text)''');
+        }
       },
     );
     return _database;
   }
+//判断表是否存在
+  isTableExitss(Database db,String tableName) async {
+    //内建表sqlite_master
+    var sql ="SELECT * FROM sqlite_master WHERE TYPE = 'table' AND NAME = '$tableName'";
+    var res = await db.rawQuery(sql);
+    var returnRes = res!=null && res.length > 0;
+    return returnRes;
+  }
   /// 添加数据
-  static Future insertData(int fid,
+  static Future insertData(
+      int fid,
       String fBillNo,
       int fCreateOrgId,
       String fBarCode,
@@ -72,8 +88,7 @@ class SqfLiteQueueDataRepertoire {
       String fOrder,
       String fBatchNo,
       String fProduceDate,
-      String fLastCheckTime
-     ) async {
+      String fLastCheckTime,int length,int index) async {
     Database db = await SqfLiteQueueDataRepertoire.internal().open();
     //1、普通添加
     //await db.rawDelete("insert or replace into $_tableName ($_tableId,$_tableFid,$_tableRealQty) values (null,?,?)",[fid, realQty]);
@@ -103,8 +118,22 @@ class SqfLiteQueueDataRepertoire {
           ]);
     });
     await db.batch().commit();
-
+    if(index == length){
+      ToastUtil.showInfo('查询成功');
+      EasyLoading.dismiss();
+    }
     /*await SqfLiteQueueDataRepertoire.internal().close();*/
+  }
+
+//判断表是否存在
+  static Future isTableExits(String tableName) async {
+    Database db = await SqfLiteQueueDataRepertoire.internal().open();
+    //内建表sqlite_master
+    var sql =
+        "SELECT * FROM sqlite_master WHERE TYPE = 'table' AND NAME = '$tableName'";
+    var res = await db.rawQuery(sql);
+    var returnRes = res != null && res.length > 0;
+    return returnRes;
   }
 
   /// 创建表
@@ -126,6 +155,7 @@ class SqfLiteQueueDataRepertoire {
     await db.batch().commit();
     /*await SqfLiteQueueDataRepertoire.internal().close();*/
   }
+
   /// 清空数据表
   static Future deleteTableData() async {
     Database db = await SqfLiteQueueDataRepertoire.internal().open();
@@ -133,13 +163,16 @@ class SqfLiteQueueDataRepertoire {
     //await db.rawDelete("delete from _tableName where _tableId = ?",[id]);
     //2、事务删除truncate table
     db.transaction((txn) async {
-      txn.rawDelete( "delete from $_tableName");
+      txn.rawDelete("delete from $_tableName");
     });
     await db.batch().commit();
     /*await SqfLiteQueueDataRepertoire.internal().close();*/
   }
+
   /// 根据id更新该条记录
-  static Future updateData(int id, int fid,
+  static Future updateData(
+      int id,
+      int fid,
       String fBillNo,
       int fCreateOrgId,
       String fBarCode,
@@ -187,6 +220,7 @@ class SqfLiteQueueDataRepertoire {
     await db.batch().commit();
     await SqfLiteQueueDataRepertoire.internal().close();
   }
+
   /// 查询所有数据
   static Future<List<Map<String, dynamic>>> searchDates(select) async {
     Database db = await SqfLiteQueueDataRepertoire.internal().open();
@@ -194,15 +228,18 @@ class SqfLiteQueueDataRepertoire {
     await SqfLiteQueueDataRepertoire.internal().close();
     return maps;
   }
+
   //打开
   Future<Database> open() async {
     return await database;
   }
+
   ///关闭
   Future<void> close() async {
     var db = await database;
     return db.close();
   }
+
   ///删除数据库表
   static Future<void> deleteDataTable() async {
     Database db = await SqfLiteQueueDataRepertoire.internal().open();
@@ -213,7 +250,9 @@ class SqfLiteQueueDataRepertoire {
       txn.rawDelete("drop table $_tableName");
     });
     await db.batch().commit();
+    await SqfLiteQueueDataRepertoire.internal().close();
   }
+
   ///删除数据库文件
   static Future<void> deleteDataBaseFile() async {
     await SqfLiteQueueDataRepertoire.internal().close();
