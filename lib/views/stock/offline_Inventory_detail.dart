@@ -69,6 +69,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
     DateMode.YMD: "",
   };
   var stockList = [];
+  List<dynamic> barCodeList = [];
   List<dynamic> stockListObj = [];
   var organizationsList = [];
   List<dynamic> organizationsListObj = [];
@@ -80,7 +81,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
   List<dynamic> customerListObj = [];
   List<dynamic> orderDate = [];
   List<dynamic> collarOrderDate = [];
-  List<dynamic> barcodeData = [];
+
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
@@ -120,45 +121,60 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
     getStockList();
   }
   //选择条码清单保存本地
-  getBarcodeList() async {
+  getBarcodeList({int startRow = 0,int page = 1}) async {
     if (this.schemeNumber != null) {
+      EasyLoading.show(status: 'loading...');
       Map<String, dynamic> barcodeMap = Map();
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
+      barcodeMap['StartRow'] = startRow;
+      barcodeMap['FilterString'] = "FStockID.FNumber = '$stockNumber'";
       barcodeMap['FieldKeys'] =
-      'FID,FBillNo,FCreateOrgId,FBarCode,FOwnerID,FMATERIALID,F_QDEP_MName,FStockOrgID,F_QDEP_MSpec,FStockID,FInQtyTotal,FOutQtyTotal,FRemainQty,FMUnitName,FOrder,FBatchNo,FProduceDate,FLastCheckTime';
+      'FID,FBillNo,FCreateOrgId,FBarCode,FOwnerID,FMATERIALID,F_QDEP_MName,FStockOrgID,F_QDEP_MSpec,FStockID.FNumber,FInQtyTotal,FOutQtyTotal,FRemainQty,FMUnitName,FOrder,FBatchNo,FProduceDate,FLastCheckTime';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
-      barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-        SqfLiteQueueDataRepertoire.deleteTableData();
-        var barcodeDataIndex = 0;
-        for (var value in barcodeData) {
-          barcodeDataIndex++;
-           SqfLiteQueueDataRepertoire.insertData(
-              value[0],
-              value[1],
-              value[2],
-              value[3],
-              value[4],
-              value[5],
-              value[6],
-              value[7],
-              value[8],
-              value[9],
-              value[10],
-              value[11],
-              value[12],
-              value[13],
-              value[14].toString(),
-              value[15],
-              value[16],
-              value[17],barcodeData.length,barcodeDataIndex);
+      if(jsonDecode(order).length == 2000){
+        getBarcodeList(startRow:page*2000,page:page+1);
+        barCodeList..addAll(jsonDecode(order));
+      }else{
+        if(jsonDecode(order).length>0){
+          barCodeList..addAll(jsonDecode(order));
         }
-
-      } else {
-        EasyLoading.dismiss();
-        ToastUtil.showInfo('无条码清单数据');
+        if (barCodeList.length > 0) {
+          /*if(barcodeData.length == 2000){
+          startRow++;
+          dataMap["barcodeMap"] = startRow*2000;
+          String limitData = await CurrencyEntity.polling(dataMap);
+          List<dynamic> barcodeLimitData = jsonDecode(limitData);
+        }*/
+          SqfLiteQueueDataRepertoire.deleteTableData();
+          var barcodeDataIndex = 0;
+          for (var value in barCodeList) {
+            barcodeDataIndex++;
+            SqfLiteQueueDataRepertoire.insertData(
+                value[0],
+                value[1],
+                value[2],
+                value[3],
+                value[4],
+                value[5],
+                value[6],
+                value[7],
+                value[8],
+                value[9],
+                value[10],
+                value[11],
+                value[12],
+                value[13],
+                value[14].toString(),
+                value[15],
+                value[16],
+                value[17],barCodeList.length,barcodeDataIndex);
+          }
+        } else {
+          EasyLoading.dismiss();
+          ToastUtil.showInfo('无条码清单数据');
+        }
       }
     }
   }
@@ -192,7 +208,9 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           }
         });
         SqfLiteQueueDataOffline.deleteTableData();
+        var resDataIndex = 0;
         for (var value in resData) {
+          resDataIndex++;
           SqfLiteQueueDataOffline.insertData(
               this.fID,
               this.schemeName,
@@ -217,10 +235,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               value[11],
               value[12],
               value[14],
-              "");
-        }
-        if (fBarCodeList == 1) {
-          this.getBarcodeList();
+              "",resData.length,resDataIndex);
         }
       } else {
         EasyLoading.dismiss();
@@ -426,6 +441,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
     var barCodeScan;
     if(fBarCodeList == 1){
       barCodeScan = barcodeData;
+      barCodeScan[4] = barCodeScan[4].toString();
     }else{
       barCodeScan = scanCode;
     }
@@ -888,6 +904,9 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               }
               elementIndex++;
             });
+            if (fBarCodeList == 1) {
+              this.getBarcodeList();
+            }
           } else if (hobby == 'organizations') {
             organizationsName = p;
             var elementIndex = 0;
@@ -1069,6 +1088,9 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                     this.schemeNumber = inventoryData[0]["schemeNumber"];
                     this.stockName = inventoryData[0]["stockIdName"];
                     this.stockNumber = inventoryData[0]["stockIdNumber"];
+                    if (fBarCodeList == 1) {
+                      this.getBarcodeList();
+                    }
                     hobby = [];
                     for (var element in inventoryData) {
                       List arr = [];
@@ -1310,6 +1332,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       setState(() {
         this.isSubmit = true;
       });
+      EasyLoading.show(status: 'loading...');
       /* if (this.departmentNumber == null) {
         this.isSubmit = false;
         ToastUtil.showInfo('请选择部门');
@@ -1457,6 +1480,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('盘点数量未录入');
+        EasyLoading.dismiss();
         return;
       }
       dataMap['formid'] = 'STK_StockCountInput';
@@ -1507,6 +1531,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           this.FBillNo = '';
           this.isSubmit = false;
           this.isError = false;
+          EasyLoading.dismiss();
           ToastUtil.showInfo('提交成功');
           /* Navigator.of(context).pop();*/
         });
@@ -1514,6 +1539,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         setState(() {
           this.isSubmit = false;
           this.isError = true;
+          EasyLoading.dismiss();
           ToastUtil.errorDialog(
               context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
         });

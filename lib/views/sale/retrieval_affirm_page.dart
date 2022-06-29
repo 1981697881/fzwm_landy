@@ -49,7 +49,13 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
           .listen(_onEvent, onError: _onError);
     }
   }
-
+  _initState() {
+    this.getOrderList();
+    /// 开启监听
+    _subscription = scannerPlugin
+        .receiveBroadcastStream()
+        .listen(_onEvent, onError: _onError);
+  }
   @override
   void dispose() {
     this.controller.dispose();
@@ -199,7 +205,7 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
                               () {
                             setState(() {
                               //延时更新状态
-                              this.getOrderList();
+                              this._initState();
                             });
                           });
                     });

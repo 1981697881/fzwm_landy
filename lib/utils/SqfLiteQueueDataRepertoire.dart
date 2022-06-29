@@ -55,7 +55,7 @@ class SqfLiteQueueDataRepertoire {
       onOpen: (Database db) async {
         if (await isTableExitss(db,"barcode_list") == false) {
           await _createTable(db,
-              '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableFBillNo text,$_tableFCreateOrgId INTEGER,$_tableFBarCode text,$_tableFOwnerID INTEGER,$_tableFMATERIALID INTEGER,$_tableFQDEPMName text,$_tableFStockOrgID INTEGER,$_tableFQDEPMSpec text,$_tableFStockID INTEGER,$_tableFInQtyTotal REAL,$_tableFOutQtyTotal REAL,$_tableFRemainQty REAL,$_tableFMUnitName text,$_tableFOrder text,$_tableFBatchNo text,$_tableFProduceDate text,$_tableFLastCheckTime text)''');
+              '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableFBillNo text,$_tableFCreateOrgId INTEGER,$_tableFBarCode text,$_tableFOwnerID INTEGER,$_tableFMATERIALID INTEGER,$_tableFQDEPMName text,$_tableFStockOrgID INTEGER,$_tableFQDEPMSpec text,$_tableFStockID text,$_tableFInQtyTotal REAL,$_tableFOutQtyTotal REAL,$_tableFRemainQty REAL,$_tableFMUnitName text,$_tableFOrder text,$_tableFBatchNo text,$_tableFProduceDate text,$_tableFLastCheckTime text)''');
         }
       },
     );
@@ -80,7 +80,7 @@ class SqfLiteQueueDataRepertoire {
       String materialNumber,
       int fStockOrgID,
       String specification,
-      int fStockID,
+      String fStockID,
       double fInQtyTotal,
       double fOutQtyTotal,
       double fRemainQty,
@@ -119,10 +119,11 @@ class SqfLiteQueueDataRepertoire {
     });
     await db.batch().commit();
     if(index == length){
-      ToastUtil.showInfo('查询成功');
+      ToastUtil.showInfo('下载完成');
       EasyLoading.dismiss();
+      await SqfLiteQueueDataRepertoire.internal().close();
     }
-    /*await SqfLiteQueueDataRepertoire.internal().close();*/
+
   }
 
 //判断表是否存在
@@ -181,7 +182,7 @@ class SqfLiteQueueDataRepertoire {
       String materialNumber,
       int fStockOrgID,
       String specification,
-      int fStockID,
+      String fStockID,
       double fInQtyTotal,
       double fOutQtyTotal,
       double fRemainQty,

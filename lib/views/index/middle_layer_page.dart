@@ -5,16 +5,19 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm_landy/utils/menu_permissions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class MiddleLayerPage extends StatefulWidget {
   final int menuId;
   final String menuTitle;
 
-  MiddleLayerPage({Key ?key, required this.menuId, required this.menuTitle}) : super(key: key);
+  MiddleLayerPage({Key? key, required this.menuId, required this.menuTitle})
+      : super(key: key);
 
   @override
-  _MiddleLayerPageState createState() => _MiddleLayerPageState(menuId,menuTitle);
+  _MiddleLayerPageState createState() =>
+      _MiddleLayerPageState(menuId, menuTitle);
 }
 
 class _MiddleLayerPageState extends State<MiddleLayerPage> {
@@ -22,30 +25,36 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   late String menuTitle;
   late SharedPreferences sharedPreferences;
   var menu;
-  _MiddleLayerPageState(int menuId, String menuTitle){
+
+  _MiddleLayerPageState(int menuId, String menuTitle) {
     this.currentIndex = menuId;
     this.menuTitle = menuTitle;
   }
 
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () => setState(() {
-      _load();
-    }));
+    Future.delayed(
+        Duration.zero,
+        () => setState(() {
+              _load();
+            }));
   }
+
   _load() async {
     sharedPreferences = await SharedPreferences.getInstance();
     menu = sharedPreferences.getString('MenuPermissions');
   }
+
   @override
   void dispose() {
     super.dispose();
   }
+
   double hc_ScreenWidth() {
     return window.physicalSize.width / window.devicePixelRatio;
   }
+
   /*一个渐变颜色的正方形集合*/
   List<Widget> Boxs(List<Map<String, dynamic>> menu) =>
       List.generate(menu.length, (index) {
@@ -57,7 +66,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
               );
             },
             child: Container(
-                width: hc_ScreenWidth()/2.5,
+                width: hc_ScreenWidth() / 2.5,
                 height: 60,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
@@ -67,7 +76,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
                         offset: Offset(4.0, 15.0), //阴影xy轴偏移量
                         blurRadius: 15.0, //阴影模糊程度
                         spreadRadius: 1.0 //阴影扩散程度
-                    )
+                        )
                   ],
                   borderRadius: BorderRadius.all(
                     //圆角
@@ -133,7 +142,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
     ];*/
     var childMenu = <Map<String, dynamic>>[];
     menu.forEach((value) {
-      if(value['parentId'] == this.currentIndex){
+      if (value['parentId'] == this.currentIndex) {
         childMenu.add(value);
       }
     });
@@ -150,27 +159,23 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
         title: new Text(this.menuTitle),
         centerTitle: true,
       ),
-      body: Container(
-        width: double.infinity,
-        child: Column(
+      body: ListView(children: <Widget>[
+        Column(
           children: [
-            Expanded(
-              child:Container(
-                width: double.infinity,
-                color: Colors.white,
-                margin: EdgeInsets.only(bottom: 10.0),
-                padding: EdgeInsets.symmetric(
-                  // 同appBar的titleSpacing一致
-                  horizontal: NavigationToolbar.kMiddleSpacing,
-                  vertical: 20.0,
-                ),
-                child: buildAppBarTabs(),
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              margin: EdgeInsets.only(bottom: 10.0),
+              padding: EdgeInsets.symmetric(
+                // 同appBar的titleSpacing一致
+                horizontal: NavigationToolbar.kMiddleSpacing,
+                vertical: 20.0,
               ),
-            )
-
+              child: buildAppBarTabs(),
+            ),
           ],
         ),
-      ),
+      ]),
     );
   }
 }

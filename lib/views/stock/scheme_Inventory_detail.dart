@@ -106,6 +106,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     DateTime dateTime = DateTime.now();
     var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     selectData[DateMode.YMD] = nowDate;
+    EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null && this.fBillNo == '') {
       _subscription = scannerPlugin
@@ -363,6 +364,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           _code = event;
           this.getMaterialList(barcodeData);
           print("ChannelPage: $event");
+          ToastUtil.showInfo('查询标签成功');
         } else {
           ToastUtil.showInfo('该标签不存在');
         }
@@ -429,10 +431,12 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     var barCodeScan;
     if (fBarCodeList == 1) {
       barCodeScan = barcodeData[0];
+      barCodeScan[4] = barCodeScan[4].toString();
     } else {
       barCodeScan = scanCode;
     }
     if (orderDate.length > 0) {
+      ToastUtil.showInfo('查询盘点作业成功');
       var number = 0;
       fID = this.orderDate[0][15];
       for (var element in hobby) {
@@ -575,12 +579,13 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         _scrollController.jumpTo(globalListKey.currentContext!.size!.height);
       });
     } else {
-      var barCodeScan;
+      ToastUtil.showInfo('查询物料');
+      /*var barCodeScan;
       if (fBarCodeList == 1) {
         barCodeScan = barcodeData[0];
       } else {
         barCodeScan = scanCode;
-      }
+      }*/
       Map<String, dynamic> materialMap = Map();
       materialMap['FilterString'] = "FNumber='" +
           scanCode[0] +
@@ -596,6 +601,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       var materialDate = [];
       materialDate = jsonDecode(order);
       if (materialDate.length > 0) {
+        ToastUtil.showInfo('查询物料成功');
         var number = 0;
         for (var element in hobby) {
           if (element[0]['value']['barcode']
@@ -1333,6 +1339,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       setState(() {
         this.isSubmit = true;
       });
+      EasyLoading.show(status: 'loading...');
       /* if (this.departmentNumber == null) {
         this.isSubmit = false;
         ToastUtil.showInfo('请选择部门');
@@ -1457,6 +1464,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('盘点数量未录入');
+        EasyLoading.dismiss();
         return;
       }
       dataMap['formid'] = 'STK_StockCountInput';
@@ -1519,6 +1527,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           this.FBillNo = '';
           this.isSubmit = false;
           this.isError = false;
+          EasyLoading.dismiss();
           ToastUtil.showInfo('提交成功');
           /* Navigator.of(context).pop();*/
         });
@@ -1526,6 +1535,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         setState(() {
           this.isSubmit = false;
           this.isError = true;
+          EasyLoading.dismiss();
           ToastUtil.errorDialog(
               context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
         });

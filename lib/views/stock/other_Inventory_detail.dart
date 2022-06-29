@@ -168,7 +168,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
@@ -280,7 +280,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             "title": "物料名称",
             "name": "FMaterial",
             "isHide": false,
-            "value": {"label": value[1], "value": value[2]}
+            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2]}
           });
           arr.add({
             "title": "规格型号",
@@ -910,6 +910,32 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       ToastUtil.showInfo('无提交数据');
     }
   }
+  /// 确认提交提示对话框
+  Future<void> _showSumbitDialog() async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("是否提交"),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('不了'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: new Text('确定'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  saveOrder();
+                },
+              )
+            ],
+          );
+        });
+  }
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
@@ -982,7 +1008,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
                         child: Text("保存"),
                         color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
                         textColor: Colors.white,
-                        onPressed: () async=> this.isSubmit ? null : saveOrder(),
+                        onPressed: () async=> this.isSubmit ? null : _showSumbitDialog(),
                       ),
                     ),
                   ],

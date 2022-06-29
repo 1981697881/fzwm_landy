@@ -226,7 +226,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5],"barcode": [],"kingDeeCode": [],"surplus": value[19]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5],"barcode": [],"kingDeeCode": [],"surplus": value[19]}
         });
         arr.add({
           "title": "规格型号",

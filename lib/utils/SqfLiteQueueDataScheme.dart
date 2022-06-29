@@ -127,6 +127,18 @@ class SqfLiteQueueDataScheme {
           await _createTable(db,
               '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
         }
+        if (await isTableExitss(db,"offline_Inventory") == false) {
+          await _createTable(db,
+              '''create table if not exists offline_Inventory ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+        }
+        if (await isTableExitss(db,"offline_Inventory_cache") == false) {
+          await _createTable(db,
+              '''create table if not exists offline_Inventory_cache ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+        }
+        if (await isTableExitss(db,"barcode_list") == false) {
+          await _createTable(db,
+              '''create table if not exists barcode_list (id integer primary key,fid INTEGER,fBillNo text,fCreateOrgId INTEGER,fBarCode text,fOwnerID INTEGER,materialName INTEGER,materialNumber text,fStockOrgID INTEGER,specification text,fStockID INTEGER,fInQtyTotal REAL,fOutQtyTotal REAL,fRemainQty REAL,fMUnitName text,fOrder text,fBatchNo text,fProduceDate text,fLastCheckTime text)''');
+        }
       },
     );
     return _database;
@@ -145,7 +157,6 @@ class SqfLiteQueueDataScheme {
     batch.execute(sql);
     await batch.commit();
   }
-
   //判断表是否存在
   static Future isTableExits(String tableName) async {
     Database db = await SqfLiteQueueDataScheme.internal().open();

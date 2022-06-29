@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fzwm_landy/utils/toast_util.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -63,6 +64,10 @@ class SqfLiteQueueDataOffline {
           await _createTable(db,
               '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
         }
+        if (await isTableExitss(db,"scheme_Inventory") == false) {
+          await _createTable(db,
+              '''create table if not exists scheme_Inventory ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+        }
         if (await isTableExitss(db,"offline_Inventory_cache") == false) {
           await _createTable(db,
               '''create table if not exists offline_Inventory_cache ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
@@ -108,7 +113,7 @@ class SqfLiteQueueDataOffline {
       String keeperTypeId,
       String keeperId,
       int entryID,
-      String barcode) async {
+      String barcode,int length,int index) async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
     //1、普通添加
     //await db.rawDelete("insert or replace into $_tableName ($_tableId,$_tableFid,$_tableRealQty) values (null,?,?)",[fid, realQty]);
@@ -144,7 +149,11 @@ class SqfLiteQueueDataOffline {
           ]);
     });
     await db.batch().commit();
-    /*await SqfLiteQueueDataOffline.internal().close();*/
+    if(index == length){
+      ToastUtil.showInfo('下载完成');
+      EasyLoading.dismiss();
+      await SqfLiteQueueDataOffline.internal().close();
+    }
   }
 
   /// 添加数据
