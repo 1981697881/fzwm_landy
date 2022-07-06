@@ -184,7 +184,6 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
       }
     });
   }
-
   @override
   void dispose() {
     this._textNumber.dispose();
@@ -194,10 +193,8 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
       _subscription!.cancel();
     }
   }
-
   // 查询数据集合
   List hobby = [];
-
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -221,7 +218,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5],"barcode": []}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5],"barcode": [],"kingDeeCode": []}
         });
         arr.add({
           "title": "规格型号",
@@ -272,7 +269,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
           "value": {"label": value[18], "value": value[18]}
         });
         arr.add({
-          "title": "实发数量",
+          "title": "应发数量",
           "name": "",
           "isHide": false,
           "value": {"label": value[19], "value": value[19]}
@@ -343,6 +340,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
       var barCodeScan;
       if(fBarCodeList == 1){
         barCodeScan = barcodeData[0];
+        barCodeScan[4] = barCodeScan[4].toString();
       }else{
         barCodeScan = scanCode;
       }
@@ -376,7 +374,8 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                     residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
                     element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
                   }
-                }else{//数量不超出
+                }else{
+                  //数量不超出
                   //判断条码是否重复
                   if(element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']) == -1){
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])).toString();
@@ -471,7 +470,8 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                         residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
                       }
-                    }else{//数量不超出
+                    }else{
+                      //数量不超出
                       //判断条码是否重复
                       if(element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']) == -1){
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])).toString();
@@ -836,9 +836,9 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                             ["label"] = _FNumber;
                             this.hobby[checkData][checkDataChild]['value']
                             ["value"] = _FNumber;
-                            if(this.hobby[checkData][checkDataChild]['value']['kingDeeCode'].length >0){
-                              var kingDeeCode =this.hobby[checkData][checkDataChild]['value']['kingDeeCode'][0].split("-");
-                              this.hobby[checkData][checkDataChild]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
+                            if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
+                              var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][0].split("-");
+                              this.hobby[checkData][0]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
                             }
                           });
                         },

@@ -79,14 +79,14 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
-      userMap['FilterString'] = "FBillCloseStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
-      userMap['FilterString'] = "FBillNo='"+scanCode[0]+"' and FBillCloseStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FBillNo='"+scanCode[0]+"' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'SAL_RETURNNOTICE';
+    userMap['FormId'] = 'STK_InStock';
     userMap['FieldKeys'] =
-    'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FRetorgId.FNumber,FRetorgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FJoinRetQty,FID,FRetcustId.FNumber,FRetcustId.FName';
+    'FBillNo,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FApproveDate,FRealQty,FID,FSupplierId.FNumber,FSupplierId.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -104,14 +104,14 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "销售组织",
+          "title": "采购组织",
           "name": "FSaleOrgId",
           "isHide": false,
           "value": {"label": value[2], "value": value[1]}
         });
         arr.add({
-          "title": "客户",
-          "name": "FSaleOrgId",
+          "title": "供应商",
+          "name": "FSupplierId",
           "isHide": false,
           "value": {"label": value[17], "value": value[16]}
         });
@@ -140,19 +140,19 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "数量",
+          "title": "应收数量",
           "name": "FBaseQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
-          "title": "退货日期",
+          "title": "审核日期",
           "name": "FDeliverydate",
           "isHide": false,
           "value": {"label": value[13], "value": value[13]}
         });
         arr.add({
-          "title": "退货数量",
+          "title": "实收数量",
           "name": "FJoinRetQty",
           "isHide": false,
           "value": {"label": value[14], "value": value[14]}
@@ -263,10 +263,10 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
   String _dateSelectText = "";
   void showDateSelect() async {
     //获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day-1);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day);
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

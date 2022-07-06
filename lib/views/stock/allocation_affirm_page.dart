@@ -295,7 +295,7 @@ class _AllocationAffirmPageState extends State<AllocationAffirmPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("领料确认"),
+            title: Text("调拨确认"),
             centerTitle: true,
           ),
           body: CustomScrollView(

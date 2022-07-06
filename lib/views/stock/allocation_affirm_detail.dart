@@ -237,7 +237,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "调拨数量",
+          "title": "实拨数量",
           "name": "FRealQty",
           "isHide": false,/*value[12]*/
           "value": {"label": "0", "value": "0"}
@@ -836,13 +836,11 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            this.hobby[checkData][checkDataChild]["value"]
-                            ["label"] = _FNumber;
-                            this.hobby[checkData][checkDataChild]['value']
-                            ["value"] = _FNumber;
-                            if(this.hobby[checkData][checkDataChild]['value']['kingDeeCode'].length >0){
-                              var kingDeeCode =this.hobby[checkData][checkDataChild]['value']['kingDeeCode'][0].split("-");
-                              this.hobby[checkData][checkDataChild]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
+                            this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
+                            this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+                            if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
+                              var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][0].split("-");
+                              this.hobby[checkData][0]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
                             }
                           });
                         },
@@ -905,8 +903,9 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
         if (element[3]['value']['value'] != '0') {
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FEntryID'] = orderDate[hobbyIndex][4];
-          FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-          FEntityItem['FRealQty'] = element[3]['value']['value'];
+          FEntityItem['FSrcStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+          FEntityItem['FDestStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+          FEntityItem['FQty'] = element[3]['value']['value'];
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;

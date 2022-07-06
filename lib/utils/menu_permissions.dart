@@ -17,6 +17,7 @@ import 'package:fzwm_landy/views/sale/retrieval_detail.dart';
 import 'package:fzwm_landy/views/sale/retrieval_page.dart';
 import 'package:fzwm_landy/views/sale/return_goods_detail.dart';
 import 'package:fzwm_landy/views/sale/return_goods_page.dart';
+import 'package:fzwm_landy/views/sale/sales_return_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/Inventory_page.dart';
 import 'package:fzwm_landy/views/stock/allocation_affirm_page.dart';
@@ -278,6 +279,13 @@ class MenuPermissions {
       "color": Colors.pink.withOpacity(0.7),
       "router": RetrievalAffirmPage(),
       "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "销售退货确认",
+      "parentId": 2,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": SalesReturnAffirmPage(),
+      "source": '',
     });
     menu.add({
       "icon": Icons.loupe,
@@ -337,7 +345,7 @@ class MenuPermissions {
     });
     menu.add({
       "icon": Icons.loupe,
-      "text": "采购退货",
+      "text": "采购退料",
       "parentId": 5,
       "color": Colors.pink.withOpacity(0.7),
       "router": PurchaseReturnPage(),

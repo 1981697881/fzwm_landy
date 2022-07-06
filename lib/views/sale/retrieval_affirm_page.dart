@@ -254,30 +254,30 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
   String _dateSelectText = "";
 
   void showDateSelect() async {
-    //获取当前的时间
+    // 获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day-1);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day);
-    //显示时间选择器
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
+    // 显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
-      //语言环境
+      // 语言环境
         locale: Locale("zh", "CH"),
         context: context,
-        //开始时间
+        // 开始时间
         firstDate: DateTime(now.year-3, now.month),
-        //结束时间
+        // 结束时间
         lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",
         confirmText: "确定",
-        //初始的时间范围选择
+        // 初始的时间范围选择
         initialDateRange: DateTimeRange(start: start, end: end));
-    //结果
+    // 结果
     if(selectTimeRange != null){
       _dateSelectText = selectTimeRange.toString();
-      //选择结果中的开始时间
+      // 选择结果中的开始时间
       DateTime selectStart = selectTimeRange.start;
-      //选择结果中的结束时间
+      // 选择结果中的结束时间
       DateTime selectEnd = selectTimeRange.end;
     }
     setState(() {});

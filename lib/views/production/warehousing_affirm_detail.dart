@@ -241,7 +241,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "入库数量",
+          "title": "实收数量",
           "name": "FRealQty",
           "isHide": false,/*value[12]*/
           "value": {"label": "0", "value": "0"}
@@ -277,7 +277,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           "value": {"label": value[18], "value": value[18]}
         });
         arr.add({
-          "title": "实收数量",
+          "title": "应收数量",
           "name": "",
           "isHide": false,
           "value": {"label": value[19], "value": value[19]}
@@ -353,6 +353,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       var barCodeScan;
       if(fBarCodeList == 1){
         barCodeScan = barcodeData[0];
+        barCodeScan[4] = barCodeScan[4].toString();
       }else{
         barCodeScan = scanCode;
       }
@@ -395,7 +396,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         break;
                       }else{
                         var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
-                        element[3]['value']['label']=(element[0]['value']['surplus'] - double.parse(element[3]['value']['label'])).toString();
+                        element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
                         element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
@@ -421,7 +422,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
                         break;
                       }else{
-                        element[3]['value']['label']=(element[0]['value']['surplus'] - double.parse(element[3]['value']['label'])).toString();
+                        element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
@@ -488,7 +489,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         break;
                       }else{
                         var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
-                        element[3]['value']['label']=(element[0]['value']['surplus'] - double.parse(element[3]['value']['label'])).toString();
+                        element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
                         element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
@@ -514,7 +515,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
                         break;
                       }else{
-                        element[3]['value']['label']=(element[0]['value']['surplus'] - double.parse(element[3]['value']['label'])).toString();
+                        element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
@@ -619,7 +620,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                           break;
                         }else{
                           var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
-                          element[3]['value']['label']=(element[0]['value']['surplus'] - double.parse(element[3]['value']['label'])).toString();
+                          element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = residue - double.parse(element[3]['value']['label']);
                           element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
@@ -645,7 +646,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                           element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
                           break;
                         }else{
-                          element[3]['value']['label']=(element[0]['value']['surplus'] - double.parse(element[3]['value']['label'])).toString();
+                          element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = residue - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
@@ -1067,9 +1068,9 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                             ["label"] = _FNumber;
                             this.hobby[checkData][checkDataChild]['value']
                             ["value"] = _FNumber;
-                            if(this.hobby[checkData][checkDataChild]['value']['kingDeeCode'].length >0){
-                              var kingDeeCode =this.hobby[checkData][checkDataChild]['value']['kingDeeCode'][0].split("-");
-                              this.hobby[checkData][checkDataChild]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
+                            if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
+                              var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][0].split("-");
+                              this.hobby[checkData][0]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
                             }
                           });
                         },

@@ -152,7 +152,7 @@ class SqfLiteQueueDataOffline {
     if(index == length){
       ToastUtil.showInfo('下载完成');
       EasyLoading.dismiss();
-      await SqfLiteQueueDataOffline.internal().close();
+      /*await SqfLiteQueueDataOffline.internal().close();*/
     }
   }
 

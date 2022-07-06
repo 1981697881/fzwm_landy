@@ -120,6 +120,11 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
 
   //获取缓存
   getInventorySessions() async {
+    SharedPreferences sharedPreferences =
+    await SharedPreferences.getInstance();
+    var deptData = sharedPreferences.getString('menuList');
+    var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
+    fBarCodeList = menuList['FBarCodeList'];
     if (this.schemeNumber != null) {
       Map<String, dynamic> userMap = Map();
       userMap['FilterString'] = "FSchemeNo ='$schemeNumber'";
@@ -1501,6 +1506,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         if (fBarCodeList == 1) {
           for (int i = 0; i < this.hobby.length; i++) {
             var barcode = this.hobby[i][0]['value']['barcode'];
+            print(barcode);
             for (int j = 0; j < barcode.length; j++) {
               Map<String, dynamic> dataCodeMap = Map();
               dataCodeMap['formid'] = 'QDEP_BarCodeList';
