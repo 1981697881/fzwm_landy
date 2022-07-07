@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:fzwm_landy/views/production/picking_detail.dart';
 import 'package:fzwm_landy/views/production/picking_page.dart';
 import 'package:fzwm_landy/views/production/picking_stock_page.dart';
+import 'package:fzwm_landy/views/production/replenishment_affirm_page.dart';
 import 'package:fzwm_landy/views/production/replenishment_page.dart';
+import 'package:fzwm_landy/views/production/return_affirm_page.dart';
 import 'package:fzwm_landy/views/production/return_page.dart';
 import 'package:fzwm_landy/views/production/warehousing_affirm_page.dart';
 import 'package:fzwm_landy/views/production/warehousing_detail.dart';
@@ -31,6 +33,7 @@ import 'package:fzwm_landy/views/stock/other_warehousing_detail.dart';
 import 'package:fzwm_landy/views/stock/other_warehousing_page.dart';
 import 'package:fzwm_landy/views/stock/scheme_Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/stock_page.dart';
+import 'package:fzwm_landy/views/stock/substep_allocation_page.dart';
 import 'package:fzwm_landy/views/stock/undercarriage_page.dart';
 import 'package:fzwm_landy/views/workshop/dispatch_detail.dart';
 import 'package:fzwm_landy/views/workshop/dispatch_page.dart';
@@ -305,6 +308,14 @@ class MenuPermissions {
     });
     menu.add({
       "icon": Icons.loupe,
+      "text": "分步式调拨",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": SubstepAllocationPage(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
       "text": "其他盘点",
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
@@ -327,7 +338,7 @@ class MenuPermissions {
       "router": OfflineInventoryDetail(),
       "source": '',
     });
-    menu.add({
+    /*menu.add({
       "icon": Icons.loupe,
       "text": "生产补料",
       "parentId": 1,
@@ -341,6 +352,22 @@ class MenuPermissions {
       "parentId": 1,
       "color": Colors.pink.withOpacity(0.7),
       "router": ReturnPage(),
+      "source": '',
+    });*/
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "生产补料确认",
+      "parentId": 1,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ReplenishmentAffirmPage(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "生产退料确认",
+      "parentId": 1,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ReturnAffirmPage(),
       "source": '',
     });
     menu.add({

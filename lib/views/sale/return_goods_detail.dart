@@ -601,56 +601,6 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     );
   }
 
-  void _pushSaved() {
-    Navigator.of(context).push(
-      new MaterialPageRoute(
-        builder: (context) {
-          return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('系统设置'),
-              centerTitle: true,
-              leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-                Navigator.of(context).pop("refresh");
-              }),
-            ),
-            body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
-              /* ListTile(
-                leading: Icon(Icons.search),
-                title: Text('版本信息'),
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),*/
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('退出登录'),
-                onTap: () async {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  prefs.clear();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return LoginPage();
-                      },
-                    ),
-                  );
-                },
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),
-            ]),
-          );
-        },
-      ),
-    );
-  }
 
   List<Widget> _getHobby() {
     List<Widget> tempList = [];

@@ -972,7 +972,7 @@ class _SalesReturnAffirmDetailState extends State<SalesReturnAffirmDetail> {
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
                         };
-                        codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+                        /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         Map<String, dynamic> codeFEntityItem = Map();
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FOutQty'] = itemCode[1];
