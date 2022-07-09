@@ -912,7 +912,7 @@ class _PurchaseAffirmDetailState extends State<PurchaseAffirmDetail> {
         ToastUtil.showInfo('请输入数量');
         return;
       }
-      Model['FEntity'] = FEntity;
+      Model['FInStockEntry'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
       print(jsonEncode(dataMap));
