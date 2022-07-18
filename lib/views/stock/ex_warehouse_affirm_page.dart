@@ -8,17 +8,19 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:fzwm_landy/views/stock/substep_allocation_detail.dart';
+import 'package:fzwm_landy/views/sale/retrieval_affirm_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
-class SubstepAllocationPage extends StatefulWidget {
-  SubstepAllocationPage({Key ?key}) : super(key: key);
+import 'ex_warehouse_affirm_detail.dart';
+
+class ExWarehouseAffirmPage extends StatefulWidget {
+  ExWarehouseAffirmPage({Key ?key}) : super(key: key);
 
   @override
-  _AllocationAffirmPageState createState() => _AllocationAffirmPageState();
+  _ExWarehouseAffirmPageState createState() => _ExWarehouseAffirmPageState();
 }
 
-class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
+class _ExWarehouseAffirmPageState extends State<ExWarehouseAffirmPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -78,15 +80,15 @@ class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FDate>= '$startDate' and FDocumentStatus = 'C' and FDate <= '$endDate'";
+      "FDate>= '$startDate' and FDocumentStatus in ('A','D') and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =/*and FInStockQty>0*/
-      "FBillNo='"+scanCode[0]+"' and FDocumentStatus = 'C' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    userMap['FormId'] = 'STK_TRANSFEROUT';
+    userMap['FormId'] = 'STK_MisDelivery';
     userMap['FieldKeys'] =
-    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FSTKTRSOUTENTRY_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockInOrgID.FNumber,FStockInOrgID.FName,FUnitID.FNumber,FUnitID.FName,FQty,FSrcBillNo,FID';
+    'FBillNo,FCustId.FNumber,FCustId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitID.FNumber,FUnitID.FName,FQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -103,7 +105,7 @@ class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "调入库存组织",
+          "title": "销售组织",
           "name": "",
           "isHide": false,
           "value": {"label": value[9], "value": value[8]}
@@ -135,9 +137,15 @@ class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
         });
         arr.add({
           "title": "数量",
-          "name": "FQty",
+          "name": "",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
+        });
+        arr.add({
+          "title": "客户",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[2], "value": value[1]}
         });
         hobby.add(arr);
       });
@@ -186,7 +194,7 @@ class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return SubstepAllocationDetail(
+                          return ExWarehouseAffirmDetail(
                               FBillNo: this.hobby[i][0]['value']
                             // 路由参数
                           );
@@ -248,30 +256,30 @@ class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
   String _dateSelectText = "";
 
   void showDateSelect() async {
-    //获取当前的时间
+    // 获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day-1);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day);
-    //显示时间选择器
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
+    // 显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
-      //语言环境
+      // 语言环境
         locale: Locale("zh", "CH"),
         context: context,
-        //开始时间
+        // 开始时间
         firstDate: DateTime(now.year-3, now.month),
-        //结束时间
+        // 结束时间
         lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",
         confirmText: "确定",
-        //初始的时间范围选择
+        // 初始的时间范围选择
         initialDateRange: DateTimeRange(start: start, end: end));
-    //结果
+    // 结果
     if(selectTimeRange != null){
       _dateSelectText = selectTimeRange.toString();
-      //选择结果中的开始时间
+      // 选择结果中的开始时间
       DateTime selectStart = selectTimeRange.start;
-      //选择结果中的结束时间
+      // 选择结果中的结束时间
       DateTime selectEnd = selectTimeRange.end;
     }
     setState(() {});
@@ -295,7 +303,7 @@ class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("分步式调拨"),
+            title: Text("其他出库确认"),
             centerTitle: true,
           ),
           body: CustomScrollView(

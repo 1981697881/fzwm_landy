@@ -294,14 +294,14 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       var barcodeData = jsonDecode(order);
       if (barcodeData.length>0) {
         _code = event;
-        this.getMaterialList(barcodeData);
+        this.getMaterialList(barcodeData,_code);
         print("ChannelPage: $event");
       }else{
         ToastUtil.showInfo('该标签不存在');
       }
     }else{
       _code = event;
-      this.getMaterialList("");
+      this.getMaterialList("",_code);
       print("ChannelPage: $event");
     }
   }
@@ -311,12 +311,12 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       _code = "扫描异常";
     });
   }
-  getMaterialList(barcodeData) async {
+  getMaterialList(barcodeData,code) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = _code.split(",");
+    var scanCode = code.split(",");
     userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
@@ -341,10 +341,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         //判断是否启用批号
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0]){
-            if(element[0]['value']['barcode'].indexOf(_code) == -1){
+            if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4 && scanCode[5] == "N"){
-                element[0]['value']['barcode'].add(_code);
+                element[0]['value']['barcode'].add(code);
               }
               //判断扫描数量是否大于单据数量
               if(double.parse(element[3]['value']['label']) >= element[9]['value']['value']) {
@@ -390,11 +390,11 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           }
         }else{//启用批号
           if(element[0]['value']['value'] == scanCode[0]){
-            if(element[0]['value']['barcode'].indexOf(_code) == -1){
+            if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
                 if(scanCode.length>4 && scanCode[5] == "N"){
-                  element[0]['value']['barcode'].add(_code);
+                  element[0]['value']['barcode'].add(code);
                 }
                 //判断扫描数量是否大于单据数量
                 if(double.parse(element[3]['value']['label']) >= element[9]['value']['value']) {
@@ -437,7 +437,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
                   if(scanCode.length>4 && scanCode[5] == "N"){
-                    element[0]['value']['barcode'].add(_code);
+                    element[0]['value']['barcode'].add(code);
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];

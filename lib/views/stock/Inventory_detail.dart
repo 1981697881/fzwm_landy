@@ -231,7 +231,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
     }else{
       _code = event;
       EasyLoading.show(status: 'loading...');
-      this.getMaterialList("");
+      this.getMaterialList("",_code);
       print("ChannelPage: $event");
     }
 
@@ -243,12 +243,12 @@ class _InventoryDetailState extends State<InventoryDetail> {
       _code = "扫描异常";
     });
   }
-  getMaterialList(barcodeData) async {
+  getMaterialList(barcodeData,code) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = _code.split(",");
+    var scanCode = code.split(",");
     userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber'";
     if(scanCode.length > 1){
       if(scanCode[1] == ''){
@@ -270,7 +270,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
     if (orderDate.length > 0) {
       var number = 0;
       for (var element in hobby) {
-        if(element[0]['value']['barcode'].indexOf(_code) != -1){
+        if(element[0]['value']['barcode'].indexOf(code) != -1){
           number++;
           ToastUtil.showInfo('该标签已扫描');
           break;
@@ -278,7 +278,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
         if(element[0]['value']['value']+"-"+element[6]['value']['value'] == scanCode[0]+"-"+scanCode[1]){
           element[4]['value']['label'] =  (double.parse(element[4]['value']['label']) + double.parse(scanCode[4])).toString();
           element[4]['value']['value'] =  element[4]['value']['label'];
-          element[0]['value']['barcode'].add(_code);
+          element[0]['value']['barcode'].add(code);
           number++;
           break;
         }
@@ -290,7 +290,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
             "title": "物料名称",
             "name": "FMaterial",
             "isHide": false,
-            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [_code]}
+            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code]}
           });
           arr.add({
             "title": "规格型号",
@@ -392,7 +392,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
       if (materialDate.length > 0) {
         var number = 0;
         for (var element in hobby) {
-          if(element[0]['value']['barcode'].indexOf(_code) != -1){
+          if(element[0]['value']['barcode'].indexOf(code) != -1){
             number++;
             ToastUtil.showInfo('该标签已扫描');
             break;
@@ -400,7 +400,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
           if(element[0]['value']['value']+"-"+element[6]['value']['value'] == scanCode[0]+"-"+scanCode[1]){
             element[4]['value']['label'] =  (double.parse(element[4]['value']['label']) + double.parse(scanCode[4])).toString();
             element[4]['value']['value'] =  element[4]['value']['label'];
-            element[0]['value']['barcode'].add(_code);
+            element[0]['value']['barcode'].add(code);
             number++;
             break;
           }
@@ -412,7 +412,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
               "title": "物料名称",
               "name": "FMaterial",
               "isHide": false,
-              "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [_code]}
+              "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code]}
             });
             arr.add({
               "title": "规格型号",

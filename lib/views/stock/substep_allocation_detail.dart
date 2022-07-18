@@ -203,9 +203,9 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
-    userMap['FormId'] = 'STK_TransferDirect';
+    userMap['FormId'] = 'STK_TRANSFEROUT';
     userMap['FieldKeys'] =
-    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FBillEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOutOrgId.FNumber,FStockOutOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FSrcStockId.FNumber,FSrcStockId.FName,FID,FMaterialId.FIsBatchManage,FDestStockId.FNumber,FDestStockId.FName,FUnitID.FNumber,FQty,FOwnerIdHead.FNumber';
+    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FSTKTRSOUTENTRY_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockInOrgID.FNumber,FStockInOrgID.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FSrcStockId.FNumber,FSrcStockId.FName,FID,FMaterialId.FIsBatchManage,FDestStockId.FNumber,FDestStockId.FName,FUnitID.FNumber,FQty,FOwnerIdHead.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -304,30 +304,34 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
       barcodeMap['FilterString'] = "FBarCode='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
       var barcodeData = jsonDecode(order);
       if (barcodeData.length>0) {
-        _code = event;
-        this.getMaterialList(barcodeData);
-        print("ChannelPage: $event");
+        if(barcodeData[0][4]>0){
+          _code = event;
+          this.getMaterialList(barcodeData,_code);
+          print("ChannelPage: $event");
+        }else{
+          ToastUtil.showInfo('该条码剩余数量为0');
+        }
       }else{
         ToastUtil.showInfo('该标签不存在');
       }
     }else{
       _code = event;
-      this.getMaterialList("");
+      this.getMaterialList("",_code);
       print("ChannelPage: $event");
     }
   }
-  getMaterialList(barcodeData) async {
+  getMaterialList(barcodeData,code) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = _code.split(",");
+    var scanCode = code.split(",");
     userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
@@ -355,10 +359,10 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
         //判断是否启用批号
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0]){
-            if(element[0]['value']['barcode'].indexOf(_code) == -1){
+            if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4 && scanCode[5] == "N"){
-                element[0]['value']['barcode'].add(_code);
+                element[0]['value']['barcode'].add(code);
               }
               //判断扫描数量是否大于单据数量
               if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
@@ -404,11 +408,11 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
           }
         }else{//启用批号
           if(element[0]['value']['value'] == scanCode[0]){
-            if(element[0]['value']['barcode'].indexOf(_code) == -1){
+            if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
                 if(scanCode.length>4 && scanCode[5] == "N"){
-                  element[0]['value']['barcode'].add(_code);
+                  element[0]['value']['barcode'].add(code);
                 }
                 //判断扫描数量是否大于单据数量
                 if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
@@ -451,7 +455,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
                   if(scanCode.length>4 && scanCode[5] == "N"){
-                    element[0]['value']['barcode'].add(_code);
+                    element[0]['value']['barcode'].add(code);
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
@@ -877,12 +881,64 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                 child: new Text('确定'),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  saveOrder();
+                  pushDown();
                 },
               )
             ],
           );
         });
+  }
+  //下推
+  pushDown() async {
+    if (this.hobby.length > 0) {
+      setState(() {
+        this.isSubmit = true;
+      });
+     /* var val = [];
+      var hobbyIndex = 0;
+      this.hobby.forEach((element) {
+        if (element[3]['value']['value'] != '0') {
+          val.add(orderDate[hobbyIndex][4]);
+        }
+        hobbyIndex++;
+      });*/
+      //下推
+      Map<String, dynamic> pushMap = Map();
+      /*pushMap['EntryIds'] = val; */
+      pushMap['Ids'] = orderDate[0][14];
+      pushMap['RuleId'] = "STK_TRANSFEROUT-STK_TRANSFERIN";
+      pushMap['TargetFormId'] = "STK_TRANSFERIN";
+      pushMap['IsEnableDefaultRule'] = "false";
+      pushMap['IsDraftWhenSaveFail'] = "false";
+      print(pushMap);
+      var downData =
+      await SubmitEntity.pushDown({"formid": "STK_TRANSFEROUT", "data": pushMap});
+      print(downData);
+      var res = jsonDecode(downData);
+      //判断成功
+      if (res['Result']['ResponseStatus']['IsSuccess']) {
+        //查询单据
+        var entitysNumber =
+        res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
+        Map<String, dynamic> OrderMap = Map();
+        OrderMap['FormId'] = 'STK_TRANSFERIN';
+        OrderMap['FilterString'] = "FID='$entitysNumber'";
+        OrderMap['FieldKeys'] =
+        'FID,FSTKTRSINENTRY_FEntryId,FStockId.FNumber,FMaterialId.FNumber,FBillNo';
+        String order = await CurrencyEntity.polling({'data': OrderMap});
+        var resData = jsonDecode(order);
+        collarOrderDate = resData;
+        /*saveOrder();*/
+      } else {
+        setState(() {
+          this.isSubmit = false;
+          ToastUtil.errorDialog(context,
+              res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        });
+      }
+    } else {
+      ToastUtil.showInfo('无提交数据');
+    }
   }
   //保存
   saveOrder() async {
@@ -891,20 +947,20 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
         this.isSubmit = true;
       });
       Map<String, dynamic> dataMap = Map();
-      dataMap['formid'] = 'STK_TransferDirect';
+      dataMap['formid'] = 'STK_TRANSFERIN';
       Map<String, dynamic> orderMap = Map();
       orderMap['NeedReturnFields'] = [];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
-      Model['FID'] = orderDate[0][14];
+      Model['FID'] = collarOrderDate[0][0];
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
         if (element[3]['value']['value'] != '0') {
           Map<String, dynamic> FEntityItem = Map();
-          FEntityItem['FEntryID'] = orderDate[hobbyIndex][4];
-          FEntityItem['FSrcStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-          FEntityItem['FDestStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+          FEntityItem['FEntryID'] = collarOrderDate[hobbyIndex][1];
+          /*FEntityItem['FSrcStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+          FEntityItem['FDestStockStatusId'] = {"FNumber": "KCZT01_SYS"};*/
           FEntityItem['FQty'] = element[3]['value']['value'];
           FEntity.add(FEntityItem);
         }
@@ -915,7 +971,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
         ToastUtil.showInfo('请输入数量');
         return;
       }
-      Model['FEntity'] = FEntity;
+      Model['FSTKTRSINENTRY'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
       print(jsonEncode(dataMap));
@@ -925,7 +981,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         Map<String, dynamic> submitMap = Map();
         submitMap = {
-          "formid": "STK_TransferDirect",
+          "formid": "STK_TRANSFERIN",
           "data": {
             'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
           }
@@ -935,7 +991,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
             context,
             submitMap,
             1,
-            "STK_TransferDirect",
+            "STK_TRANSFERIN",
             SubmitEntity.submit(submitMap))
             .then((submitResult) {
           if (submitResult) {
@@ -944,7 +1000,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                 context,
                 submitMap,
                 1,
-                "STK_TransferDirect",
+                "STK_TRANSFERIN",
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) async {
               if (auditResult) {
@@ -961,29 +1017,50 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                         Map<String, dynamic> codeModel = Map();
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
-                        codeModel['FOwnerID'] = {
-                          "FNUMBER": orderDate[i][20]
-                        };
-                        codeModel['FStockOrgID'] = {
-                          "FNUMBER": orderDate[i][8]
-                        };
-                        codeModel['FStockID'] = {
-                          "FNUMBER": this.hobby[i][4]['value']['value']
-                        };
-                        /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
-                        Map<String, dynamic> codeFEntityItem = Map();
-                        codeFEntityItem['FBillDate'] = FDate;
-                        codeFEntityItem['FOutQty'] = itemCode[1];
-                        codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
-                        codeFEntityItem['FEntryStockID'] ={
-                          "FNUMBER": this.hobby[i][4]['value']['value']
-                        };
-                        var codeFEntity = [codeFEntityItem];
-                        codeModel['FEntity'] = codeFEntity;
-                        orderCodeMap['Model'] = codeModel;
-                        dataCodeMap['data'] = orderCodeMap;
-                        String codeRes = await SubmitEntity.save(dataCodeMap);
-                        print(codeRes);
+                        for(var j =0;j<2;j++){
+                          if(j==0){
+                            /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                            Map<String, dynamic> codeFEntityItem = Map();
+                            codeFEntityItem['FBillDate'] = FDate;
+                            codeFEntityItem['FOutQty'] = itemCode[1];
+                            codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                            codeFEntityItem['FEntryStockID'] ={
+                              "FNUMBER": this.hobby[i][6]['value']['value']
+                            };
+                            var codeFEntity = [codeFEntityItem];
+                            codeModel['FEntity'] = codeFEntity;
+                            orderCodeMap['Model'] = codeModel;
+                            dataCodeMap['data'] = orderCodeMap;
+                            print(dataCodeMap);
+                            String codeRes = await SubmitEntity.save(dataCodeMap);
+                            print(codeRes);
+                          }else{
+                            codeModel['FOwnerID'] = {
+                              "FNUMBER": orderDate[i][20]
+                            };
+                            codeModel['FStockOrgID'] = {
+                              "FNUMBER": orderDate[i][8]
+                            };
+                            codeModel['FStockID'] = {
+                              "FNUMBER": this.hobby[i][4]['value']['value']
+                            };
+                            /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                            Map<String, dynamic> codeFEntityItem = Map();
+                            codeFEntityItem['FBillDate'] = FDate;
+                            codeFEntityItem['FInQty'] = itemCode[1];
+                            codeFEntityItem['FEntryBillNo'] = collarOrderDate[i][4];
+                            codeFEntityItem['FEntryStockID'] ={
+                              "FNUMBER": this.hobby[i][4]['value']['value']
+                            };
+                            var codeFEntity = [codeFEntityItem];
+                            codeModel['FEntity'] = codeFEntity;
+                            orderCodeMap['Model'] = codeModel;
+                            dataCodeMap['data'] = orderCodeMap;
+                            print(dataCodeMap);
+                            String codeRes = await SubmitEntity.save(dataCodeMap);
+                            print(codeRes);
+                          }
+                        }
                       }
                     }
                   }
@@ -1002,7 +1079,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                     context,
                     submitMap,
                     0,
-                    "STK_TransferDirect",
+                    "STK_TRANSFERIN",
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {

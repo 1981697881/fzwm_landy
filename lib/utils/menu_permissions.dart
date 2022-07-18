@@ -4,13 +4,13 @@ import 'package:fzwm_landy/views/production/picking_detail.dart';
 import 'package:fzwm_landy/views/production/picking_page.dart';
 import 'package:fzwm_landy/views/production/picking_stock_page.dart';
 import 'package:fzwm_landy/views/production/replenishment_affirm_page.dart';
-import 'package:fzwm_landy/views/production/replenishment_page.dart';
 import 'package:fzwm_landy/views/production/return_affirm_page.dart';
 import 'package:fzwm_landy/views/production/return_page.dart';
 import 'package:fzwm_landy/views/production/warehousing_affirm_page.dart';
 import 'package:fzwm_landy/views/production/warehousing_detail.dart';
 import 'package:fzwm_landy/views/production/warehousing_page.dart';
 import 'package:fzwm_landy/views/purchase/purchase_affirm_page.dart';
+import 'package:fzwm_landy/views/purchase/purchase_return_affirm_page.dart';
 import 'package:fzwm_landy/views/purchase/purchase_return_page.dart';
 import 'package:fzwm_landy/views/purchase/purchase_warehousing_detail.dart';
 import 'package:fzwm_landy/views/purchase/purchase_warehousing_page.dart';
@@ -24,11 +24,13 @@ import 'package:fzwm_landy/views/stock/Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/Inventory_page.dart';
 import 'package:fzwm_landy/views/stock/allocation_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/allocation_page.dart';
+import 'package:fzwm_landy/views/stock/ex_warehouse_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_detail.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_page.dart';
 import 'package:fzwm_landy/views/stock/grounding_page.dart';
 import 'package:fzwm_landy/views/stock/offline_Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/other_Inventory_detail.dart';
+import 'package:fzwm_landy/views/stock/other_warehousing_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/other_warehousing_detail.dart';
 import 'package:fzwm_landy/views/stock/other_warehousing_page.dart';
 import 'package:fzwm_landy/views/stock/scheme_Inventory_detail.dart';
@@ -337,6 +339,20 @@ class MenuPermissions {
       "color": Colors.pink.withOpacity(0.7),
       "router": OfflineInventoryDetail(),
       "source": '',
+    }); menu.add({
+      "icon": Icons.loupe,
+      "text": "其他出库确认",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ExWarehouseAffirmPage(),
+      "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "其他入库确认",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": OtherWarehousingAffirmPage(),
+      "source": '',
     });
     /*menu.add({
       "icon": Icons.loupe,
@@ -376,6 +392,13 @@ class MenuPermissions {
       "parentId": 5,
       "color": Colors.pink.withOpacity(0.7),
       "router": PurchaseReturnPage(),
+      "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "采购退料确认",
+      "parentId": 5,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": PurchaseReturnAffirmPage(),
       "source": '',
     });
     return menu;

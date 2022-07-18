@@ -18,8 +18,13 @@ class HandlerOrder {
           return true;
         }
       } else {
-        orderDelete(context,
-            map, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        if(type==3){
+          ToastUtil.errorDialog(context,
+              res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        }else{
+          orderDelete(context,
+              map, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        }
         return false;
       }
     }else{

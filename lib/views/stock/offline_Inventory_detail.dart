@@ -357,7 +357,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             barCode.add(resBarcode[0]["fOutQtyTotal"]);
             barCode.add(resBarcode[0]["id"]);
             barCode.add(resBarcode[0]["fRemainQty"].toString());
-            this.getMaterialList(barCode);
+            this.getMaterialList(barCode,_code);
             print("ChannelPage: $event");
           } else {
             ToastUtil.showInfo('该标签不存在');
@@ -365,7 +365,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         });
       } else {
         _code = event;
-        this.getMaterialList("");
+        this.getMaterialList("",_code);
         EasyLoading.show(status: 'loading...');
         print("ChannelPage: $event");
       }
@@ -379,12 +379,12 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
     });
   }
 
-  getMaterialList(barcodeData) async {
+  getMaterialList(barcodeData,code) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = _code.split(",");
+    var scanCode = code.split(",");
     var resInventory = [];
     if (scanCode.length > 1) {
       if (scanCode[1] == '') {
@@ -448,7 +448,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
     if (resInventory.length > 0) {
       var number = 0;
       for (var element in hobby) {
-        if (element[0]['value']['barcode'].indexOf(barCodeScan[0].toString() + "-" + _code) != -1) {
+        if (element[0]['value']['barcode'].indexOf(barCodeScan[0].toString() + "-" + code) != -1) {
           number++;
           ToastUtil.showInfo('该标签已扫描');
           break;
@@ -459,7 +459,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           element[4]['value']['value'] = element[4]['value']['label'];
           element[14]['value']['label'] = barCodeScan[4].toString();
           element[14]['value']['value'] = barCodeScan[4].toString();
-          element[0]['value']['barcode'].add(barCodeScan[0].toString() + "-" + _code);
+          element[0]['value']['barcode'].add(barCodeScan[0].toString() + "-" + code);
           number++;
           break;
         }
@@ -474,7 +474,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           "value": {
             "label": resInventory[0]['materialName'],
             "value": resInventory[0]['materialNumber'],
-            "barcode": [barCodeScan[0].toString() + "-" + _code]
+            "barcode": [barCodeScan[0].toString() + "-" + code]
           }
         });
         arr.add({
@@ -626,7 +626,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       if (scanCode.length > 2) {
         var number = 0;
         for (var element in hobby) {
-          if (element[0]['value']['barcode'].indexOf(barCodeScan[0].toString() + "-" + _code) != -1) {
+          if (element[0]['value']['barcode'].indexOf(barCodeScan[0].toString() + "-" + code) != -1) {
             number++;
             ToastUtil.showInfo('该标签已扫描');
             break;
@@ -636,7 +636,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             element[4]['value']['value'] = element[4]['value']['label'];
             element[14]['value']['label'] = barCodeScan[4].toString();
             element[14]['value']['value'] = barCodeScan[4].toString();
-            element[0]['value']['barcode'].add(barCodeScan[0].toString() + "-" + _code);
+            element[0]['value']['barcode'].add(barCodeScan[0].toString() + "-" + code);
             number++;
             break;
           }
@@ -651,7 +651,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             "value": {
               "label": scanCode[0],
               "value": scanCode[0],
-              "barcode": [barCodeScan[0].toString() + "-" + _code]
+              "barcode": [barCodeScan[0].toString() + "-" + code]
             }
           });
           arr.add({
@@ -951,7 +951,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 4) {
+          /*if (j == 4) {
             comList.add(
               Column(children: [
                 Container(
@@ -994,7 +994,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                 divider,
               ]),
             );
-          } else if (j == 8) {
+          } else*/ if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -1502,6 +1502,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         SqfLiteQueueDataOffline.deleteTData(this.schemeNumber);
         SqfLiteQueueDataOffline.deleteData(this.schemeNumber);
         SqfLiteQueueDataRepertoire.deleteTableData();
+        var errorMsg = "";
         if (fBarCodeList == 1) {
           for (int i = 0; i < this.hobby.length; i++) {
             var barcode = this.hobby[i][0]['value']['barcode'];
@@ -1521,8 +1522,16 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               print(dataCodeMap);
               String codeRes = await SubmitEntity.save(dataCodeMap);
               print(codeRes);
+              var barcodeRes = jsonDecode(codeRes);
+              if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
+                errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
+              }
             }
           }
+        }
+        if(errorMsg !=""){
+          ToastUtil.errorDialog(context,
+              errorMsg);
         }
         //提交
         setState(() {

@@ -228,7 +228,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
     }else{
       _code = event;
       EasyLoading.show(status: 'loading...');
-      this.getMaterialList("");
+      this.getMaterialList("",_code);
       print("ChannelPage: $event");
     }
 
@@ -240,12 +240,12 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       _code = "扫描异常";
     });
   }
-  getMaterialList(barcodeData) async {
+  getMaterialList(barcodeData,code) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = _code.split(",");
+    var scanCode = code.split(",");
     userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber'";
     if(scanCode.length > 1){
       if(scanCode[1] == ''){
@@ -516,7 +516,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 4) {
+          /*if (j == 4) {
             comList.add(
               Column(children: [
                 Container(
@@ -554,7 +554,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
                 divider,
               ]),
             );
-          } else if (j == 8) {
+          } else*/ if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
