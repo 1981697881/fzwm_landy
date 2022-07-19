@@ -950,6 +950,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) async {
               if (auditResult) {
+                var errorMsg = "";
                 if(fBarCodeList == 1){
                   for (int i = 0; i < this.hobby.length; i++) {
                     if (this.hobby[i][3]['value']['value'] != '0') {
@@ -979,6 +980,10 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                             dataCodeMap['data'] = orderCodeMap;
                             print(dataCodeMap);
                             String codeRes = await SubmitEntity.save(dataCodeMap);
+                            var barcodeRes = jsonDecode(codeRes);
+                            if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
+                              errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
+                            }
                             print(codeRes);
                           }else{
                             codeModel['FOwnerID'] = {
@@ -1004,12 +1009,20 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                             dataCodeMap['data'] = orderCodeMap;
                             print(dataCodeMap);
                             String codeRes = await SubmitEntity.save(dataCodeMap);
+                            var barcodeRes = jsonDecode(codeRes);
+                            if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
+                              errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
+                            }
                             print(codeRes);
                           }
                         }
                       }
                     }
                   }
+                }
+                if(errorMsg !=""){
+                  ToastUtil.errorDialog(context,
+                      errorMsg);
                 }
                 //提交清空页面
                 setState(() {

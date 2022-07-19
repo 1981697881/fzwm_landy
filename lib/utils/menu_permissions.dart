@@ -24,6 +24,8 @@ import 'package:fzwm_landy/views/stock/Inventory_detail.dart';
 import 'package:fzwm_landy/views/stock/Inventory_page.dart';
 import 'package:fzwm_landy/views/stock/allocation_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/allocation_page.dart';
+import 'package:fzwm_landy/views/stock/call_in_affirm_page.dart';
+import 'package:fzwm_landy/views/stock/call_out_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_affirm_page.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_detail.dart';
 import 'package:fzwm_landy/views/stock/ex_warehouse_page.dart';
@@ -352,6 +354,20 @@ class MenuPermissions {
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": OtherWarehousingAffirmPage(),
+      "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "分步调出单确认",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": CallOutAffirmPage(),
+      "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "分步调入单确认",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": CallInAffirmPage(),
       "source": '',
     });
     /*menu.add({

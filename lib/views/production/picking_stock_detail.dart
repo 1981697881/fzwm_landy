@@ -359,7 +359,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
               if(scanCode.length>4 && scanCode[5] == "N"){
                 element[0]['value']['barcode'].add(code);
               }
-              /*//判断扫描数量是否大于单据数量
+              //判断扫描数量是否大于单据数量
               if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
                 continue;
               }else {
@@ -379,7 +379,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                       print(1);
                       print(element[0]['value']['kingDeeCode']);
                     }
-                  }else{*/
+                  }else{
                     //数量不超出
                     //判断条码是否重复
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
@@ -392,9 +392,9 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                       print(2);
                       print(element[0]['value']['kingDeeCode']);
                     }
-                 /* }
+                  }
                 }
-              }*/
+              }
             }else{
               ToastUtil.showInfo('该标签已扫描');
               break;
@@ -408,7 +408,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                 if(scanCode.length>4 && scanCode[5] == "N"){
                   element[0]['value']['barcode'].add(code);
                 }
-               /* //判断扫描数量是否大于单据数量
+                //判断扫描数量是否大于单据数量
                 if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
                   continue;
                 }else {
@@ -428,7 +428,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                         print(1);
                         print(element[0]['value']['kingDeeCode']);
                       }
-                    }else{*/
+                    }else{
                       //数量不超出
                       //判断条码是否重复
                       if(element[0]['value']['scanCode'].indexOf(code) == -1){
@@ -441,9 +441,9 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                         print(2);
                         print(element[0]['value']['kingDeeCode']);
                       }
-                    /*}
+                    }
                   }
-                }*/
+                }
               }else{
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
@@ -452,7 +452,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
-                  /*//判断扫描数量是否大于单据数量
+                  //判断扫描数量是否大于单据数量
                   if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
                     continue;
                   }else {
@@ -472,7 +472,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                           print(1);
                           print(element[0]['value']['kingDeeCode']);
                         }
-                      }else{*/
+                      }else{
                         //数量不超出
                         //判断条码是否重复
                         if(element[0]['value']['scanCode'].indexOf(code) == -1){
@@ -485,9 +485,9 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                           print(2);
                           print(element[0]['value']['kingDeeCode']);
                         }
-                      /*}
+                      }
                     }
-                  }*/
+                  }
                 }
               }
             }else{
@@ -945,6 +945,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) async {
               if (auditResult) {
+                var errorMsg = "";
                 if(fBarCodeList == 1){
                   for (int i = 0; i < this.hobby.length; i++) {
                     if (this.hobby[i][3]['value']['value'] != '0') {
@@ -981,10 +982,18 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                         dataCodeMap['data'] = orderCodeMap;
                         print(dataCodeMap);
                         String codeRes = await SubmitEntity.save(dataCodeMap);
+                        var barcodeRes = jsonDecode(codeRes);
+                        if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
+                          errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
+                        }
                         print(codeRes);
                       }
                     }
                   }
+                }
+                if(errorMsg !=""){
+                  ToastUtil.errorDialog(context,
+                      errorMsg);
                 }
                 //提交清空页面
                 setState(() {

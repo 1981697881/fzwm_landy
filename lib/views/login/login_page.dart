@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
         _isShowClear = false;
       }
       EasyLoading.dismiss();
-      setState(() {});
+     setState(() {});
     });
     super.initState();
     /// 开启监听
@@ -92,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
     acctidContent.text = content[1];
     usernameContent.text = content[2];
     passwordContent.text = content[3];
-    /*});*/
+    /*});}*/
   }
 
   void _onError(Object error) {
@@ -208,13 +208,13 @@ class _LoginPageState extends State<LoginPage> {
                         //改变回调
                         onChanged: (value) {
                           setState(() {
-                            urlContent.value = TextEditingValue(
-                                text: value,
-                                selection: TextSelection.fromPosition(TextPosition(
-                                    affinity: TextAffinity.downstream,
-                                    offset: value.length)));
-                          });
-                        },
+    urlContent.value = TextEditingValue(
+    text: value,
+    selection: TextSelection.fromPosition(TextPosition(
+    affinity: TextAffinity.downstream,
+    offset: value.length)));
+    });
+                        }
                       ),
                     ),
                     Divider(
@@ -284,6 +284,7 @@ class _LoginPageState extends State<LoginPage> {
                                     affinity: TextAffinity.downstream,
                                     offset: value.length)));
                           });
+                        }
                         },
                       ),
                     ),*/

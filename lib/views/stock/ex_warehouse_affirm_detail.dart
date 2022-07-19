@@ -379,7 +379,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                   //判断条码是否重复
                   if(element[0]['value']['scanCode'].indexOf(code) == -1){
                     //判断末尾
-                    if(fNumber.lastIndexOf(element[0]['value']['value'].toString()) == (hobbyIndex-1)){
+                   /* if(fNumber.lastIndexOf(element[0]['value']['value'].toString()) == (hobbyIndex-1)){
                         var item = barCodeScan[0].toString()+"-"+residue.toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
@@ -387,7 +387,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
-                    }else{
+                    }else{*/
                       //判断剩余数量是否大于扫码数量
                       if(element[0]['value']['surplus'] >= residue){
                         var item = barCodeScan[0].toString()+"-"+residue.toString();
@@ -406,7 +406,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }
-                    }
+                    /*}*/
                   }
                 }
               }
@@ -432,7 +432,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                     //判断条码是否重复
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
                       //判断末尾
-                      if(fNumber.lastIndexOf(element[0]['value']['value'].toString()) == (hobbyIndex-1)){
+                      /*if(fNumber.lastIndexOf(element[0]['value']['value'].toString()) == (hobbyIndex-1)){
                         var item = barCodeScan[0].toString()+"-"+residue.toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
@@ -440,7 +440,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
-                      }else{
+                      }else{*/
                         //判断剩余数量是否大于扫码数量
                         if(element[0]['value']['surplus'] >= residue){
                           var item = barCodeScan[0].toString()+"-"+residue.toString();
@@ -459,7 +459,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                         }
-                      }
+                      /*}*/
                     }
                   }
                 }
@@ -480,7 +480,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                       //判断条码是否重复
                       if(element[0]['value']['scanCode'].indexOf(code) == -1){
                         //判断末尾
-                        if(fNumber.lastIndexOf(element[0]['value']['value'].toString()) == (hobbyIndex-1)){
+                        /*if(fNumber.lastIndexOf(element[0]['value']['value'].toString()) == (hobbyIndex-1)){
                           var item = barCodeScan[0].toString()+"-"+residue.toString();
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
@@ -488,7 +488,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                           element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
-                        }else{
+                        }else{*/
                           //判断剩余数量是否大于扫码数量
                           if(element[0]['value']['surplus'] >= residue){
                             var item = barCodeScan[0].toString()+"-"+residue.toString();
@@ -507,7 +507,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
                           }
-                        }
+                       /* }*/
                       }
                     }
                   }
@@ -998,6 +998,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) async {
               if (auditResult) {
+                var errorMsg = "";
                 if(fBarCodeList == 1){
                   for (int i = 0; i < this.hobby.length; i++) {
                     if (this.hobby[i][3]['value']['value'] != '0') {
@@ -1033,10 +1034,18 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         orderCodeMap['Model'] = codeModel;
                         dataCodeMap['data'] = orderCodeMap;
                         String codeRes = await SubmitEntity.save(dataCodeMap);
+                        var barcodeRes = jsonDecode(codeRes);
+                        if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
+                          errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
+                        }
                         print(codeRes);
                       }
                     }
                   }
+                }
+                if(errorMsg !=""){
+                  ToastUtil.errorDialog(context,
+                      errorMsg);
                 }
                 //提交清空页面
                 setState(() {
