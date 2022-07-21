@@ -310,9 +310,13 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
       String order = await CurrencyEntity.polling(dataMap);
       var barcodeData = jsonDecode(order);
       if (barcodeData.length>0) {
+        if(barcodeData[0][4]>0){
           _code = event;
           this.getMaterialList(barcodeData,_code);
           print("ChannelPage: $event");
+        }else{
+          ToastUtil.showInfo('该条码剩余数量为0');
+        }
       }else{
         ToastUtil.showInfo('该标签不存在');
       }
@@ -350,13 +354,12 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
         barCodeScan = scanCode;
         barCodeScan.add(barCodeScan[4]);
       }
-      var barcodeNum = scanCode[4];
-      /*var barcodeNum = barCodeScan[4];*/
+      var barcodeNum = barCodeScan[4];
       for (var element in hobby) {
         var residue = 0.0;
         //判断是否启用批号
         if(element[5]['isHide']){//不启用
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[6]){
+          if(element[0]['value']['value'] == scanCode[0] && element[6]['value']['value'] == barCodeScan[6]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4 && scanCode[5] == "N"){
@@ -404,7 +407,7 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
             }
           }
         }else{//启用批号
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[6]){
+          if(element[0]['value']['value'] == scanCode[0] && element[6]['value']['value'] == barCodeScan[6]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
@@ -963,13 +966,13 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
                           "FNUMBER": orderDate[i][20]
                         };
                         codeModel['FStockOrgID'] = {
-                          "FNUMBER": orderDate[i][8]
+                          "FNUMBER": orderDate[i][1]
                         };
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
                         };
                         /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
-                        Map<String, dynamic> codeFEntityItem = Map();
+                       /* Map<String, dynamic> codeFEntityItem = Map();
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];
                         codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
@@ -977,7 +980,7 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
                           "FNUMBER": this.hobby[i][4]['value']['value']
                         };
                         var codeFEntity = [codeFEntityItem];
-                        codeModel['FEntity'] = codeFEntity;
+                        codeModel['FEntity'] = codeFEntity;*/
                         orderCodeMap['Model'] = codeModel;
                         dataCodeMap['data'] = orderCodeMap;
                         print(dataCodeMap);

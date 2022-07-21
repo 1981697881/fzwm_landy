@@ -953,7 +953,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FEntryID'] = orderDate[hobbyIndex][4];
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-          FEntityItem['FRealQty'] = element[3]['value']['value'];
+          FEntityItem['FQty'] = element[3]['value']['value'];
           FEntity.add(FEntityItem);
           test.add(element[0]['value']);
         }

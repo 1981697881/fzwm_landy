@@ -882,7 +882,7 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FEntryID'] = orderDate[hobbyIndex][4];
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-          FEntityItem['FRealQty'] = element[3]['value']['value'];
+          FEntityItem['FQty'] = element[3]['value']['value'];
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
@@ -892,7 +892,7 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
         ToastUtil.showInfo('请输入数量');
         return;
       }
-      Model['FInStockEntry'] = FEntity;
+      Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
       print(jsonEncode(dataMap));
