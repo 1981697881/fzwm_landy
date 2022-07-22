@@ -364,8 +364,8 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
 
               //判断条码数量
               if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
-                //判断物料相同数量
-                if(fNumber.indexOf(element[0]['value']['value']) == 1){
+                //判断物料是否重复 首个下标是否对应末尾下标
+                if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
                   if(element[0]['value']['scanCode'].indexOf(code) == -1){
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
@@ -427,8 +427,8 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                 }
                 //判断条码数量
                 if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
-                  //判断物料相同数量
-                  if(fNumber.indexOf(element[0]['value']['value']) == 1){
+                  //判断物料是否重复 首个下标是否对应末尾下标
+                  if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
@@ -485,8 +485,8 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
                   element[5]['value']['value'] = scanCode[1];
                   //判断条码数量
                   if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
-                    //判断物料相同数量
-                    if(fNumber.indexOf(element[0]['value']['value']) == 1){
+                    //判断物料是否重复 首个下标是否对应末尾下标
+                    if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
                       if(element[0]['value']['scanCode'].indexOf(code) == -1){
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                         element[3]['value']['value']=element[3]['value']['label'];

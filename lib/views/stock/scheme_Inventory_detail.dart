@@ -1328,6 +1328,15 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                           "value": element["entryID"]
                         }
                       });
+                      arr.add({
+                        "title": "最后扫描数量",
+                        "name": "FLastQty",
+                        "isHide": false,
+                        "value": {
+                          "label": "0",
+                          "value": "0"
+                        }
+                      });
                       hobby.add(arr);
                     }
                     this._getHobby();
