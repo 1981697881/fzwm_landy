@@ -278,6 +278,15 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
           "isHide": false,
           "value": {"label": value[19], "value": value[19]}
         });
+        arr.add({
+          "title": "最后扫描数量",
+          "name": "FLastQty",
+          "isHide": false,
+          "value": {
+            "label": "0",
+            "value": "0"
+          }
+        });
         hobby.add(arr);
       });
       setState(() {
@@ -361,12 +370,12 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
-              if(scanCode.length>4 && scanCode[5] == "N"){
+              if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
               }
               //判断扫描数量是否大于单据数量
               if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
-                continue;
+                  continue;
               }else {
                 if((double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])) >= element[9]['value']['label']){
                   //判断条码是否重复
@@ -401,6 +410,9 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                   break;
                 }
               }
+              if(scanCode[5] == "N"){
+                break;
+              }
             }else{
               ToastUtil.showInfo('该标签已扫描');
               break;
@@ -411,12 +423,12 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
-                if(scanCode.length>4 && scanCode[5] == "N"){
+                if(scanCode.length>4){
                   element[0]['value']['barcode'].add(code);
                 }
                 //判断扫描数量是否大于单据数量
                 if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
-                  continue;
+                    continue;
                 }else {
                   if((double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])) >= element[9]['value']['label']){
                     //判断条码是否重复
@@ -454,14 +466,14 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
               }else{
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
-                  if(scanCode.length>4 && scanCode[5] == "N"){
+                  if(scanCode.length>4){
                     element[0]['value']['barcode'].add(code);
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断扫描数量是否大于单据数量
                   if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
-                    continue;
+                      continue;
                   }else {
                     if((double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])) >= element[9]['value']['label']){
                       //判断条码是否重复
@@ -497,6 +509,9 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                     }
                   }
                 }
+              }
+              if(scanCode[5] == "N"){
+                break;
               }
             }else{
               ToastUtil.showInfo('该标签已扫描');
@@ -651,7 +666,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 3 || j==5) {
+          /*if (j == 3 || j==5) {
             comList.add(
               Column(children: [
                 Container(
@@ -689,7 +704,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                 divider,
               ]),
             );
-          } /*else if(j == 6){
+          } else if(j == 6){
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -734,7 +749,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
               ),
 
             );
-          }*/else if (j == 7) {
+          }else */if (j == 7) {
             comList.add(
               Column(children: [
                 Container(
@@ -756,6 +771,44 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                               },
                             )
                           ])),
+                ),
+                divider,
+              ]),
+            );
+          }else if (j == 10) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FLastQty';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
                 ),
                 divider,
               ]),
@@ -840,11 +893,32 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
-                            this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
-                            if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
-                              var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][0].split("-");
-                              this.hobby[checkData][0]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
+                            if(checkItem=="FLastQty"){
+                              if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
+                                var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1].split("-");
+                                var realQty = 0.0;
+                                this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
+                                  var qty = item.split("-")[1];
+                                  realQty += double.parse(qty);
+                                });
+                                realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
+                                realQty = realQty + double.parse(_FNumber);
+                                if(realQty > this.hobby[checkData][9]["value"]["label"]){
+                                  ToastUtil.showInfo('总数量大于应发数量');
+                                }else{
+                                  this.hobby[checkData][3]["value"]
+                                  ["value"] = realQty.toString();
+                                  this.hobby[checkData][3]["value"]
+                                  ["label"] = realQty.toString();
+                                  this.hobby[checkData][checkDataChild]["value"]
+                                  ["label"] = _FNumber;
+                                  this.hobby[checkData][checkDataChild]['value']
+                                  ["value"] = _FNumber;
+                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1] = kingDeeCode[0]+"-"+_FNumber;
+                                }
+                              }else{
+                                ToastUtil.showInfo('无条码信息，输入失败');
+                              }
                             }
                           });
                         },

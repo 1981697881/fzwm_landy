@@ -346,7 +346,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
-              if(scanCode.length>4 && scanCode[5] == "N"){
+              if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
               }
               //判断条码数量
@@ -374,7 +374,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
-                if(scanCode.length>4 && scanCode[5] == "N"){
+                if(scanCode.length>4){
                   element[0]['value']['barcode'].add(code);
                 }
                 //判断条码数量
@@ -394,7 +394,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               }else{
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
-                  if(scanCode.length>4 && scanCode[5] == "N"){
+                  if(scanCode.length>4){
                     element[0]['value']['barcode'].add(code);
                   }
                   element[5]['value']['label'] = scanCode[1];

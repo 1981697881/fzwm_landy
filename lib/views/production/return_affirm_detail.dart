@@ -323,12 +323,12 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
-              if(scanCode.length>4 && scanCode[5] == "N"){
+              if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
               }
               //判断扫描数量是否大于单据数量
               if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
-                continue;
+                  continue;
               }else {
                 //判断条码数量
                 if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
@@ -362,6 +362,9 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
                   }
                 }
               }
+              if(scanCode[5] == "N"){
+                break;
+              }
             }else{
               ToastUtil.showInfo('该标签已扫描');
               break;
@@ -372,12 +375,12 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
-                if(scanCode.length>4 && scanCode[5] == "N"){
+                if(scanCode.length>4){
                   element[0]['value']['barcode'].add(code);
                 }
                 //判断扫描数量是否大于单据数量
                 if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
-                  continue;
+                    continue;
                 }else {
                   //判断条码数量
                   if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
@@ -414,14 +417,14 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
               }else{
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
-                  if(scanCode.length>4 && scanCode[5] == "N"){
+                  if(scanCode.length>4){
                     element[0]['value']['barcode'].add(code);
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断扫描数量是否大于单据数量
                   if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
-                    continue;
+                      continue;
                   }else {
                     //判断条码数量
                     if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
@@ -457,6 +460,9 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
                   }
                 }
               }
+              if(scanCode[5] == "N"){
+                break;
+              }
             }else{
               ToastUtil.showInfo('该标签已扫描');
               break;
@@ -471,12 +477,12 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
-              if(scanCode.length>4 && scanCode[5] == "N"){
+              if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
               }
               //判断扫描数量是否大于单据数量
               if(double.parse(element[3]['value']['label']) >= element[9]['value']['value']) {
-                continue;
+                      continue;
               }else {
                 if((double.parse(element[3]['value']['label'])+double.parse(scanCode[4])) >= element[9]['value']['value']){
                   //判断条码是否重复
@@ -510,6 +516,8 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
                   }
                   break;
                 }
+              }if(scanCode[5] == "N"){
+                break;
               }
             }else{
               ToastUtil.showInfo('该标签已扫描');
@@ -521,12 +529,12 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
-                if(scanCode.length>4 && scanCode[5] == "N"){
+                if(scanCode.length>4){
                   element[0]['value']['barcode'].add(code);
                 }
                 //判断扫描数量是否大于单据数量
                 if(double.parse(element[3]['value']['label']) >= element[9]['value']['value']) {
-                  continue;
+                      continue;
                 }else {
                   if((double.parse(element[3]['value']['label'])+double.parse(scanCode[4])) >= element[9]['value']['value']){
                     //判断条码是否重复
@@ -564,14 +572,14 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
               }else{
                 if(element[5]['value']['value'] == ""){
                   //判断是否可重复扫码
-                  if(scanCode.length>4 && scanCode[5] == "N"){
+                  if(scanCode.length>4){
                     element[0]['value']['barcode'].add(code);
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断扫描数量是否大于单据数量
                   if(double.parse(element[3]['value']['label']) >= element[9]['value']['value']) {
-                    continue;
+                      continue;
                   }else {
                     if((double.parse(element[3]['value']['label'])+double.parse(scanCode[4])) >= element[9]['value']['value']){
                       //判断条码是否重复
@@ -607,6 +615,8 @@ class _SalesReturnAffirmDetailState extends State<ReturnAffirmDetail> {
                     }
                   }
                 }
+              }if(scanCode[5] == "N"){
+                break;
               }
             }else{
               ToastUtil.showInfo('该标签已扫描');

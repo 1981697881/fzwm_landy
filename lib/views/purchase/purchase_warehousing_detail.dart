@@ -321,7 +321,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(_code) == -1){
-              if(scanCode.length>4 && scanCode[5] == "N"){
+              if(scanCode.length>4){
                 element[0]['value']['barcode'].add(_code);
               }
               element[3]['value']['label']=(double.parse(element[3]['value']['label'])+1).toString();
@@ -338,7 +338,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(_code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
-                if(scanCode.length>4 && scanCode[5] == "N"){
+                if(scanCode.length>4){
                   element[0]['value']['barcode'].add(_code);
                 }
                 element[3]['value']['label']=(double.parse(element[3]['value']['label'])+1).toString();
@@ -347,7 +347,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                 break;
               }else{
                 if(element[5]['value']['value'] == ""){
-                  if(scanCode.length>4 && scanCode[5] == "N"){
+                  if(scanCode.length>4){
                     element[0]['value']['barcode'].add(_code);
                   }
                   element[5]['value']['label'] = scanCode[1];
