@@ -278,6 +278,15 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
           "isHide": false,
           "value": {"label": value[19], "value": value[19]}
         });
+        arr.add({
+          "title": "最后扫描数量",
+          "name": "FLastQty",
+          "isHide": false,
+          "value": {
+            "label": "0",
+            "value": "0"
+          }
+        });
         hobby.add(arr);
       });
       setState(() {

@@ -277,13 +277,23 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           "title": "应收数量",
           "name": "",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12],"rateValue": value[12]+value[12]*0.1}
-        });arr.add({
+          "value": {"label": value[12], "value": value[12],"rateValue": value[12]}
+        });
+        arr.add({
+          "title": "最后扫描数量",
+          "name": "FLastQty",
+          "isHide": false,
+          "value": {
+            "label": "0",
+            "value": "0"
+          }
+        });
+       /* arr.add({
           "title": "入库类型",
           "name": "",
           "isHide": false,
           "value": {"label": value[20]=="1"?"合格品入库":(value[20]=="2"?"不合格品入库":(value[20]=="3"?"报废品入库":"返工品入库")), "value": value[20]}
-        });
+        });*/
         hobby.add(arr);
       });
 
@@ -367,36 +377,63 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
               if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
               }
-              //判断扫描数量是否大于单据数量
-              if(double.parse(element[3]['value']['label']) >= element[9]['value']['rateValue']) {
-                  continue;
-              }else {
-                //判断条码数量
-                if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
-                  if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['rateValue']){
-                    //判断条码是否重复
-                    if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                      var item = barCodeScan[0].toString()+"-"+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
-                      barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
-                      element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
-                      element[3]['value']['value']=element[3]['value']['label'];
-                      residue = element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']);
-                      element[0]['value']['kingDeeCode'].add(item);
-                      element[0]['value']['scanCode'].add(code);
-                    }
-                  }else{//数量不超出
-                    //判断条码是否重复
-                    if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                      element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                      element[3]['value']['value']=element[3]['value']['label'];
-                      var item = barCodeScan[0].toString()+"-"+barcodeNum;
-                      element[0]['value']['kingDeeCode'].add(item);
-                      element[0]['value']['scanCode'].add(code);
-                      barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+              //判断条码数量
+              if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                //判断物料是否重复 首个下标是否对应末尾下标
+                if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
+                  if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                    element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                    element[3]['value']['value']=element[3]['value']['label'];
+                    var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                    element[0]['value']['kingDeeCode'].add(item);
+                    element[0]['value']['scanCode'].add(code);
+                    element[10]['value']['label'] = barcodeNum.toString();
+                    element[10]['value']['value'] = barcodeNum.toString();
+                    barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                    print(2);
+                    print(element[0]['value']['kingDeeCode']);
+                  }
+                }else{
+                  //判断扫描数量是否大于单据数量
+                  if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+                    continue;
+                  }else {
+                    //判断二维码数量是否大于单据数量
+                    if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                      //判断条码是否重复
+                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                        var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                        element[3]['value']['value']=element[3]['value']['label'];
+                        residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['kingDeeCode'].add(item);
+                        element[0]['value']['scanCode'].add(code);
+                        print(1);
+                        print(element[0]['value']['kingDeeCode']);
+                      }
+                    }else{
+                      //数量不超出
+                      //判断条码是否重复
+                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                        element[3]['value']['value']=element[3]['value']['label'];
+                        var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                        element[10]['value']['label'] =barcodeNum.toString();
+                        element[10]['value']['value'] = barcodeNum.toString();
+                        element[0]['value']['kingDeeCode'].add(item);
+                        element[0]['value']['scanCode'].add(code);
+                        barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                        print(2);
+                        print(element[0]['value']['kingDeeCode']);
+                      }
                     }
                   }
                 }
-              }if(scanCode[5] == "N"){
+              }
+              if(scanCode[5] == "N"){
                 break;
               }
             }else{
@@ -412,32 +449,58 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                 if(scanCode.length>4){
                   element[0]['value']['barcode'].add(code);
                 }
-                //判断扫描数量是否大于单据数量
-                if(double.parse(element[3]['value']['label']) >= element[9]['value']['rateValue']) {
-                    continue;
-                }else {
-                  //判断条码数量
-                  if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
-                    if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['rateValue']){
-                      //判断条码是否重复
-                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                        var item = barCodeScan[0].toString()+"-"+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
-                        barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
-                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
-                        element[3]['value']['value']=element[3]['value']['label'];
-                        residue = element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']);
-                        element[0]['value']['kingDeeCode'].add(item);
-                        element[0]['value']['scanCode'].add(code);
-                      }
-                    }else{//数量不超出
-                      //判断条码是否重复
-                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                        element[3]['value']['value']=element[3]['value']['label'];
-                        var item = barCodeScan[0].toString()+"-"+barcodeNum;
-                        element[0]['value']['kingDeeCode'].add(item);
-                        element[0]['value']['scanCode'].add(code);
-                        barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                //判断条码数量
+                if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                  //判断物料是否重复 首个下标是否对应末尾下标
+                  if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
+                    if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                      element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                      element[3]['value']['value']=element[3]['value']['label'];
+                      var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                      element[10]['value']['label'] = barcodeNum.toString();
+                      element[10]['value']['value'] = barcodeNum.toString();
+                      element[0]['value']['kingDeeCode'].add(item);
+                      element[0]['value']['scanCode'].add(code);
+                      barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                      print(2);
+                      print(element[0]['value']['kingDeeCode']);
+                    }
+                  }else{
+                    //判断扫描数量是否大于单据数量
+                    if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+                      continue;
+                    }else {
+                      //判断二维码数量是否大于单据数量
+                      if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                        //判断条码是否重复
+                        if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                          var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                          element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                          element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                          barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                          element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                          element[3]['value']['value']=element[3]['value']['label'];
+                          residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['kingDeeCode'].add(item);
+                          element[0]['value']['scanCode'].add(code);
+                          print(1);
+                          print(element[0]['value']['kingDeeCode']);
+                        }
+                      }else{
+                        //数量不超出
+                        //判断条码是否重复
+                        if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                          element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                          element[3]['value']['value']=element[3]['value']['label'];
+                          var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                          element[10]['value']['label'] =barcodeNum.toString();
+                          element[10]['value']['value'] = barcodeNum.toString();
+                          element[0]['value']['kingDeeCode'].add(item);
+                          element[0]['value']['scanCode'].add(code);
+                          barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                          print(2);
+                          print(element[0]['value']['kingDeeCode']);
+                        }
                       }
                     }
                   }
@@ -450,32 +513,58 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
-                  //判断扫描数量是否大于单据数量
-                  if(double.parse(element[3]['value']['label']) >= element[9]['value']['rateValue']) {
-                      continue;
-                  }else {
-                    //判断条码数量
-                    if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
-                      if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['rateValue']){
-                        //判断条码是否重复
-                        if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                          var item = barCodeScan[0].toString()+"-"+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
-                          barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
-                          element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
-                          element[3]['value']['value']=element[3]['value']['label'];
-                          residue = element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']);
-                          element[0]['value']['kingDeeCode'].add(item);
-                          element[0]['value']['scanCode'].add(code);
-                        }
-                      }else{//数量不超出
-                        //判断条码是否重复
-                        if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                          element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                          element[3]['value']['value']=element[3]['value']['label'];
-                          var item = barCodeScan[0].toString()+"-"+barcodeNum;
-                          element[0]['value']['kingDeeCode'].add(item);
-                          element[0]['value']['scanCode'].add(code);
-                          barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                  //判断条码数量
+                  if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                    //判断物料是否重复 首个下标是否对应末尾下标
+                    if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
+                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                        element[3]['value']['value']=element[3]['value']['label'];
+                        var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                        element[10]['value']['label'] = barcodeNum.toString();
+                        element[10]['value']['value'] = barcodeNum.toString();
+                        element[0]['value']['kingDeeCode'].add(item);
+                        element[0]['value']['scanCode'].add(code);
+                        barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                        print(2);
+                        print(element[0]['value']['kingDeeCode']);
+                      }
+                    }else{
+                      //判断扫描数量是否大于单据数量
+                      if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+                        continue;
+                      }else {
+                        //判断二维码数量是否大于单据数量
+                        if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                          //判断条码是否重复
+                          if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                            var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                            element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                            element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                            barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                            element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                            element[3]['value']['value']=element[3]['value']['label'];
+                            residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                            element[0]['value']['kingDeeCode'].add(item);
+                            element[0]['value']['scanCode'].add(code);
+                            print(1);
+                            print(element[0]['value']['kingDeeCode']);
+                          }
+                        }else{
+                          //数量不超出
+                          //判断条码是否重复
+                          if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                            element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                            element[3]['value']['value']=element[3]['value']['label'];
+                            var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                            element[10]['value']['label'] =barcodeNum.toString();
+                            element[10]['value']['value'] = barcodeNum.toString();
+                            element[0]['value']['kingDeeCode'].add(item);
+                            element[0]['value']['scanCode'].add(code);
+                            barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                            print(2);
+                            print(element[0]['value']['kingDeeCode']);
+                          }
                         }
                       }
                     }
@@ -975,6 +1064,44 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                 divider,
               ]),
             );
+          }else if (j == 10) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FLastQty';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
           }else {
             comList.add(
               Column(children: [
@@ -1055,13 +1182,32 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            this.hobby[checkData][checkDataChild]["value"]
-                            ["label"] = _FNumber;
-                            this.hobby[checkData][checkDataChild]['value']
-                            ["value"] = _FNumber;
-                            if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
-                              var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][0].split("-");
-                              this.hobby[checkData][0]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
+                            if(checkItem=="FLastQty"){
+                              if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
+                                var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1].split("-");
+                                var realQty = 0.0;
+                                this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
+                                  var qty = item.split("-")[1];
+                                  realQty += double.parse(qty);
+                                });
+                                realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
+                                realQty = realQty + double.parse(_FNumber);
+                                if(realQty > this.hobby[checkData][9]["value"]["label"]){
+                                  ToastUtil.showInfo('总数量大于应收数量');
+                                }else{
+                                  this.hobby[checkData][3]["value"]
+                                  ["value"] = realQty.toString();
+                                  this.hobby[checkData][3]["value"]
+                                  ["label"] = realQty.toString();
+                                  this.hobby[checkData][checkDataChild]["value"]
+                                  ["label"] = _FNumber;
+                                  this.hobby[checkData][checkDataChild]['value']
+                                  ["value"] = _FNumber;
+                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1] = kingDeeCode[0]+"-"+_FNumber;
+                                }
+                              }else{
+                                ToastUtil.showInfo('无条码信息，输入失败');
+                              }
                             }
                           });
                         },

@@ -278,6 +278,15 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
           "isHide": false,
           "value": {"label": value[19], "value": value[19], "rateValue": value[19]}
         });
+        arr.add({
+          "title": "最后扫描数量",
+          "name": "FLastQty",
+          "isHide": false,
+          "value": {
+            "label": "0",
+            "value": "0"
+          }
+        });
         hobby.add(arr);
       });
       setState(() {
@@ -367,6 +376,8 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                     //判断条码是否重复
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
                       var item = barCodeScan[0].toString()+"-"+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                      element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                      element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                       barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
@@ -380,6 +391,8 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                      element[10]['value']['label'] =barcodeNum.toString();
+                      element[10]['value']['value'] = barcodeNum.toString();
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                       barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
@@ -412,6 +425,8 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                       //判断条码是否重复
                       if(element[0]['value']['scanCode'].indexOf(code) == -1){
                         var item = barCodeScan[0].toString()+"-"+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                        element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                         barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
@@ -425,6 +440,8 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                        element[10]['value']['label'] =barcodeNum.toString();
+                        element[10]['value']['value'] = barcodeNum.toString();
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                         barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
@@ -450,6 +467,8 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                         //判断条码是否重复
                         if(element[0]['value']['scanCode'].indexOf(code) == -1){
                           var item = barCodeScan[0].toString()+"-"+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                          element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                          element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                           barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['rateValue'] - double.parse(element[3]['value']['label']))).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
@@ -463,6 +482,8 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                          element[10]['value']['label'] =barcodeNum.toString();
+                          element[10]['value']['value'] = barcodeNum.toString();
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                           barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
@@ -736,6 +757,44 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                 divider,
               ]),
             );
+          }else if (j == 10) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FLastQty';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
           }else {
             comList.add(
               Column(children: [
@@ -816,13 +875,32 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            this.hobby[checkData][checkDataChild]["value"]
-                            ["label"] = _FNumber;
-                            this.hobby[checkData][checkDataChild]['value']
-                            ["value"] = _FNumber;
-                            if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
-                              var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][0].split("-");
-                              this.hobby[checkData][0]['value']['kingDeeCode'] = kingDeeCode[0]+"-"+_FNumber;
+                            if(checkItem=="FLastQty"){
+                              if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
+                                var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1].split("-");
+                                var realQty = 0.0;
+                                this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
+                                  var qty = item.split("-")[1];
+                                  realQty += double.parse(qty);
+                                });
+                                realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
+                                realQty = realQty + double.parse(_FNumber);
+                                if(realQty > this.hobby[checkData][9]["value"]["label"]){
+                                  ToastUtil.showInfo('总数量大于应收数量');
+                                }else{
+                                  this.hobby[checkData][3]["value"]
+                                  ["value"] = realQty.toString();
+                                  this.hobby[checkData][3]["value"]
+                                  ["label"] = realQty.toString();
+                                  this.hobby[checkData][checkDataChild]["value"]
+                                  ["label"] = _FNumber;
+                                  this.hobby[checkData][checkDataChild]['value']
+                                  ["value"] = _FNumber;
+                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1] = kingDeeCode[0]+"-"+_FNumber;
+                                }
+                              }else{
+                                ToastUtil.showInfo('无条码信息，输入失败');
+                              }
                             }
                           });
                         },

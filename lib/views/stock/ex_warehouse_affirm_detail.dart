@@ -400,6 +400,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                       //判断剩余数量是否大于扫码数量
                       if(element[0]['value']['surplus'] >= residue){
                         var item = barCodeScan[0].toString()+"-"+residue.toString();
+                        element[10]['value']['label'] = residue.toString();
+                        element[10]['value']['value'] = residue.toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = 0.0;
@@ -407,6 +409,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }else{
+                        element[10]['value']['label'] = element[0]['value']['surplus'].toString();
+                        element[10]['value']['value'] = element[0]['value']['surplus'].toString();
                         var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
                         element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
@@ -455,6 +459,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         //判断剩余数量是否大于扫码数量
                         if(element[0]['value']['surplus'] >= residue){
                           var item = barCodeScan[0].toString()+"-"+residue.toString();
+                          element[10]['value']['label'] = residue.toString();
+                          element[10]['value']['value'] = residue.toString();
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = 0.0;
@@ -463,6 +469,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                           element[0]['value']['scanCode'].add(code);
                         }else{
                           var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
+                          element[10]['value']['label'] = element[0]['value']['surplus'].toString();
+                          element[10]['value']['value'] = element[0]['value']['surplus'].toString();
                           element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = residue - double.parse(element[3]['value']['label']);
@@ -503,6 +511,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                           //判断剩余数量是否大于扫码数量
                           if(element[0]['value']['surplus'] >= residue){
                             var item = barCodeScan[0].toString()+"-"+residue.toString();
+                            element[10]['value']['label'] = residue.toString();
+                            element[10]['value']['value'] = residue.toString();
                             element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                             element[3]['value']['value']=element[3]['value']['label'];
                             residue = 0.0;
@@ -511,6 +521,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                             element[0]['value']['scanCode'].add(code);
                           }else{
                             var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
+                            element[10]['value']['label'] = element[0]['value']['surplus'].toString();
+                            element[10]['value']['value'] = element[0]['value']['surplus'].toString();
                             element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                             element[3]['value']['value']=element[3]['value']['label'];
                             residue = residue - double.parse(element[3]['value']['label']);

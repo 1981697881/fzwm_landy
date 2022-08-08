@@ -367,6 +367,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                   element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                   element[3]['value']['value']=element[3]['value']['label'];
                   var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                  element[8]['value']['label'] =barcodeNum.toString();
+                  element[8]['value']['value'] = barcodeNum.toString();
                   element[0]['value']['kingDeeCode'].add(item);
                   element[0]['value']['scanCode'].add(code);
                   barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
@@ -395,6 +397,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
                     var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                    element[8]['value']['label'] =barcodeNum.toString();
+                    element[8]['value']['value'] = barcodeNum.toString();
                     element[0]['value']['kingDeeCode'].add(item);
                     element[0]['value']['scanCode'].add(code);
                     barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
@@ -417,6 +421,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                      element[8]['value']['label'] =barcodeNum.toString();
+                      element[8]['value']['value'] = barcodeNum.toString();
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                       barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();

@@ -381,6 +381,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                   //判断条码是否重复
                   if(element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']) == -1){
                     var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                    element[10]['value']['label'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                    element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
                     residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
@@ -388,6 +390,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                   }else{
                     //获取已存在下标
                     var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
+                    element[10]['value']['label'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                    element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
                     residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
@@ -396,12 +400,16 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                 }else{//数量不超出
                   //判断条码是否重复
                   if(element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']) == -1){
+                    element[10]['value']['label'] = barCodeScan[4];
+                    element[10]['value']['value'] = barCodeScan[4];
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
                     var item = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
                     element[0]['value']['kingDeeCode'].add(item);
                   }else{
                     //获取已存在下标
+                    element[10]['value']['label'] = barCodeScan[4];
+                    element[10]['value']['value'] = barCodeScan[4];
                     var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
@@ -434,6 +442,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                     //判断条码是否重复
                     if(element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']) == -1){
                       var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                      element[10]['value']['label'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                      element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
@@ -441,6 +451,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                     }else{
                       //获取已存在下标
                       var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
+                      element[10]['value']['label'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                      element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
@@ -449,6 +461,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                   }else{//数量不超出
                     //判断条码是否重复
                     if(element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']) == -1){
+                      element[10]['value']['label'] = barCodeScan[4];
+                      element[10]['value']['value'] = barCodeScan[4];
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       var item = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
@@ -456,6 +470,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                     }else{
                       //获取已存在下标
                       var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
+                      element[10]['value']['label'] = barCodeScan[4];
+                      element[10]['value']['value'] = barCodeScan[4];
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
@@ -479,6 +495,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                       //判断条码是否重复
                       if(element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']) == -1){
                         var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                        element[10]['value']['label'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
@@ -486,6 +504,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                       }else{
                         //获取已存在下标
                         var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
+                        element[10]['value']['label'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
@@ -494,12 +514,16 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                     }else{//数量不超出
                       //判断条码是否重复
                       if(element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']) == -1){
+                        element[10]['value']['label'] = barCodeScan[4];
+                        element[10]['value']['value'] = barCodeScan[4];
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         var item = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
                         element[0]['value']['kingDeeCode'].add(item);
                       }else{
                         //获取已存在下标
+                        element[10]['value']['label'] = barCodeScan[4];
+                        element[10]['value']['value'] = barCodeScan[4];
                         var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barCodeScan[4])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];

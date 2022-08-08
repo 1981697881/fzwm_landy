@@ -385,6 +385,8 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                     //判断条码是否重复
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
                       var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                      element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                      element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                       barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
@@ -401,6 +403,8 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                      element[10]['value']['label'] =barcodeNum.toString();
+                      element[10]['value']['value'] = barcodeNum.toString();
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                       barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
@@ -436,6 +440,8 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                       //判断条码是否重复
                       if(element[0]['value']['scanCode'].indexOf(code) == -1){
                         var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                        element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                         barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
@@ -452,6 +458,8 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                        element[10]['value']['label'] =barcodeNum.toString();
+                        element[10]['value']['value'] = barcodeNum.toString();
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                         barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
@@ -480,6 +488,8 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                         //判断条码是否重复
                         if(element[0]['value']['scanCode'].indexOf(code) == -1){
                           var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                          element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                          element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
                           barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
@@ -496,6 +506,8 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                          element[10]['value']['label'] =barcodeNum.toString();
+                          element[10]['value']['value'] = barcodeNum.toString();
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                           barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
