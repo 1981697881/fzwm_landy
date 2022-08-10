@@ -370,6 +370,10 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0] && element[6]['value']['value'] == barCodeScan[6]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
+              if(scanCode[5] == "N" && double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))){
+                ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');
+                break;
+              }
               //判断是否可重复扫码
               if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
@@ -409,15 +413,18 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
                     }
                   }
                 }
-              }if(scanCode[5] == "N"){
-                break;
               }
             }else{
               ToastUtil.showInfo('该标签已扫描');
               break;
             }
           }
-        }else{//启用批号
+        }else{
+          if(scanCode[5] == "N" && double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))){
+            ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');
+            break;
+          }
+          //启用批号
           if(element[0]['value']['value'] == scanCode[0] && element[6]['value']['value'] == barCodeScan[6]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
@@ -506,8 +513,6 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
                     }
                   }
                 }
-              }if(scanCode[5] == "N"){
-                break;
               }
             }else{
               ToastUtil.showInfo('该标签已扫描');

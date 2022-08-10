@@ -365,6 +365,10 @@ class _SalesReturnAffirmDetailState extends State<SalesReturnAffirmDetail> {
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
+              if(scanCode[5] == "N" && double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))){
+                ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');
+                break;
+              }
               //判断是否可重复扫码
               if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
@@ -408,15 +412,19 @@ class _SalesReturnAffirmDetailState extends State<SalesReturnAffirmDetail> {
                     }
                   }
                 }
-              }if(scanCode[5] == "N"){
-                break;
               }
+
             }else{
               ToastUtil.showInfo('该标签已扫描');
               break;
             }
           }
-        }else{//启用批号
+        }else{
+          if(scanCode[5] == "N" && double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))){
+            ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');
+            break;
+          }
+          //启用批号
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
@@ -513,8 +521,6 @@ class _SalesReturnAffirmDetailState extends State<SalesReturnAffirmDetail> {
                     }
                   }
                 }
-              }if(scanCode[5] == "N"){
-                break;
               }
             }else{
               ToastUtil.showInfo('该标签已扫描');
@@ -906,9 +912,9 @@ class _SalesReturnAffirmDetailState extends State<SalesReturnAffirmDetail> {
                                 });
                                 realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
                                 realQty = realQty + double.parse(_FNumber);
-                                if(realQty > this.hobby[checkData][9]["value"]["label"]){
+                                /*if(realQty > this.hobby[checkData][9]["value"]["label"]){
                                   ToastUtil.showInfo('总数量大于应收数量');
-                                }else{
+                                }else{*/
                                   this.hobby[checkData][3]["value"]
                                   ["value"] = realQty.toString();
                                   this.hobby[checkData][3]["value"]
@@ -918,7 +924,7 @@ class _SalesReturnAffirmDetailState extends State<SalesReturnAffirmDetail> {
                                   this.hobby[checkData][checkDataChild]['value']
                                   ["value"] = _FNumber;
                                   this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1] = kingDeeCode[0]+"-"+_FNumber;
-                                }
+                                //}
                               }else{
                                 ToastUtil.showInfo('无条码信息，输入失败');
                               }
