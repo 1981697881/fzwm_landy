@@ -370,8 +370,17 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0] && element[6]['value']['value'] == barCodeScan[6]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
-              if(scanCode[5] == "N" && double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))){
-                ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');
+              if(scanCode[5] == "N" ){
+                if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                  element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                  element[3]['value']['value']=element[3]['value']['label'];
+                  var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                  element[0]['value']['kingDeeCode'].add(item);
+                  element[0]['value']['scanCode'].add(code);
+                  element[10]['value']['label'] = barcodeNum.toString();
+                  element[10]['value']['value'] = barcodeNum.toString();
+                  barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                }
                 break;
               }
               //判断是否可重复扫码
@@ -420,8 +429,17 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
             }
           }
         }else{
-          if(scanCode[5] == "N" && double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))){
-            ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');
+          if(scanCode[5] == "N" ){
+            if(element[0]['value']['scanCode'].indexOf(code) == -1){
+              element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+              element[3]['value']['value']=element[3]['value']['label'];
+              var item = barCodeScan[0].toString()+"-"+barcodeNum;
+              element[0]['value']['kingDeeCode'].add(item);
+              element[0]['value']['scanCode'].add(code);
+              element[10]['value']['label'] = barcodeNum.toString();
+              element[10]['value']['value'] = barcodeNum.toString();
+              barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+            }
             break;
           }
           //启用批号

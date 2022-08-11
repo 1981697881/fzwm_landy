@@ -373,8 +373,17 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
-              if(scanCode[5] == "N" && double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))){
-                ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');
+              if(scanCode[5] == "N" ){ /*&& double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))  ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');*/
+                if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                  element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                  element[3]['value']['value']=element[3]['value']['label'];
+                  var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                  element[0]['value']['kingDeeCode'].add(item);
+                  element[0]['value']['scanCode'].add(code);
+                  element[10]['value']['label'] = barcodeNum.toString();
+                  element[10]['value']['value'] = barcodeNum.toString();
+                  barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                }
                 break;
               }
               //判断是否可重复扫码
@@ -384,15 +393,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
               //判断条码数量
               if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                 //判断物料是否重复 首个下标是否对应末尾下标
-                var NumberNum = 0;
-                fNumber.forEach((itemNumber) {
-                  if(itemNumber == element[0]['value']['value']){
-                    NumberNum++;
-                  }
-                });
-                print(NumberNum-1);
-                print(fNumber.lastIndexOf(element[0]['value']['value']));
-                if(NumberNum-1 == fNumber.lastIndexOf(element[0]['value']['value'])){
+                if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
                   if(element[0]['value']['scanCode'].indexOf(code) == -1){
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
@@ -452,8 +453,17 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
             }
           }
         }else{//启用批号
-          if(scanCode[5] == "N" && double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))){
-            ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');
+          if(scanCode[5] == "N" ){
+            if(element[0]['value']['scanCode'].indexOf(code) == -1){
+              element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+              element[3]['value']['value']=element[3]['value']['label'];
+              var item = barCodeScan[0].toString()+"-"+barcodeNum;
+              element[0]['value']['kingDeeCode'].add(item);
+              element[0]['value']['scanCode'].add(code);
+              element[10]['value']['label'] = barcodeNum.toString();
+              element[10]['value']['value'] = barcodeNum.toString();
+              barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+            }
             break;
           }
           if(element[0]['value']['value'] == scanCode[0]){
