@@ -24,10 +24,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class WarehousingAffirmDetail extends StatefulWidget {
   var FBillNo;
 
-  WarehousingAffirmDetail({Key ?key, @required this.FBillNo}) : super(key: key);
+  WarehousingAffirmDetail({Key? key, @required this.FBillNo}) : super(key: key);
 
   @override
-  _WarehousingAffirmDetailState createState() => _WarehousingAffirmDetailState(FBillNo);
+  _WarehousingAffirmDetailState createState() =>
+      _WarehousingAffirmDetailState(FBillNo);
 }
 
 class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
@@ -72,8 +73,8 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
-  const EventChannel('com.shinow.pda_scanner/plugin');
-   StreamSubscription ?_subscription;
+      const EventChannel('com.shinow.pda_scanner/plugin');
+  StreamSubscription? _subscription;
   var _code;
   var _FNumber;
   var fBillNo;
@@ -100,6 +101,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
     DateTime dateTime = DateTime.now();
     var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     selectData[DateMode.YMD] = nowDate;
+
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
@@ -109,6 +111,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
     /*getWorkShop();*/
     EasyLoading.dismiss();
   }
+
   //获取部门
   getDepartmentList() async {
     Map<String, dynamic> userMap = Map();
@@ -117,7 +120,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
     var deptData = jsonDecode(menuData)[0];
     userMap['FormId'] = 'BD_Department';
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='" + deptData[1] + "'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -126,6 +129,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       departmentList.add(element[1]);
     });
   }
+
   //获取线路名称
   getTypeList() async {
     Map<String, dynamic> userMap = Map();
@@ -140,6 +144,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       typeList.add(element[1]);
     });
   }
+
   //获取供应商
   getSupplierList() async {
     Map<String, dynamic> userMap = Map();
@@ -153,6 +158,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       supplierList.add(element[1]);
     });
   }
+
   //获取仓库
   getStockList() async {
     Map<String, dynamic> userMap = Map();
@@ -161,10 +167,11 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    if(fOrgID == null){
+    if (fOrgID == null) {
       this.fOrgID = deptData[1];
     }
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ="+fOrgID;
+    userMap['FilterString'] =
+        "FForbidStatus = 'A' and FUseOrgId.FNumber =" + fOrgID;
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -173,6 +180,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       stockList.add(element[1]);
     });
   }
+
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -190,6 +198,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
   void dispose() {
     this._textNumber.dispose();
     super.dispose();
+
     /// 取消监听
     if (_subscription != null) {
       _subscription!.cancel();
@@ -199,20 +208,33 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
   // 查询数据集合
   List hobby = [];
   List fNumber = [];
+
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'PRD_INSTOCK';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FStockUnitID.FNumber,FRealQty,FInStockType,FOwnerId0.FNumber';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FStockUnitID.FNumber,FRealQty,FInStockType,FOwnerId0.FNumber,FDocumentStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
-    FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
-    selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+    FDate = formatDate(DateTime.now(), [
+      yyyy,
+      "-",
+      mm,
+      "-",
+      dd,
+    ]);
+    selectData[DateMode.YMD] = formatDate(DateTime.now(), [
+      yyyy,
+      "-",
+      mm,
+      "-",
+      dd,
+    ]);
     hobby = [];
     if (orderDate.length > 0) {
       this.fOrgID = orderDate[0][8];
@@ -223,7 +245,14 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5],"barcode": [],"kingDeeCode": [],"surplus": value[12],"scanCode": []}
+          "value": {
+            "label": value[6] + "- (" + value[5] + ")",
+            "value": value[5],
+            "barcode": [],
+            "kingDeeCode": [],
+            "surplus": value[12],
+            "scanCode": []
+          }
         });
         arr.add({
           "title": "规格型号",
@@ -240,7 +269,8 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
         arr.add({
           "title": "实收数量",
           "name": "FRealQty",
-          "isHide": false,/*value[12]*/
+          "isHide": false,
+          /*value[12]*/
           "value": {"label": "0", "value": "0"}
         });
         arr.add({
@@ -259,7 +289,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           "title": "仓位",
           "name": "FStockLocID",
           "isHide": false,
-          "value": {"label": "", "value": "","hide": false}
+          "value": {"label": "", "value": "", "hide": false}
         });
         arr.add({
           "title": "操作",
@@ -277,18 +307,19 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           "title": "应收数量",
           "name": "",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12],"rateValue": value[12]}
+          "value": {
+            "label": value[12],
+            "value": value[12],
+            "rateValue": value[12]
+          }
         });
         arr.add({
           "title": "最后扫描数量",
           "name": "FLastQty",
           "isHide": false,
-          "value": {
-            "label": "0",
-            "value": "0"
-          }
+          "value": {"label": "0", "value": "0"}
         });
-       /* arr.add({
+        /* arr.add({
           "title": "入库类型",
           "name": "",
           "isHide": false,
@@ -308,7 +339,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-   /* getStockList();*/
+    /* getStockList();*/
   }
 
   void _onEvent(event) async {
@@ -316,52 +347,69 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
     fBarCodeList = menuList['FBarCodeList'];
-    if(fBarCodeList == 1){
+    if (fBarCodeList == 1) {
       Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCode='"+event+"'";
+      barcodeMap['FilterString'] = "FBarCode='" + event + "'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber';
+          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
       var barcodeData = jsonDecode(order);
-      if (barcodeData.length>0) {
+      if (barcodeData.length > 0) {
         _code = event;
-        this.getMaterialList(barcodeData,_code);
+        this.getMaterialList(barcodeData, _code);
         print("ChannelPage: $event");
-      }else{
+      } else {
         ToastUtil.showInfo('该标签不存在');
       }
-    }else{
+    } else {
       _code = event;
-      this.getMaterialList("",_code);
+      this.getMaterialList("", _code);
       print("ChannelPage: $event");
     }
   }
-  getMaterialList(barcodeData,code) async {
+
+  getMaterialList(barcodeData, code) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(",");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
+    userMap['FilterString'] = "FNumber='" +
+        scanCode[0] +
+        "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
+        deptData[1] +
+        "'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-    'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';/*,SubHeadEntity1.FStoreUnitID.FNumber*/
+        'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage'; /*,SubHeadEntity1.FStoreUnitID.FNumber*/
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     materialDate = [];
     materialDate = jsonDecode(order);
-    FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
-    selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+    FDate = formatDate(DateTime.now(), [
+      yyyy,
+      "-",
+      mm,
+      "-",
+      dd,
+    ]);
+    selectData[DateMode.YMD] = formatDate(DateTime.now(), [
+      yyyy,
+      "-",
+      mm,
+      "-",
+      dd,
+    ]);
     if (materialDate.length > 0) {
       var barCodeScan;
-      if(fBarCodeList == 1){
+      if (fBarCodeList == 1) {
         barCodeScan = barcodeData[0];
         barCodeScan[4] = barCodeScan[4].toString();
-      }else{
+      } else {
         barCodeScan = scanCode;
       }
       var barcodeNum = scanCode[4];
@@ -370,75 +418,119 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       for (var element in hobby) {
         var residue = 0.0;
         //判断是否启用批号
-        if(element[5]['isHide']){//不启用
-          if(element[0]['value']['value'] == scanCode[0]){
-            if(element[0]['value']['barcode'].indexOf(code) == -1){
-              if(scanCode[5] == "N" ){ /*&& double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))  ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');*/
-                if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                  element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                  element[3]['value']['value']=element[3]['value']['label'];
-                  var item = barCodeScan[0].toString()+"-"+barcodeNum;
+        if (element[5]['isHide']) {
+          //不启用
+          if (element[0]['value']['value'] == scanCode[0]) {
+            if (element[0]['value']['barcode'].indexOf(code) == -1) {
+              if (scanCode[5] == "N") {
+                /*&& double.parse(barcodeNum) > (element[9]['value']['label'] - (double.parse(element[3]['value']['label'])))  ToastUtil.showInfo('条码为不可切分条码且数量大于应收/应发数量');*/
+                if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                  element[3]['value']['label'] =
+                      (double.parse(element[3]['value']['label']) +
+                              double.parse(barcodeNum))
+                          .toString();
+                  element[3]['value']['value'] = element[3]['value']['label'];
+                  var item = barCodeScan[0].toString() + "-" + barcodeNum;
                   element[0]['value']['kingDeeCode'].add(item);
                   element[0]['value']['scanCode'].add(code);
                   element[10]['value']['label'] = barcodeNum.toString();
                   element[10]['value']['value'] = barcodeNum.toString();
-                  barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                  barcodeNum =
+                      (double.parse(barcodeNum) - double.parse(barcodeNum))
+                          .toString();
                 }
                 break;
               }
               //判断是否可重复扫码
-              if(scanCode.length>4){
+              if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
               }
               //判断条码数量
-              if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+              if ((double.parse(element[3]['value']['label']) +
+                          double.parse(barcodeNum)) >
+                      0 &&
+                  double.parse(barcodeNum) > 0) {
                 //判断物料是否重复 首个下标是否对应末尾下标
-                if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
-                  if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                    element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                    element[3]['value']['value']=element[3]['value']['label'];
-                    var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                if (fNumber.indexOf(element[0]['value']['value']) ==
+                    fNumber.lastIndexOf(element[0]['value']['value'])) {
+                  if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                    element[3]['value']['label'] =
+                        (double.parse(element[3]['value']['label']) +
+                                double.parse(barcodeNum))
+                            .toString();
+                    element[3]['value']['value'] = element[3]['value']['label'];
+                    var item = barCodeScan[0].toString() + "-" + barcodeNum;
                     element[0]['value']['kingDeeCode'].add(item);
                     element[0]['value']['scanCode'].add(code);
                     element[10]['value']['label'] = barcodeNum.toString();
                     element[10]['value']['value'] = barcodeNum.toString();
-                    barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                    barcodeNum =
+                        (double.parse(barcodeNum) - double.parse(barcodeNum))
+                            .toString();
                     print(2);
                     print(element[0]['value']['kingDeeCode']);
                   }
-                }else{
+                } else {
                   //判断扫描数量是否大于单据数量
-                  if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+                  if (double.parse(element[3]['value']['label']) >=
+                      element[9]['value']['label']) {
                     continue;
-                  }else {
+                  } else {
                     //判断二维码数量是否大于单据数量
-                    if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                    if ((double.parse(element[3]['value']['label']) +
+                            double.parse(barcodeNum)) >=
+                        element[9]['value']['label']) {
                       //判断条码是否重复
-                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                        var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                        element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                        element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                        barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                        element[3]['value']['value']=element[3]['value']['label'];
-                        residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                      if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                        var item = barCodeScan[0].toString() +
+                            "-" +
+                            (element[9]['value']['label'] -
+                                    double.parse(element[3]['value']['label']))
+                                .toString();
+                        element[10]['value']['label'] = (element[9]['value']
+                                    ['label'] -
+                                double.parse(element[3]['value']['label']))
+                            .toString();
+                        element[10]['value']['value'] = (element[9]['value']
+                                    ['label'] -
+                                double.parse(element[3]['value']['label']))
+                            .toString();
+                        barcodeNum = (double.parse(barcodeNum) -
+                                (element[9]['value']['label'] -
+                                    double.parse(element[3]['value']['label'])))
+                            .toString();
+                        element[3]['value']['label'] = (double.parse(
+                                    element[3]['value']['label']) +
+                                (element[9]['value']['label'] -
+                                    double.parse(element[3]['value']['label'])))
+                            .toString();
+                        element[3]['value']['value'] =
+                            element[3]['value']['label'];
+                        residue = element[9]['value']['label'] -
+                            double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                         print(1);
                         print(element[0]['value']['kingDeeCode']);
                       }
-                    }else{
+                    } else {
                       //数量不超出
                       //判断条码是否重复
-                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                        element[3]['value']['value']=element[3]['value']['label'];
-                        var item = barCodeScan[0].toString()+"-"+barcodeNum;
-                        element[10]['value']['label'] =barcodeNum.toString();
+                      if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                        element[3]['value']['label'] =
+                            (double.parse(element[3]['value']['label']) +
+                                    double.parse(barcodeNum))
+                                .toString();
+                        element[3]['value']['value'] =
+                            element[3]['value']['label'];
+                        var item = barCodeScan[0].toString() + "-" + barcodeNum;
+                        element[10]['value']['label'] = barcodeNum.toString();
                         element[10]['value']['value'] = barcodeNum.toString();
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
-                        barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                        barcodeNum = (double.parse(barcodeNum) -
+                                double.parse(barcodeNum))
+                            .toString();
                         print(2);
                         print(element[0]['value']['kingDeeCode']);
                       }
@@ -446,82 +538,130 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                   }
                 }
               }
-
-            }else{
+            } else {
               ToastUtil.showInfo('该标签已扫描');
               break;
             }
           }
-        }else{//启用批号
-          if(scanCode[5] == "N" ){
-            if(element[0]['value']['scanCode'].indexOf(code) == -1){
-              element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-              element[3]['value']['value']=element[3]['value']['label'];
-              var item = barCodeScan[0].toString()+"-"+barcodeNum;
+        } else {
+          //启用批号
+          if (scanCode[5] == "N") {
+            if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+              element[3]['value']['label'] =
+                  (double.parse(element[3]['value']['label']) +
+                          double.parse(barcodeNum))
+                      .toString();
+              element[3]['value']['value'] = element[3]['value']['label'];
+              var item = barCodeScan[0].toString() + "-" + barcodeNum;
               element[0]['value']['kingDeeCode'].add(item);
               element[0]['value']['scanCode'].add(code);
               element[10]['value']['label'] = barcodeNum.toString();
               element[10]['value']['value'] = barcodeNum.toString();
-              barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+              barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum))
+                  .toString();
             }
             break;
           }
-          if(element[0]['value']['value'] == scanCode[0]){
-            if(element[0]['value']['barcode'].indexOf(code) == -1){
-              if(element[5]['value']['value'] == scanCode[1]){
+          if (element[0]['value']['value'] == scanCode[0]) {
+            if (element[0]['value']['barcode'].indexOf(code) == -1) {
+              if (element[5]['value']['value'] == scanCode[1]) {
                 //判断是否可重复扫码
-                if(scanCode.length>4){
+                if (scanCode.length > 4) {
                   element[0]['value']['barcode'].add(code);
                 }
                 //判断条码数量
-                if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                if ((double.parse(element[3]['value']['label']) +
+                            double.parse(barcodeNum)) >
+                        0 &&
+                    double.parse(barcodeNum) > 0) {
                   //判断物料是否重复 首个下标是否对应末尾下标
-                  if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
-                    if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                      element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                      element[3]['value']['value']=element[3]['value']['label'];
-                      var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                  if (fNumber.indexOf(element[0]['value']['value']) ==
+                      fNumber.lastIndexOf(element[0]['value']['value'])) {
+                    if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                      element[3]['value']['label'] =
+                          (double.parse(element[3]['value']['label']) +
+                                  double.parse(barcodeNum))
+                              .toString();
+                      element[3]['value']['value'] =
+                          element[3]['value']['label'];
+                      var item = barCodeScan[0].toString() + "-" + barcodeNum;
                       element[10]['value']['label'] = barcodeNum.toString();
                       element[10]['value']['value'] = barcodeNum.toString();
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
-                      barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                      barcodeNum =
+                          (double.parse(barcodeNum) - double.parse(barcodeNum))
+                              .toString();
                       print(2);
                       print(element[0]['value']['kingDeeCode']);
                     }
-                  }else{
+                  } else {
                     //判断扫描数量是否大于单据数量
-                    if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+                    if (double.parse(element[3]['value']['label']) >=
+                        element[9]['value']['label']) {
                       continue;
-                    }else {
+                    } else {
                       //判断二维码数量是否大于单据数量
-                      if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                      if ((double.parse(element[3]['value']['label']) +
+                              double.parse(barcodeNum)) >=
+                          element[9]['value']['label']) {
                         //判断条码是否重复
-                        if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                          var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                          element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                          element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                          barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                          element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                          element[3]['value']['value']=element[3]['value']['label'];
-                          residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                        if (element[0]['value']['scanCode'].indexOf(code) ==
+                            -1) {
+                          var item = barCodeScan[0].toString() +
+                              "-" +
+                              (element[9]['value']['label'] -
+                                      double.parse(
+                                          element[3]['value']['label']))
+                                  .toString();
+                          element[10]['value']['label'] = (element[9]['value']
+                                      ['label'] -
+                                  double.parse(element[3]['value']['label']))
+                              .toString();
+                          element[10]['value']['value'] = (element[9]['value']
+                                      ['label'] -
+                                  double.parse(element[3]['value']['label']))
+                              .toString();
+                          barcodeNum = (double.parse(barcodeNum) -
+                                  (element[9]['value']['label'] -
+                                      double.parse(
+                                          element[3]['value']['label'])))
+                              .toString();
+                          element[3]['value']['label'] =
+                              (double.parse(element[3]['value']['label']) +
+                                      (element[9]['value']['label'] -
+                                          double.parse(
+                                              element[3]['value']['label'])))
+                                  .toString();
+                          element[3]['value']['value'] =
+                              element[3]['value']['label'];
+                          residue = element[9]['value']['label'] -
+                              double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                           print(1);
                           print(element[0]['value']['kingDeeCode']);
                         }
-                      }else{
+                      } else {
                         //数量不超出
                         //判断条码是否重复
-                        if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                          element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                          element[3]['value']['value']=element[3]['value']['label'];
-                          var item = barCodeScan[0].toString()+"-"+barcodeNum;
-                          element[10]['value']['label'] =barcodeNum.toString();
+                        if (element[0]['value']['scanCode'].indexOf(code) ==
+                            -1) {
+                          element[3]['value']['label'] =
+                              (double.parse(element[3]['value']['label']) +
+                                      double.parse(barcodeNum))
+                                  .toString();
+                          element[3]['value']['value'] =
+                              element[3]['value']['label'];
+                          var item =
+                              barCodeScan[0].toString() + "-" + barcodeNum;
+                          element[10]['value']['label'] = barcodeNum.toString();
                           element[10]['value']['value'] = barcodeNum.toString();
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
-                          barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                          barcodeNum = (double.parse(barcodeNum) -
+                                  double.parse(barcodeNum))
+                              .toString();
                           print(2);
                           print(element[0]['value']['kingDeeCode']);
                         }
@@ -529,63 +669,109 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                     }
                   }
                 }
-              }else{
-                if(element[5]['value']['value'] == ""){
+              } else {
+                if (element[5]['value']['value'] == "") {
                   //判断是否可重复扫码
-                  if(scanCode.length>4){
+                  if (scanCode.length > 4) {
                     element[0]['value']['barcode'].add(code);
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断条码数量
-                  if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                  if ((double.parse(element[3]['value']['label']) +
+                              double.parse(barcodeNum)) >
+                          0 &&
+                      double.parse(barcodeNum) > 0) {
                     //判断物料是否重复 首个下标是否对应末尾下标
-                    if(fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])){
-                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                        element[3]['value']['value']=element[3]['value']['label'];
-                        var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                    if (fNumber.indexOf(element[0]['value']['value']) ==
+                        fNumber.lastIndexOf(element[0]['value']['value'])) {
+                      if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                        element[3]['value']['label'] =
+                            (double.parse(element[3]['value']['label']) +
+                                    double.parse(barcodeNum))
+                                .toString();
+                        element[3]['value']['value'] =
+                            element[3]['value']['label'];
+                        var item = barCodeScan[0].toString() + "-" + barcodeNum;
                         element[10]['value']['label'] = barcodeNum.toString();
                         element[10]['value']['value'] = barcodeNum.toString();
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
-                        barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                        barcodeNum = (double.parse(barcodeNum) -
+                                double.parse(barcodeNum))
+                            .toString();
                         print(2);
                         print(element[0]['value']['kingDeeCode']);
                       }
-                    }else{
+                    } else {
                       //判断扫描数量是否大于单据数量
-                      if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+                      if (double.parse(element[3]['value']['label']) >=
+                          element[9]['value']['label']) {
                         continue;
-                      }else {
+                      } else {
                         //判断二维码数量是否大于单据数量
-                        if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                        if ((double.parse(element[3]['value']['label']) +
+                                double.parse(barcodeNum)) >=
+                            element[9]['value']['label']) {
                           //判断条码是否重复
-                          if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                            var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                            element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                            element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                            barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                            element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                            element[3]['value']['value']=element[3]['value']['label'];
-                            residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                          if (element[0]['value']['scanCode'].indexOf(code) ==
+                              -1) {
+                            var item = barCodeScan[0].toString() +
+                                "-" +
+                                (element[9]['value']['label'] -
+                                        double.parse(
+                                            element[3]['value']['label']))
+                                    .toString();
+                            element[10]['value']['label'] = (element[9]['value']
+                                        ['label'] -
+                                    double.parse(element[3]['value']['label']))
+                                .toString();
+                            element[10]['value']['value'] = (element[9]['value']
+                                        ['label'] -
+                                    double.parse(element[3]['value']['label']))
+                                .toString();
+                            barcodeNum = (double.parse(barcodeNum) -
+                                    (element[9]['value']['label'] -
+                                        double.parse(
+                                            element[3]['value']['label'])))
+                                .toString();
+                            element[3]['value']['label'] =
+                                (double.parse(element[3]['value']['label']) +
+                                        (element[9]['value']['label'] -
+                                            double.parse(
+                                                element[3]['value']['label'])))
+                                    .toString();
+                            element[3]['value']['value'] =
+                                element[3]['value']['label'];
+                            residue = element[9]['value']['label'] -
+                                double.parse(element[3]['value']['label']);
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
                             print(1);
                             print(element[0]['value']['kingDeeCode']);
                           }
-                        }else{
+                        } else {
                           //数量不超出
                           //判断条码是否重复
-                          if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                            element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                            element[3]['value']['value']=element[3]['value']['label'];
-                            var item = barCodeScan[0].toString()+"-"+barcodeNum;
-                            element[10]['value']['label'] =barcodeNum.toString();
-                            element[10]['value']['value'] = barcodeNum.toString();
+                          if (element[0]['value']['scanCode'].indexOf(code) ==
+                              -1) {
+                            element[3]['value']['label'] =
+                                (double.parse(element[3]['value']['label']) +
+                                        double.parse(barcodeNum))
+                                    .toString();
+                            element[3]['value']['value'] =
+                                element[3]['value']['label'];
+                            var item =
+                                barCodeScan[0].toString() + "-" + barcodeNum;
+                            element[10]['value']['label'] =
+                                barcodeNum.toString();
+                            element[10]['value']['value'] =
+                                barcodeNum.toString();
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
-                            barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                            barcodeNum = (double.parse(barcodeNum) -
+                                    double.parse(barcodeNum))
+                                .toString();
                             print(2);
                             print(element[0]['value']['kingDeeCode']);
                           }
@@ -595,7 +781,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                   }
                 }
               }
-            }else{
+            } else {
               ToastUtil.showInfo('该标签已扫描');
               break;
             }
@@ -837,13 +1023,14 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       ToastUtil.showInfo('无数据');
     }
   }
+
   void _onError(Object error) {
     setState(() {
       _code = "扫描异常";
     });
   }
 
-  Widget _item(title, var data, selectData, hobby, {String ?label,var stock}) {
+  Widget _item(title, var data, selectData, hobby, {String? label, var stock}) {
     if (selectData == null) {
       selectData = "";
     }
@@ -853,9 +1040,12 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
+            onTap: () => data.length > 0
+                ? _onClickItem(data, selectData, hobby,
+                    label: label, stock: stock)
+                : {ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
+              MyText(selectData.toString() == "" ? '暂无' : selectData.toString(),
                   color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
@@ -865,6 +1055,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       ],
     );
   }
+
   Widget _dateItem(title, model) {
     return Column(
       children: [
@@ -893,6 +1084,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       ],
     );
   }
+
   void _onDateClickItem(model) {
     Pickers.showDatePicker(
       context,
@@ -911,8 +1103,26 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
         setState(() {
           switch (model) {
             case DateMode.YMD:
-              selectData[model] = formatDate(DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}'), [yyyy, "-", mm, "-", dd,]);
-              FDate = formatDate(DateFormat('yyyy-MM-dd').parse('${p.year}-${p.month}-${p.day}'), [yyyy, "-", mm, "-", dd,]);
+              selectData[model] = formatDate(
+                  DateFormat('yyyy-MM-dd')
+                      .parse('${p.year}-${p.month}-${p.day}'),
+                  [
+                    yyyy,
+                    "-",
+                    mm,
+                    "-",
+                    dd,
+                  ]);
+              FDate = formatDate(
+                  DateFormat('yyyy-MM-dd')
+                      .parse('${p.year}-${p.month}-${p.day}'),
+                  [
+                    yyyy,
+                    "-",
+                    mm,
+                    "-",
+                    dd,
+                  ]);
               break;
           }
         });
@@ -921,7 +1131,8 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, hobby, {String ?label,var stock}) {
+  void _onClickItem(var data, var selectData, hobby,
+      {String? label, var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,
@@ -932,7 +1143,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
-          if(hobby  == 'supplier'){
+          if (hobby == 'supplier') {
             supplierName = p;
             var elementIndex = 0;
             data.forEach((element) {
@@ -941,7 +1152,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
               }
               elementIndex++;
             });
-          } else if(hobby  == 'department'){
+          } else if (hobby == 'department') {
             departmentName = p;
             var elementIndex = 0;
             data.forEach((element) {
@@ -950,7 +1161,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
               }
               elementIndex++;
             });
-          }else{
+          } else {
             setState(() {
               hobby['value']['label'] = p;
             });
@@ -967,13 +1178,14 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       },
     );
   }
+
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 3 || j==5) {
+          if (j == 3 || j == 5) {
             comList.add(
               Column(children: [
                 Container(
@@ -982,36 +1194,41 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
-                      trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: '点击扫描',
-                          onPressed: () {
-                            this._textNumber.text =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            this._FNumber =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            checkItem = 'FNumber';
-                            this.show = false;
-                            checkData = i;
-                            checkDataChild = j;
-                            scanDialog();
-                            print(this.hobby[i][j]["value"]["label"]);
-                            if (this.hobby[i][j]["value"]["label"] != 0) {
-                              this._textNumber.value = _textNumber.value.copyWith(
-                                text:
-                                this.hobby[i][j]["value"]["label"].toString(),
-                              );
-                            }
-                          },
-                        ),
-                      ])),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+                                this._textNumber.text = this
+                                    .hobby[i][j]["value"]["label"]
+                                    .toString();
+                                this._FNumber = this
+                                    .hobby[i][j]["value"]["label"]
+                                    .toString();
+                                checkItem = 'FNumber';
+                                this.show = false;
+                                checkData = i;
+                                checkDataChild = j;
+                                scanDialog();
+                                print(this.hobby[i][j]["value"]["label"]);
+                                if (this.hobby[i][j]["value"]["label"] != 0) {
+                                  this._textNumber.value =
+                                      _textNumber.value.copyWith(
+                                    text: this
+                                        .hobby[i][j]["value"]["label"]
+                                        .toString(),
+                                  );
+                                }
+                              },
+                            ),
+                          ])),
                 ),
                 divider,
               ]),
             );
-          } else if(j == 6){
+          } else if (j == 6) {
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -1025,38 +1242,42 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         title: Text(this.hobby[i][j]["title"] +
                             '：' +
                             this.hobby[i][j]["value"]["label"].toString()),
-                        trailing:
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                          IconButton(
-                            icon: new Icon(Icons.filter_center_focus),
-                            tooltip: '点击扫描',
-                            onPressed: () {
-                              this._textNumber.text =
-                                  this.hobby[i][j]["value"]["label"].toString();
-                              this._FNumber =
-                                  this.hobby[i][j]["value"]["label"].toString();
-                              checkItem = 'FNumber';
-                              this.show = false;
-                              checkData = i;
-                              checkDataChild = j;
-                              scanDialog();
-                              print(this.hobby[i][j]["value"]["label"]);
-                              if (this.hobby[i][j]["value"]["label"] != 0) {
-                                this._textNumber.value = _textNumber.value.copyWith(
-                                  text:
-                                  this.hobby[i][j]["value"]["label"].toString(),
-                                );
-                              }
-                            },
-                          ),
-                        ])),
+                        trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                icon: new Icon(Icons.filter_center_focus),
+                                tooltip: '点击扫描',
+                                onPressed: () {
+                                  this._textNumber.text = this
+                                      .hobby[i][j]["value"]["label"]
+                                      .toString();
+                                  this._FNumber = this
+                                      .hobby[i][j]["value"]["label"]
+                                      .toString();
+                                  checkItem = 'FNumber';
+                                  this.show = false;
+                                  checkData = i;
+                                  checkDataChild = j;
+                                  scanDialog();
+                                  print(this.hobby[i][j]["value"]["label"]);
+                                  if (this.hobby[i][j]["value"]["label"] != 0) {
+                                    this._textNumber.value =
+                                        _textNumber.value.copyWith(
+                                      text: this
+                                          .hobby[i][j]["value"]["label"]
+                                          .toString(),
+                                    );
+                                  }
+                                },
+                              ),
+                            ])),
                   ),
                   divider,
                 ]),
               ),
-
             );
-          }else if (j == 7) {
+          } else if (j == 7) {
             comList.add(
               Column(children: [
                 Container(
@@ -1082,7 +1303,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                 divider,
               ]),
             );
-          }else if (j == 10) {
+          } else if (j == 10) {
             comList.add(
               Column(children: [
                 Container(
@@ -1091,36 +1312,41 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
-                      trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: '点击扫描',
-                          onPressed: () {
-                            this._textNumber.text =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            this._FNumber =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            checkItem = 'FLastQty';
-                            this.show = false;
-                            checkData = i;
-                            checkDataChild = j;
-                            scanDialog();
-                            print(this.hobby[i][j]["value"]["label"]);
-                            if (this.hobby[i][j]["value"]["label"] != 0) {
-                              this._textNumber.value = _textNumber.value.copyWith(
-                                text:
-                                this.hobby[i][j]["value"]["label"].toString(),
-                              );
-                            }
-                          },
-                        ),
-                      ])),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+                                this._textNumber.text = this
+                                    .hobby[i][j]["value"]["label"]
+                                    .toString();
+                                this._FNumber = this
+                                    .hobby[i][j]["value"]["label"]
+                                    .toString();
+                                checkItem = 'FLastQty';
+                                this.show = false;
+                                checkData = i;
+                                checkDataChild = j;
+                                scanDialog();
+                                print(this.hobby[i][j]["value"]["label"]);
+                                if (this.hobby[i][j]["value"]["label"] != 0) {
+                                  this._textNumber.value =
+                                      _textNumber.value.copyWith(
+                                    text: this
+                                        .hobby[i][j]["value"]["label"]
+                                        .toString(),
+                                  );
+                                }
+                              },
+                            ),
+                          ])),
                 ),
                 divider,
               ]),
             );
-          }else {
+          } else {
             comList.add(
               Column(children: [
                 Container(
@@ -1130,7 +1356,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
-                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
                     ]),
@@ -1180,18 +1406,18 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                       padding: EdgeInsets.only(top: 8),
                       child: Card(
                           child: Column(children: <Widget>[
-                            TextField(
-                              style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
-                              controller: this._textNumber,
-                              decoration: InputDecoration(hintText: "输入"),
-                              onChanged: (value) {
-                                setState(() {
-                                  this._FNumber = value;
-                                });
-                              },
-                            ),
-                          ]))),
+                        TextField(
+                          style: TextStyle(color: Colors.black87),
+                          keyboardType: TextInputType.number,
+                          controller: this._textNumber,
+                          decoration: InputDecoration(hintText: "输入"),
+                          onChanged: (value) {
+                            setState(() {
+                              this._FNumber = value;
+                            });
+                          },
+                        ),
+                      ]))),
                   Padding(
                     padding: EdgeInsets.only(top: 15, bottom: 8),
                     child: FlatButton(
@@ -1200,30 +1426,50 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            if(checkItem=="FLastQty"){
-                              if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
-                                var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1].split("-");
+                            if (checkItem == "FLastQty") {
+                              if (this
+                                      .hobby[checkData][0]['value']
+                                          ['kingDeeCode']
+                                      .length >
+                                  0) {
+                                var kingDeeCode = this
+                                    .hobby[checkData][0]['value']['kingDeeCode']
+                                        [this
+                                                .hobby[checkData][0]['value']
+                                                    ['kingDeeCode']
+                                                .length -
+                                            1]
+                                    .split("-");
                                 var realQty = 0.0;
-                                this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
+                                this
+                                    .hobby[checkData][0]['value']['kingDeeCode']
+                                    .forEach((item) {
                                   var qty = item.split("-")[1];
                                   realQty += double.parse(qty);
                                 });
-                                realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
+                                realQty = realQty -
+                                    double.parse(this.hobby[checkData][10]
+                                        ["value"]["label"]);
                                 realQty = realQty + double.parse(_FNumber);
                                 /*if(realQty > this.hobby[checkData][9]["value"]["label"]){
                                   ToastUtil.showInfo('总数量大于应收数量');
                                 }else{*/
-                                  this.hobby[checkData][3]["value"]
-                                  ["value"] = realQty.toString();
-                                  this.hobby[checkData][3]["value"]
-                                  ["label"] = realQty.toString();
-                                  this.hobby[checkData][checkDataChild]["value"]
-                                  ["label"] = _FNumber;
-                                  this.hobby[checkData][checkDataChild]['value']
-                                  ["value"] = _FNumber;
-                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1] = kingDeeCode[0]+"-"+_FNumber;
+                                this.hobby[checkData][3]["value"]["value"] =
+                                    realQty.toString();
+                                this.hobby[checkData][3]["value"]["label"] =
+                                    realQty.toString();
+                                this.hobby[checkData][checkDataChild]["value"]
+                                    ["label"] = _FNumber;
+                                this.hobby[checkData][checkDataChild]['value']
+                                    ["value"] = _FNumber;
+                                this.hobby[checkData][0]['value']['kingDeeCode']
+                                    [this
+                                            .hobby[checkData][0]['value']
+                                                ['kingDeeCode']
+                                            .length -
+                                        1] = kingDeeCode[0] + "-" + _FNumber;
                                 //}
-                              }else{
+                              } else {
                                 ToastUtil.showInfo('无条码信息，输入失败');
                               }
                             }
@@ -1243,6 +1489,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       print(val);
     });
   }
+
   /// 确认提交提示对话框
   Future<void> _showSumbitDialog() async {
     return showDialog<void>(
@@ -1269,6 +1516,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           );
         });
   }
+
   //保存
   saveOrder() async {
     if (this.hobby.length > 0) {
@@ -1305,124 +1553,193 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
       print(jsonEncode(dataMap));
-      String order = await SubmitEntity.save(dataMap);
-
-      var res = jsonDecode(order);
-      print(res);
-      if (res['Result']['ResponseStatus']['IsSuccess']) {
+      if (orderDate[0][orderDate[0].length - 1] == "B") {
         Map<String, dynamic> submitMap = Map();
         submitMap = {
           "formid": "PRD_INSTOCK",
           "data": {
-            'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+            'Ids': orderDate[0][14]
           }
         };
-        //提交
-        HandlerOrder.orderHandler(
-            context,
-            submitMap,
-            3,
-            "PRD_INSTOCK",
-            SubmitEntity.submit(submitMap))
-            .then((submitResult) {
-          if (submitResult) {
-            //审核
-            HandlerOrder.orderHandler(
-                context,
-                submitMap,
-                3,
-                "PRD_INSTOCK",
+        //审核
+        HandlerOrder.orderHandler(context, submitMap, 3, "PRD_INSTOCK",
                 SubmitEntity.audit(submitMap))
-                .then((auditResult) async {
-              if (auditResult) {
-                var errorMsg = "";
-                if(fBarCodeList == 1){
-                  for (int i = 0; i < this.hobby.length; i++) {
-                    if (this.hobby[i][3]['value']['value'] != '0' &&
-                        this.hobby[i][4]['value']['value'] != '') {
-                      var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
-                      for(int j = 0;j<kingDeeCode.length;j++){
-                        Map<String, dynamic> dataCodeMap = Map();
-                        dataCodeMap['formid'] = 'QDEP_BarCodeList';
-                        Map<String, dynamic> orderCodeMap = Map();
-                        orderCodeMap['NeedReturnFields'] = [];
-                        orderCodeMap['IsDeleteEntry'] = false;
-                        Map<String, dynamic> codeModel = Map();
-                        var itemCode = kingDeeCode[j].split("-");
-                        codeModel['FID'] = itemCode[0];
-                        codeModel['FOwnerID'] = {
-                          "FNUMBER": orderDate[i][21]
-                        };
-                        codeModel['FStockOrgID'] = {
-                          "FNUMBER": orderDate[i][8]
-                        };
-                        codeModel['FStockID'] = {
-                          "FNUMBER": this.hobby[i][4]['value']['value']
-                        };
-                        /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
-                        Map<String, dynamic> codeFEntityItem = Map();
-                        codeFEntityItem['FBillDate'] = FDate;
-                        codeFEntityItem['FInQty'] = itemCode[1];
-                        codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
-                        codeFEntityItem['FEntryStockID'] ={
-                          "FNUMBER": this.hobby[i][4]['value']['value']
-                        };
-                        var codeFEntity = [codeFEntityItem];
-                        codeModel['FEntity'] = codeFEntity;
-                        orderCodeMap['Model'] = codeModel;
-                        dataCodeMap['data'] = orderCodeMap;
-                        String codeRes = await SubmitEntity.save(dataCodeMap);
-                        var barcodeRes = jsonDecode(codeRes);
-                        if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
-                          errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
-                        }
-                        print(codeRes);
-                      }
+            .then((auditResult) async {
+          if (auditResult) {
+            var errorMsg = "";
+            if (fBarCodeList == 1) {
+              for (int i = 0; i < this.hobby.length; i++) {
+                if (this.hobby[i][3]['value']['value'] != '0' &&
+                    this.hobby[i][4]['value']['value'] != '') {
+                  var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
+                  for (int j = 0; j < kingDeeCode.length; j++) {
+                    Map<String, dynamic> dataCodeMap = Map();
+                    dataCodeMap['formid'] = 'QDEP_BarCodeList';
+                    Map<String, dynamic> orderCodeMap = Map();
+                    orderCodeMap['NeedReturnFields'] = [];
+                    orderCodeMap['IsDeleteEntry'] = false;
+                    Map<String, dynamic> codeModel = Map();
+                    var itemCode = kingDeeCode[j].split("-");
+                    codeModel['FID'] = itemCode[0];
+                    codeModel['FOwnerID'] = {"FNUMBER": orderDate[i][21]};
+                    codeModel['FStockOrgID'] = {"FNUMBER": orderDate[i][8]};
+                    codeModel['FStockID'] = {
+                      "FNUMBER": this.hobby[i][4]['value']['value']
+                    };
+                    /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                    Map<String, dynamic> codeFEntityItem = Map();
+                    codeFEntityItem['FBillDate'] = FDate;
+                    codeFEntityItem['FInQty'] = itemCode[1];
+                    codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                    codeFEntityItem['FEntryStockID'] = {
+                      "FNUMBER": this.hobby[i][4]['value']['value']
+                    };
+                    var codeFEntity = [codeFEntityItem];
+                    codeModel['FEntity'] = codeFEntity;
+                    orderCodeMap['Model'] = codeModel;
+                    dataCodeMap['data'] = orderCodeMap;
+                    String codeRes = await SubmitEntity.save(dataCodeMap);
+                    var barcodeRes = jsonDecode(codeRes);
+                    if (!barcodeRes['Result']['ResponseStatus']['IsSuccess']) {
+                      errorMsg += "错误反馈：" +
+                          itemCode[1] +
+                          ":" +
+                          barcodeRes['Result']['ResponseStatus']['Errors'][0]
+                              ['Message'];
                     }
+                    print(codeRes);
                   }
                 }
-                if(errorMsg !=""){
-                  ToastUtil.errorDialog(context,
-                      errorMsg);
-                }
-                //提交清空页面
-                setState(() {
-                  this.hobby = [];
-                  this.orderDate = [];
-                  this.FBillNo = '';
-                  ToastUtil.showInfo('提交成功');
-                  Navigator.of(context).pop("refresh");
-                });
-              } else {
-                //失败后反审
-                HandlerOrder.orderHandler(
-                    context,
-                    submitMap,
-                    3,
-                    "PRD_INSTOCK",
-                    SubmitEntity.unAudit(submitMap))
-                    .then((unAuditResult) {
-                  if (unAuditResult) {
-                    this.isSubmit = false;
-                  }
-                });
               }
+            }
+            if (errorMsg != "") {
+              ToastUtil.errorDialog(context, errorMsg);
+            }
+            //提交清空页面
+            setState(() {
+              this.hobby = [];
+              this.orderDate = [];
+              this.FBillNo = '';
+              ToastUtil.showInfo('提交成功');
+              Navigator.of(context).pop("refresh");
             });
           } else {
-            this.isSubmit = false;
+            setState(() {
+              this.isSubmit = false;
+            });
           }
         });
       } else {
-        setState(() {
-          this.isSubmit = false;
-          ToastUtil.errorDialog(
-              context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
-        });
+        String order = await SubmitEntity.save(dataMap);
+        var res = jsonDecode(order);
+        print(res);
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          Map<String, dynamic> submitMap = Map();
+          submitMap = {
+            "formid": "PRD_INSTOCK",
+            "data": {
+              'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+            }
+          };
+          //提交
+          HandlerOrder.orderHandler(context, submitMap, 3, "PRD_INSTOCK",
+                  SubmitEntity.submit(submitMap))
+              .then((submitResult) {
+            if (submitResult) {
+              //审核
+              HandlerOrder.orderHandler(context, submitMap, 3, "PRD_INSTOCK",
+                      SubmitEntity.audit(submitMap))
+                  .then((auditResult) async {
+                if (auditResult) {
+                  var errorMsg = "";
+                  if (fBarCodeList == 1) {
+                    for (int i = 0; i < this.hobby.length; i++) {
+                      if (this.hobby[i][3]['value']['value'] != '0' &&
+                          this.hobby[i][4]['value']['value'] != '') {
+                        var kingDeeCode =
+                            this.hobby[i][0]['value']['kingDeeCode'];
+                        for (int j = 0; j < kingDeeCode.length; j++) {
+                          Map<String, dynamic> dataCodeMap = Map();
+                          dataCodeMap['formid'] = 'QDEP_BarCodeList';
+                          Map<String, dynamic> orderCodeMap = Map();
+                          orderCodeMap['NeedReturnFields'] = [];
+                          orderCodeMap['IsDeleteEntry'] = false;
+                          Map<String, dynamic> codeModel = Map();
+                          var itemCode = kingDeeCode[j].split("-");
+                          codeModel['FID'] = itemCode[0];
+                          codeModel['FOwnerID'] = {"FNUMBER": orderDate[i][21]};
+                          codeModel['FStockOrgID'] = {
+                            "FNUMBER": orderDate[i][8]
+                          };
+                          codeModel['FStockID'] = {
+                            "FNUMBER": this.hobby[i][4]['value']['value']
+                          };
+                          /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                          Map<String, dynamic> codeFEntityItem = Map();
+                          codeFEntityItem['FBillDate'] = FDate;
+                          codeFEntityItem['FInQty'] = itemCode[1];
+                          codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                          codeFEntityItem['FEntryStockID'] = {
+                            "FNUMBER": this.hobby[i][4]['value']['value']
+                          };
+                          var codeFEntity = [codeFEntityItem];
+                          codeModel['FEntity'] = codeFEntity;
+                          orderCodeMap['Model'] = codeModel;
+                          dataCodeMap['data'] = orderCodeMap;
+                          String codeRes = await SubmitEntity.save(dataCodeMap);
+                          var barcodeRes = jsonDecode(codeRes);
+                          if (!barcodeRes['Result']['ResponseStatus']
+                              ['IsSuccess']) {
+                            errorMsg += "错误反馈：" +
+                                itemCode[1] +
+                                ":" +
+                                barcodeRes['Result']['ResponseStatus']['Errors']
+                                    [0]['Message'];
+                          }
+                          print(codeRes);
+                        }
+                      }
+                    }
+                  }
+                  if (errorMsg != "") {
+                    ToastUtil.errorDialog(context, errorMsg);
+                  }
+                  //提交清空页面
+                  setState(() {
+                    this.hobby = [];
+                    this.orderDate = [];
+                    this.FBillNo = '';
+                    ToastUtil.showInfo('提交成功');
+                    Navigator.of(context).pop("refresh");
+                  });
+                } else {
+                  //失败后反审
+                  HandlerOrder.orderHandler(context, submitMap, 3,
+                          "PRD_INSTOCK", SubmitEntity.unAudit(submitMap))
+                      .then((unAuditResult) {
+                    if (unAuditResult) {
+                      this.isSubmit = false;
+                    }
+                  });
+                }
+              });
+            } else {
+              this.isSubmit = false;
+            }
+          });
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
       }
     } else {
       ToastUtil.showInfo('无提交数据');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
@@ -1430,9 +1747,11 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
           appBar: AppBar(
             title: Text("生产入库确认"),
             centerTitle: true,
-            leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-              Navigator.of(context).pop("refresh");
-            }),
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop("refresh");
+                }),
           ),
           body: Column(
             children: <Widget>[
@@ -1464,7 +1783,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                     maintainState: false,
                     maintainAnimation: false,
                     visible: !isScanWork,
-                    child:_item('部门',  this.departmentList, this.departmentName,
+                    child: _item('部门', this.departmentList, this.departmentName,
                         'department'),
                   ),
                   /*_item('部门', ['生产部'], '生产部'),*/
@@ -1487,9 +1806,10 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                               setState(() {
                                 _remarkContent.value = TextEditingValue(
                                     text: value,
-                                    selection: TextSelection.fromPosition(TextPosition(
-                                        affinity: TextAffinity.downstream,
-                                        offset: value.length)));
+                                    selection: TextSelection.fromPosition(
+                                        TextPosition(
+                                            affinity: TextAffinity.downstream,
+                                            offset: value.length)));
                               });
                             },
                           ),
@@ -1511,9 +1831,12 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),
                         child: Text("保存"),
-                        color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
+                        color: this.isSubmit
+                            ? Colors.grey
+                            : Theme.of(context).primaryColor,
                         textColor: Colors.white,
-                        onPressed: () async=> this.isSubmit ? null : _showSumbitDialog(),
+                        onPressed: () async =>
+                            this.isSubmit ? null : _showSumbitDialog(),
                       ),
                     ),
                   ],

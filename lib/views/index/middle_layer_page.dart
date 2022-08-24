@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fzwm_landy/utils/menu_permissions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,6 +35,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   @override
   void initState() {
     super.initState();
+    EasyLoading.dismiss();
     Future.delayed(
         Duration.zero,
         () => setState(() {

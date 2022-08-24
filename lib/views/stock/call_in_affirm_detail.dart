@@ -205,7 +205,7 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'STK_TRANSFERIN';
     userMap['FieldKeys'] =
-    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FSTKTRSINENTRY_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOutOrgId.FNumber,FStockOutOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FSrcStockId.FNumber,FSrcStockId.FName,FID,FMaterialId.FIsBatchManage,FDestStockId.FNumber,FDestStockId.FName,FUnitID.FNumber,FQty,FOwnerIdHead.FNumber';
+    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FSTKTRSINENTRY_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOutOrgId.FNumber,FStockOutOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FSrcStockId.FNumber,FSrcStockId.FName,FID,FMaterialId.FIsBatchManage,FDestStockId.FNumber,FDestStockId.FName,FUnitID.FNumber,FQty,FOwnerIdHead.FNumber,FDocumentStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -955,6 +955,88 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
       print(jsonEncode(dataMap));
+      if (orderDate[0][orderDate[0].length - 1] == "B") {
+        Map<String, dynamic> submitMap = Map();
+        submitMap = {
+          "formid": "STK_TRANSFERIN",
+          "data": {
+            'Ids': orderDate[0][14]
+          }
+        };
+        //审核
+        HandlerOrder.orderHandler(
+            context,
+            submitMap,
+            3,
+            "STK_TRANSFERIN",
+            SubmitEntity.audit(submitMap))
+            .then((auditResult) async {
+          if (auditResult) {
+            var errorMsg = "";
+            if(fBarCodeList == 1){
+              for (int i = 0; i < this.hobby.length; i++) {
+                if (this.hobby[i][3]['value']['value'] != '0') {
+                  var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
+                  for(int j = 0;j<kingDeeCode.length;j++){
+                    Map<String, dynamic> dataCodeMap = Map();
+                    dataCodeMap['formid'] = 'QDEP_BarCodeList';
+                    Map<String, dynamic> orderCodeMap = Map();
+                    orderCodeMap['NeedReturnFields'] = [];
+                    orderCodeMap['IsDeleteEntry'] = false;
+                    Map<String, dynamic> codeModel = Map();
+                    var itemCode = kingDeeCode[j].split("-");
+                    codeModel['FID'] = itemCode[0];
+                    codeModel['FOwnerID'] = {
+                      "FNUMBER": orderDate[i][20]
+                    };
+                    codeModel['FStockOrgID'] = {
+                      "FNUMBER": orderDate[i][1]
+                    };
+                    codeModel['FStockID'] = {
+                      "FNUMBER": this.hobby[i][4]['value']['value']
+                    };
+                    /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                    /* Map<String, dynamic> codeFEntityItem = Map();
+                        codeFEntityItem['FBillDate'] = FDate;
+                        codeFEntityItem['FInQty'] = itemCode[1];
+                        codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                        codeFEntityItem['FEntryStockID'] ={
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };
+                        var codeFEntity = [codeFEntityItem];
+                        codeModel['FEntity'] = codeFEntity;*/
+                    orderCodeMap['Model'] = codeModel;
+                    dataCodeMap['data'] = orderCodeMap;
+                    print(dataCodeMap);
+                    String codeRes = await SubmitEntity.save(dataCodeMap);
+                    var barcodeRes = jsonDecode(codeRes);
+                    if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
+                      errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
+                    }
+                    print(codeRes);
+                  }
+                }
+              }
+            }
+            if(errorMsg !=""){
+              ToastUtil.errorDialog(context,
+                  errorMsg);
+            }
+            //提交清空页面
+            setState(() {
+              this.hobby = [];
+              this.orderDate = [];
+              this.FBillNo = '';
+              ToastUtil.showInfo('提交成功');
+              Navigator.of(context).pop("refresh");
+            });
+          } else {
+            setState(() {
+              this.isSubmit = false;
+            });
+          }
+        });
+      }else{
       String order = await SubmitEntity.save(dataMap);
       var res = jsonDecode(order);
       print(res);
@@ -1067,6 +1149,7 @@ class _CallInAffirmDetailState extends State<CallInAffirmDetail> {
           ToastUtil.errorDialog(
               context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
         });
+      }
       }
     } else {
       ToastUtil.showInfo('无提交数据');

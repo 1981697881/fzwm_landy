@@ -72,11 +72,11 @@ class _PickingStockPageState extends State<PickingStockPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FDate>= '$startDate' and FDocumentStatus in ('A','D') and FDate <= '$endDate'";
+      "FDate>= '$startDate' and FDocumentStatus in ('A','B','D') and FDate <= '$endDate'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =/*and FInStockQty>0*/
-      "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','D') and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'PRD_PickMtrl';
     userMap['FieldKeys'] =
