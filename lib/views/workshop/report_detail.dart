@@ -178,6 +178,7 @@ class _ReportDetailState extends State<ReportDetail> {
     print(fBillNo);
     userMap['FilterString'] = "fBillNo='$fBillNo'";
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber,FPONumber';
     Map<String, dynamic> dataMap = Map();

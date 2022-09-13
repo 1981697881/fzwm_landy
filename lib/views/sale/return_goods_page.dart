@@ -85,6 +85,7 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
       userMap['FilterString'] = "FBillNo='"+scanCode[0]+"' and FBillCloseStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'SAL_RETURNNOTICE';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FRetorgId.FNumber,FRetorgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FJoinRetQty,FID,FRetcustId.FNumber,FRetcustId.FName';
     Map<String, dynamic> dataMap = Map();

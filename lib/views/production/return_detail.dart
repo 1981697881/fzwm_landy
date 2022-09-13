@@ -150,6 +150,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq'";
     userMap['FormId'] = 'PRD_PPBOM';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialID2.FNumber,FMaterialID2.FName,FMaterialID2.FSpecification,FUnitID2.FNumber,FUnitID2.FName,FNoPickedQty,FID';
     Map<String, dynamic> dataMap = Map();

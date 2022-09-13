@@ -202,6 +202,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     print(fBillNo);
     userMap['FilterString'] = "FRemainStockINQty>0 and FBillNo='$fBillNo'";
     userMap['FormId'] = 'PUR_PurchaseOrder';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FInStockQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

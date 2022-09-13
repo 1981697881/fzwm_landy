@@ -85,6 +85,7 @@ class _OtherWarehousingPageState extends State<OtherWarehousingPage> {
       "FMaterialId.FNumber='$keyWord' and FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'PUR_ReceiveBill';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FInStockQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

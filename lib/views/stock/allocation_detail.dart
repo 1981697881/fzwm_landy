@@ -163,6 +163,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     print(fBillNo);
     userMap['FilterString'] = "fBillNo='$fBillNo'";
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,F_PIWG_Text1,F_PIWG_Text11,F_PIWG_Text111,FTaxPrice,FEntryTaxRate,F_PIWG_Text';
     Map<String, dynamic> dataMap = Map();

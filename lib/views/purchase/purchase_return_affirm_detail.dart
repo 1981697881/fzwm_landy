@@ -202,6 +202,7 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'PUR_MRB';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FPURMRBENTRY_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FRMMUSTQTY,FSRCBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FUnitID.FNumber,FRMREALQTY,FOwnerIdHead.FNumber,FDocumentStatus';
     Map<String, dynamic> dataMap = Map();

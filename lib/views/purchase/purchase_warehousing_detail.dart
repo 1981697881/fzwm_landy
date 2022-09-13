@@ -206,6 +206,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'PUR_ReceiveBill';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate';
     Map<String, dynamic> dataMap = Map();

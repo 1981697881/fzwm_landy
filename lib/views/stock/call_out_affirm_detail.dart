@@ -204,6 +204,7 @@ class _CallOutAffirmDetailState extends State<CallOutAffirmDetail> {
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'STK_TRANSFEROUT';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FSTKTRSOUTENTRY_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockInOrgID.FNumber,FStockInOrgID.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FSrcStockId.FNumber,FSrcStockId.FName,FID,FMaterialId.FIsBatchManage,FDestStockId.FNumber,FDestStockId.FName,FUnitID.FNumber,FQty,FOwnerIdHead.FNumber,FDocumentStatus';
     Map<String, dynamic> dataMap = Map();

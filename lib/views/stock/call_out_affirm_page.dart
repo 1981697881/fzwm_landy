@@ -87,6 +87,7 @@ class _CallOutAffirmPageState extends State<CallOutAffirmPage> {
       "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'STK_TRANSFEROUT';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FSTKTRSOUTENTRY_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockInOrgID.FNumber,FStockInOrgID.FName,FUnitID.FNumber,FUnitID.FName,FQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

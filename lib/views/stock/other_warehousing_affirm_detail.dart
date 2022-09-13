@@ -204,6 +204,7 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'STK_MISCELLANEOUS';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FSUPPLIERID.FNumber,FSUPPLIERID.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FJoinQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FUnitID.FNumber,FQty,FOwnerIdHead.FNumber,FDocumentStatus';
     Map<String, dynamic> dataMap = Map();

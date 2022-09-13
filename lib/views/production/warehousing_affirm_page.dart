@@ -85,6 +85,7 @@ class _WarehousingAffirmPageState extends State<WarehousingAffirmPage> {
       "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'PRD_INSTOCK';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

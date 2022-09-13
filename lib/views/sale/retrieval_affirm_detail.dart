@@ -205,6 +205,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'SAL_OUTSTOCK';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCustomerID.FNumber,FCustomerID.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FMustQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FUnitID.FNumber,FRealQty,FOwnerID.FNumber,FDocumentStatus';
     Map<String, dynamic> dataMap = Map();
@@ -408,7 +409,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       residue = residue - double.parse(element[3]['value']['label']);
-                      element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                      element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                     }else{
@@ -420,7 +421,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = 0.0;
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }else{
@@ -430,7 +431,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                         element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }
@@ -481,7 +482,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }else{
@@ -493,7 +494,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = 0.0;
-                          element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                         }else{
@@ -503,7 +504,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                           element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = residue - double.parse(element[3]['value']['label']);
-                          element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                         }
@@ -535,7 +536,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = residue - double.parse(element[3]['value']['label']);
-                          element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                         }else{
@@ -547,7 +548,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                             element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                             element[3]['value']['value']=element[3]['value']['label'];
                             residue = 0.0;
-                            element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                            element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
                           }else{
@@ -557,7 +558,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                             element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                             element[3]['value']['value']=element[3]['value']['label'];
                             residue = residue - double.parse(element[3]['value']['label']);
-                            element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                            element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
                           }

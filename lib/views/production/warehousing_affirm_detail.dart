@@ -214,6 +214,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'PRD_INSTOCK';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
         'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FStockUnitID.FNumber,FRealQty,FInStockType,FOwnerId0.FNumber,FDocumentStatus';
     Map<String, dynamic> dataMap = Map();
@@ -810,7 +811,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       residue = residue - double.parse(element[3]['value']['label']);
-                      element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                      element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                       element[0]['value']['kingDeeCode'].add(item);
                     }else{
                       //判断剩余数量是否大于扫码数量
@@ -819,7 +820,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = 0.0;
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         break;
                       }else{
@@ -827,7 +828,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                       }
                     }
@@ -839,7 +840,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                       element[3]['value']['value']=element[3]['value']['label'];
                       residue = residue - double.parse(element[3]['value']['label']);
                       element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                      element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                      element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                     }else{
                       //判断剩余数量是否大于扫码数量
                       if(element[0]['value']['surplus'] >= residue){
@@ -847,14 +848,14 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = 0.0;
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         break;
                       }else{
                         element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                       }
                     }
                   }
@@ -884,7 +885,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
                       residue = residue - double.parse(element[3]['value']['label']);
-                      element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                      element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                       element[0]['value']['kingDeeCode'].add(item);
                     }else{
                       //判断剩余数量是否大于扫码数量
@@ -893,7 +894,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = 0.0;
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         break;
                       }else{
@@ -901,7 +902,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                       }
                     }
@@ -913,7 +914,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                       element[3]['value']['value']=element[3]['value']['label'];
                       residue = residue - double.parse(element[3]['value']['label']);
                       element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                      element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                      element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                     }else{
                       //判断剩余数量是否大于扫码数量
                       if(element[0]['value']['surplus'] >= residue){
@@ -921,14 +922,14 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = 0.0;
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         break;
                       }else{
                         element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                       }
                     }
                   }
@@ -953,7 +954,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                       }else{
                         //判断剩余数量是否大于扫码数量
@@ -962,7 +963,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = 0.0;
-                          element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                           break;
                         }else{
@@ -970,7 +971,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                           element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = residue - double.parse(element[3]['value']['label']);
-                          element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                         }
                       }
@@ -982,7 +983,7 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = residue - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                        element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                       }else{
                         //判断剩余数量是否大于扫码数量
                         if(element[0]['value']['surplus'] >= residue){
@@ -990,14 +991,14 @@ class _WarehousingAffirmDetailState extends State<WarehousingAffirmDetail> {
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = 0.0;
                           element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                          element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                           break;
                         }else{
                           element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = residue - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
-                          element[0]['value']['surplus'] = element[0]['value']['surplus'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
                         }
                       }
                     }

@@ -84,6 +84,7 @@ class _ReturnGoodsPageState extends State<ReplenishmentAffirmPage> {
       userMap['FilterString'] = "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'PRD_FeedMtrl';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FAppQty,FApproveDate,FActualQty,FID';
     Map<String, dynamic> dataMap = Map();

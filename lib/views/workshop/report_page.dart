@@ -91,6 +91,7 @@ class _ReportPageState extends State<ReportPage> {
       "FBillNo='$keyWord' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID,FProcessID.FDataValue';
     Map<String, dynamic> dataMap = Map();

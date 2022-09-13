@@ -91,6 +91,7 @@ class _DispatchPageState extends State<DispatchPage> {
       "FBillNo='$keyWord' and FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'k9917093a9fd147b7a68c76f6780b8593';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessName,FPlanQty,FPlanStarDate,FPlanEndDate,FID,FQty,FOrderQty,FUnOrderQty,FProcessID,FProcessID.FDataValue';
     Map<String, dynamic> dataMap = Map();

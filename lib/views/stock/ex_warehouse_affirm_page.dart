@@ -87,6 +87,7 @@ class _ExWarehouseAffirmPageState extends State<ExWarehouseAffirmPage> {
       "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'STK_MisDelivery';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCustId.FNumber,FCustId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitID.FNumber,FUnitID.FName,FQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

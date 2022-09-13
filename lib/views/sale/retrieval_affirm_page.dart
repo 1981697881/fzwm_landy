@@ -85,6 +85,7 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
       "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'SAL_OUTSTOCK';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCustomerID.FNumber,FCustomerID.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FSaleOrgId.FNumber,FSaleOrgId.FName,FUnitID.FNumber,FUnitID.FName,FRealQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
@@ -119,7 +120,7 @@ class _RetrievalAffirmPageState extends State<RetrievalAffirmPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label":  value[6], "value": value[5]}
         });
         arr.add({
           "title": "规格型号",

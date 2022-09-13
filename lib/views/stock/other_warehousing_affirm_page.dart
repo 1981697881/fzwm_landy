@@ -87,6 +87,7 @@ class _OtherWarehousingAffirmPageState extends State<OtherWarehousingAffirmPage>
       "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     userMap['FormId'] = 'STK_MISCELLANEOUS';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FSUPPLIERID.FNumber,FSUPPLIERID.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

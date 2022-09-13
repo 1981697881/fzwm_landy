@@ -155,6 +155,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "fBillNo='$fBillNo'";
     userMap['FormId'] = 'k9917093a9fd147b7a68c76f6780b8593';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
         'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessName,FPlanQty,FPlanStarDate,FPlanEndDate,FID,FQty,FOrderQty,FUnOrderQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo1.FNumber,FOrderEntryID,FProcessNote,FProcessMulti,FProcessTypeID,FKDNo';
     Map<String, dynamic> dataMap = Map();

@@ -185,6 +185,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     print(fBillNo);
     userMap['FilterString'] = "fBillNo='$fBillNo'";
     userMap['FormId'] = 'SAL_RETURNNOTICE';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
         'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FRetorgId.FNumber,FRetorgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FJoinRetQty,FID,FRetcustId.FNumber,FRetcustId.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,F_PIWG_Text1,F_PIWG_Text11,F_PIWG_Text1111,FTaxPrice,FEntryTaxRate,FRmType.FNumber,F_PIWG_Text';
     Map<String, dynamic> dataMap = Map();

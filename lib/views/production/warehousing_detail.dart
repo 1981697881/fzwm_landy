@@ -165,6 +165,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       userMap['FilterString'] =
           "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (4)";
       userMap['FormId'] = 'PRD_MO';
+      userMap['OrderString'] = 'FMaterialId.FNumber ASC';
       userMap['FieldKeys'] =
           'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FStatus,FStockId.FNumber,FStockId.FName,FRequestOrgId.FNumber,FMaterialId.FIsBatchManage';
       Map<String, dynamic> dataMap = Map();

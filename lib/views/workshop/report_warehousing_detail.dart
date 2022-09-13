@@ -125,6 +125,7 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
     print(fBillNo);
     userMap['FilterString'] = "FFinishQty>0 and FBillNo='$fBillNo'";
     userMap['FormId'] = 'PRD_MORPT';
+    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkshipId.FNumber,FWorkshipId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FProduceDate,FQuaQty,FFailQty,FSrcBillNo,FStockInSelQty,FID';
     Map<String, dynamic> dataMap = Map();
