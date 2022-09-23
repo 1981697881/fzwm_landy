@@ -147,7 +147,7 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
@@ -611,6 +611,8 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

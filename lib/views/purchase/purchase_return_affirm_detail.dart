@@ -196,7 +196,7 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -216,6 +216,7 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
     if (orderDate.length > 0) {
       this.fOrgID = orderDate[0][8];
       orderDate.forEach((value) {
+        fNumber.add(value[5]);
         List arr = [];
         arr.add({
           "title": "物料名称",
@@ -311,21 +312,52 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
       barcodeMap['FilterString'] = "FBarCode='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber,F_QDEP_MName,FOwnerID.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
       var barcodeData = jsonDecode(order);
       if (barcodeData.length>0) {
         if(barcodeData[0][4]>0){
-          _code = event;
-          this.getMaterialList(barcodeData,_code);
-          print("ChannelPage: $event");
+          var msg = "";
+          var orderIndex = 0;
+          for (var value in orderDate) {
+            if(value[5] == barcodeData[0][7]){
+              if(value[20] == barcodeData[0][8]){
+                if(value[16] == barcodeData[0][6]){
+                  msg = "";
+                  if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                    break;
+                  }
+                }else{
+                  msg = '条码仓库与单据仓库不一致';
+                  if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                    break;
+                  }
+                }
+              }else{
+                msg = '条码货主与单据货主不一致';
+                if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                  break;
+                }
+              }
+            }else{
+              msg = '条码不在单据物料中';
+            }
+            orderIndex++;
+          };
+          if(msg ==  ""){
+            _code = event;
+            this.getMaterialList(barcodeData,_code);
+            print("ChannelPage: $event");
+          }else{
+            ToastUtil.showInfo(msg);
+          }
         }else{
-          ToastUtil.showInfo('该条码剩余数量为0');
+          ToastUtil.showInfo('即时库存余额不足');
         }
       }else{
-        ToastUtil.showInfo('该标签不存在');
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     }else{
       _code = event;
@@ -431,6 +463,10 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
         }else{
           if(scanCode[5] == "N" ){
             if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                if(element[5]['value']['value'] == "") {
+                  element[5]['value']['label'] = scanCode[1];
+                  element[5]['value']['value'] = scanCode[1];
+                }
               element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
               element[3]['value']['value']=element[3]['value']['label'];
               var item = barCodeScan[0].toString()+"-"+barcodeNum;
@@ -1090,6 +1126,7 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
             if(errorMsg !=""){
               ToastUtil.errorDialog(context,
                   errorMsg);
+              this.isSubmit = false;
             }
             //提交清空页面
             setState(() {
@@ -1185,6 +1222,7 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
                 if(errorMsg !=""){
                   ToastUtil.errorDialog(context,
                       errorMsg);
+                  this.isSubmit = false;
                 }
                 //提交清空页面
                 setState(() {
@@ -1204,6 +1242,8 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

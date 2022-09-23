@@ -107,6 +107,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     selectData[DateMode.YMD] = nowDate;
     EasyLoading.dismiss();
+
     /// 开启监听
     if (_subscription == null && this.fBillNo == '') {
       _subscription = scannerPlugin
@@ -120,8 +121,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
 
   //获取缓存
   getInventorySessions() async {
-    SharedPreferences sharedPreferences =
-    await SharedPreferences.getInstance();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
     fBarCodeList = menuList['FBarCodeList'];
@@ -247,6 +247,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     this._textNumber.dispose();
     this._scrollController.dispose();
     super.dispose();
+
     /// 取消监听
     if (_subscription != null) {
       _subscription!.cancel();
@@ -255,7 +256,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FRemainStockINQty>0 and FBillNo='$fBillNo'";
@@ -345,55 +346,56 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
 
   void _onEvent(event) async {
     /*  setState(() {*/
-      if ((stockNumber == null || stockNumber == "") ||
-          (schemeNumber == null || schemeNumber == "") ||
-          (organizationsNumber == null || organizationsNumber == "")) {
-        ToastUtil.showInfo('请选择盘点方案、货主和仓库');
-      } else {
-        SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-        var deptData = sharedPreferences.getString('menuList');
-        var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
-        fBarCodeList = menuList['FBarCodeList'];
-        if (fBarCodeList == 1) {
-          Map<String, dynamic> barcodeMap = Map();
-          barcodeMap['FilterString'] = "FBarCode='" + event + "'";
-          /*barcodeMap['FilterString'] = "FID=115853";*/
-          barcodeMap['FormId'] = 'QDEP_BarCodeList';
-          barcodeMap['FieldKeys'] =
-          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = barcodeMap;
-          String order = await CurrencyEntity.polling(dataMap);
-          var barcodeData = jsonDecode(order);
-          if (barcodeData.length > 0) {
-            setState(() {
-              _code = event;
-            });
-            this.getMaterialList(barcodeData,_code);
-            print("ChannelPage: $event");
-            ToastUtil.showInfo('查询标签成功');
-          } else {
-            ToastUtil.showInfo('该标签不存在');
-          }
-        } else {
+    if ((stockNumber == null || stockNumber == "") ||
+        (schemeNumber == null || schemeNumber == "") ||
+        (organizationsNumber == null || organizationsNumber == "")) {
+      ToastUtil.showInfo('请选择盘点方案、货主和仓库');
+    } else {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      var deptData = sharedPreferences.getString('menuList');
+      var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
+      fBarCodeList = menuList['FBarCodeList'];
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCode='" + event + "'";
+        /*barcodeMap['FilterString'] = "FID=115853";*/
+        barcodeMap['FormId'] = 'QDEP_BarCodeList';
+        barcodeMap['FieldKeys'] =
+            'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
           setState(() {
             _code = event;
           });
-          this.getMaterialList("",_code);
-          EasyLoading.show(status: 'loading...');
+          this.getMaterialList(barcodeData, _code);
           print("ChannelPage: $event");
+          ToastUtil.showInfo('查询标签成功');
+        } else {
+          ToastUtil.showInfo('条码不在条码清单中');
         }
+      } else {
+        setState(() {
+          _code = event;
+        });
+        this.getMaterialList("", _code);
+        EasyLoading.show(status: 'loading...');
+        print("ChannelPage: $event");
       }
+    }
     /*});*/
   }
+
   void _onError(Object error) {
     setState(() {
       _code = "扫描异常";
     });
   }
 
-  getMaterialList(barcodeData,code) async {
+  getMaterialList(barcodeData, code) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
@@ -438,11 +440,11 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       dd,
     ]);
     var barCodeScan = [];
-    if(fBarCodeList == 1){
+    if (fBarCodeList == 1) {
       barCodeScan = barcodeData[0];
       barCodeScan.add(barCodeScan[4]);
       barCodeScan[4] = barCodeScan[4].toString();
-    }else{
+    } else {
       barCodeScan = scanCode;
       barCodeScan.add(barCodeScan[4]);
     }
@@ -451,17 +453,24 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       var number = 0;
       fID = this.orderDate[0][15];
       for (var element in hobby) {
-        if (element[0]['value']['barcode'].indexOf(barCodeScan[0].toString() + "-" + code) != -1) {
+        if (element[0]['value']['barcode']
+                .indexOf(barCodeScan[0].toString() + "-" + code) !=
+            -1) {
           number++;
           ToastUtil.showInfo('该标签已扫描');
           break;
         }
-        if (element[0]['value']['value'] + "-" + element[6]['value']['value'] == scanCode[0] + "-" + scanCode[1]) {
-          element[4]['value']['label'] = (double.parse(element[4]['value']['label']) + double.parse(barCodeScan[4])).toString();
+        if (element[0]['value']['value'] + "-" + element[6]['value']['value'] ==
+            scanCode[0] + "-" + scanCode[1]) {
+          element[4]['value']['label'] =
+              (double.parse(element[4]['value']['label']) +
+                      double.parse(barCodeScan[4]))
+                  .toString();
           element[4]['value']['value'] = element[4]['value']['label'];
           element[14]['value']['label'] = barCodeScan[4].toString();
           element[14]['value']['value'] = barCodeScan[4].toString();
-          element[0]['value']['barcode'].add(barCodeScan[0].toString() + "-" + code);
+          element[0]['value']['barcode']
+              .add(barCodeScan[0].toString() + "-" + code);
           number++;
           break;
         }
@@ -614,17 +623,26 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         ToastUtil.showInfo('查询物料成功');
         var number = 0;
         for (var element in hobby) {
-          if (element[0]['value']['barcode'].indexOf(barCodeScan[0].toString() + "-" + code) != -1) {
+          if (element[0]['value']['barcode']
+                  .indexOf(barCodeScan[0].toString() + "-" + code) !=
+              -1) {
             number++;
             ToastUtil.showInfo('该标签已扫描');
             break;
           }
-          if (element[0]['value']['value'] + "-" + element[6]['value']['value'] == scanCode[0] + "-" + scanCode[1]) {
-            element[4]['value']['label'] = (double.parse(element[4]['value']['label']) + double.parse(scanCode[4])).toString();
+          if (element[0]['value']['value'] +
+                  "-" +
+                  element[6]['value']['value'] ==
+              scanCode[0] + "-" + scanCode[1]) {
+            element[4]['value']['label'] =
+                (double.parse(element[4]['value']['label']) +
+                        double.parse(scanCode[4]))
+                    .toString();
             element[4]['value']['value'] = element[4]['value']['label'];
             element[14]['value']['label'] = barCodeScan[4].toString();
             element[14]['value']['value'] = barCodeScan[4].toString();
-            element[0]['value']['barcode'].add(barCodeScan[0].toString() + "-" + code);
+            element[0]['value']['barcode']
+                .add(barCodeScan[0].toString() + "-" + code);
             number++;
             break;
           }
@@ -982,7 +1000,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                 divider,
               ]),
             );
-          } else*/ if (j == 8) {
+          } else*/
+          if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -1332,10 +1351,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                         "title": "最后扫描数量",
                         "name": "FLastQty",
                         "isHide": false,
-                        "value": {
-                          "label": "0",
-                          "value": "0"
-                        }
+                        "value": {"label": "0", "value": "0"}
                       });
                       hobby.add(arr);
                     }
@@ -1381,26 +1397,25 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       var hobbyIndex = 0;
       for (var element in this.hobby) {
         if (element[4]['value']['value'] != '') {
-          if(!isError){
+          if (!isError) {
             if (element[4]['value']['value'] == "0") {
               var materialDate = [];
               //查询盘点方案
               Map<String, dynamic> schemeMap = Map();
-              if (element[6]['value']['value'] == "") {
+              /*if (element[6]['value']['value'] == "") {*/
                 schemeMap['FilterString'] = "FMaterialId.FNumber='" +
                     element[0]['value']['value'] +
                     "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-              } else {
+              /*} else {
                 schemeMap['FilterString'] = "FMaterialId.FNumber='" +
                     element[0]['value']['value'] +
                     "' and FLot.FNumber='" +
-                    element[6]['value']['value'] ==
-                    "" +
-                        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
-              }
+                    element[6]['value']['value'] +
+                    "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+              }*/
               schemeMap['FormId'] = 'STK_StockCountInput';
               schemeMap['FieldKeys'] =
-              'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
+                  'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
               Map<String, dynamic> schemeDataMap = Map();
               schemeDataMap['data'] = schemeMap;
               String order = await CurrencyEntity.polling(schemeDataMap);
@@ -1414,30 +1429,30 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                 if (this.isCumulative == "是") {
                   element[4]['value']['label'] =
                       (double.parse(element[4]['value']['label']) +
-                          orderData[0][7])
+                              orderData[0][7])
                           .toString();
                   element[4]['value']['value'] = element[4]['value']['label'];
                 }
               }
             } else {
               Map<String, dynamic> schemeMap = Map();
-              if (element[6]['value']['value'] == "") {
+              //if (element[6]['value']['value'] == "") {
                 schemeMap['FilterString'] = "FMaterialId.FNumber='" +
                     element[0]['value']['value'] +
                     "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-              } else {
+             /* } else {
                 schemeMap['FilterString'] = "FMaterialId.FNumber='" +
                     element[0]['value']['value'] +
                     "' and FLot.FNumber='" +
-                    element[6]['value']['value'] ==
-                    "" +
-                        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
-              }
+                    element[6]['value']['value'] +
+                    "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+              }*/
               schemeMap['FormId'] = 'STK_StockCountInput';
               schemeMap['FieldKeys'] =
-              'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
+                  'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
               Map<String, dynamic> schemeDataMap = Map();
               schemeDataMap['data'] = schemeMap;
+              print(schemeDataMap.toString());
               String order = await CurrencyEntity.polling(schemeDataMap);
               var orderData = [];
               orderData = jsonDecode(order);
@@ -1449,7 +1464,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                 if (this.isCumulative == "是") {
                   element[4]['value']['label'] =
                       (double.parse(element[4]['value']['label']) +
-                          orderData[0][7])
+                              orderData[0][7])
                           .toString();
                   element[4]['value']['value'] = element[4]['value']['label'];
                 }
@@ -1458,14 +1473,13 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           }
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FEntryID'] = element[13]['value']['value'];
-          FEntityItem['FNote'] = "测试";
           FEntityItem['FMaterialId'] = {
             "FNumber": element[0]['value']['value']
           };
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockId'] = {"FNumber": element[5]['value']['value']};
           FEntityItem['FOwnerId'] = {"FNumber": element[9]['value']['value']};
-          FEntityItem['FLOT'] = {"FNumber": element[6]['value']['value']};
+         // FEntityItem['FLOT'] = {"FNumber": element[6]['value']['value']};
           FEntityItem['FStockStatusId'] = {
             "FNumber": element[10]['value']['value']
           };
@@ -1477,7 +1491,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      };
+      }
+      ;
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('盘点数量未录入');
@@ -1536,16 +1551,19 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               print(dataCodeMap);
               String codeRes = await SubmitEntity.save(dataCodeMap);
               var barcodeRes = jsonDecode(codeRes);
-              if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
-                errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
+              if (!barcodeRes['Result']['ResponseStatus']['IsSuccess']) {
+                errorMsg += "错误反馈：" +
+                    itemCode[1] +
+                    ":" +
+                    barcodeRes['Result']['ResponseStatus']['Errors'][0]
+                        ['Message'];
               }
               print(codeRes);
             }
           }
         }
-        if(errorMsg !=""){
-            ToastUtil.errorDialog(context,
-                errorMsg);
+        if (errorMsg != "") {
+          ToastUtil.errorDialog(context, errorMsg);
         }
         //提交
         setState(() {

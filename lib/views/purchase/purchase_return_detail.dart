@@ -179,7 +179,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -187,7 +187,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     userMap['FormId'] = 'STK_InStock';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FApproveDate,FRealQty,FID,FSupplierId.FNumber,FSupplierId.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FPriceUnitID.FNumber,FTaxPrice,FEntryTaxRate,FBaseUnitID.FName,FBaseUnitID.FNumber';
+    'FBillNo,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FApproveDate,FRealQty,FID,FSupplierId.FNumber,FSupplierId.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FPriceUnitID.FNumber,FTaxPrice,FEntryTaxRate,FBaseUnitID.FName,FBaseUnitID.FNumber,FOwnerIdHead.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -201,6 +201,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       this.supName = orderDate[0][17];
       hobby = [];
       orderDate.forEach((value) {
+        fNumber.add(value[5]);
         List arr = [];
         arr.add({
           "title": "物料名称",
@@ -288,17 +289,48 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       barcodeMap['FilterString'] = "FBarCode='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber,F_QDEP_MName,FOwnerID.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
       var barcodeData = jsonDecode(order);
       if (barcodeData.length>0) {
-        _code = event;
-        this.getMaterialList(barcodeData,_code);
-        print("ChannelPage: $event");
+        var msg = "";
+        var orderIndex = 0;
+        for (var value in orderDate) {
+          if(value[5] == barcodeData[0][7]){
+            if(value[28] == barcodeData[0][8]){
+              if(value[16] == barcodeData[0][6]){
+                msg = "";
+                if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                  break;
+                }
+              }else{
+                msg = '条码仓库与单据仓库不一致';
+                if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                  break;
+                }
+              }
+            }else{
+              msg = '条码货主与单据货主不一致';
+              if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                break;
+              }
+            }
+          }else{
+            msg = '条码不在单据物料中';
+          }
+          orderIndex++;
+        };
+        if(msg ==  ""){
+          _code = event;
+          this.getMaterialList(barcodeData,_code);
+          print("ChannelPage: $event");
+        }else{
+          ToastUtil.showInfo(msg);
+        }
       }else{
-        ToastUtil.showInfo('该标签不存在');
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     }else{
       _code = event;
@@ -402,6 +434,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           }
         }else{
           if(scanCode[5] == "N" ){
+              if(element[5]['value']['value'] == "") {
+                element[5]['value']['label'] = scanCode[1];
+                element[5]['value']['value'] = scanCode[1];
+              }
             element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
             element[3]['value']['value']=element[3]['value']['label'];
             var item = barCodeScan[0].toString()+"-"+barcodeNum;
@@ -1017,6 +1053,8 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                 //失败后反审
                 HandlerOrder.orderHandler(context,submitMap,0,"PUR_MRB",SubmitEntity.unAudit(submitMap)).then((unAuditResult) {
                   if(unAuditResult){
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

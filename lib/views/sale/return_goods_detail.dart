@@ -179,7 +179,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -929,6 +929,8 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                 //失败后反审
                 HandlerOrder.orderHandler(context,submitMap,0,"SAL_RETURNSTOCK",SubmitEntity.unAudit(submitMap)).then((unAuditResult) {
                   if(unAuditResult){
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

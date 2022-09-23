@@ -172,6 +172,7 @@ class _ReportDetailState extends State<ReportDetail> {
 
   // 查询数据集合
   List hobby = [];
+  List fNumber = [];
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
@@ -576,6 +577,8 @@ class _ReportDetailState extends State<ReportDetail> {
                 //失败后反审
                 HandlerOrder.orderHandler(context,submitMap,0,"k8c99135d8f0b4925a36527567b0cf632",SubmitEntity.unAudit(submitMap)).then((unAuditResult) {
                   if(unAuditResult){
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

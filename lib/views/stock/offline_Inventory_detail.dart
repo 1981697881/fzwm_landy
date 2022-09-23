@@ -328,6 +328,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
   }
   // 查询数据集合
   List hobby = [];
+  List fNumber = [];
   getOrderList() async {}
   void _onEvent(event) async {
     /*  setState(() {*/
@@ -360,7 +361,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             this.getMaterialList(barCode,_code);
             print("ChannelPage: $event");
           } else {
-            ToastUtil.showInfo('该标签不存在');
+            ToastUtil.showInfo('条码不在条码清单中');
           }
         });
       } else {
@@ -1368,18 +1369,17 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               //查询盘点方案
               var orderData = [];
               Map<String, dynamic> schemeMap = Map();
-              if (element[6]['value']['value'] == "") {
+              /*if (element[6]['value']['value'] == "") {*/
                 schemeMap['FilterString'] = "FMaterialId.FNumber='" +
                     element[0]['value']['value'] +
                     "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-              } else {
+              /*} else {
                 schemeMap['FilterString'] = "FMaterialId.FNumber='" +
                     element[0]['value']['value'] +
                     "' and FLot.FNumber='" +
-                    element[6]['value']['value'] ==
-                    "" +
-                        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
-              }
+                    element[6]['value']['value'] +
+                        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+              }*/
               schemeMap['FormId'] = 'STK_StockCountInput';
               schemeMap['FieldKeys'] =
               'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber';
@@ -1429,18 +1429,17 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               }
             } else {
               Map<String, dynamic> schemeMap = Map();
-              if (element[6]['value']['value'] == "") {
+              /*if (element[6]['value']['value'] == "") {*/
                 schemeMap['FilterString'] = "FMaterialId.FNumber='" +
                     element[0]['value']['value'] +
                     "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-              } else {
+              /*} else {
                 schemeMap['FilterString'] = "FMaterialId.FNumber='" +
                     element[0]['value']['value'] +
                     "' and FLot.FNumber='" +
-                    element[6]['value']['value'] ==
-                    "" +
-                        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
-              }
+                    element[6]['value']['value'] +
+                        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+              }*/
               schemeMap['FormId'] = 'STK_StockCountInput';
               schemeMap['FieldKeys'] =
               'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
@@ -1472,7 +1471,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockId'] = {"FNumber": element[5]['value']['value']};
           FEntityItem['FOwnerId'] = {"FNumber": element[9]['value']['value']};
-          FEntityItem['FLOT'] = {"FNumber": element[6]['value']['value']};
+          //FEntityItem['FLOT'] = {"FNumber": element[6]['value']['value']};
           FEntityItem['FStockStatusId'] = {
             "FNumber": element[10]['value']['value']
           };
@@ -1484,8 +1483,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      }
-      ;
+      };
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('盘点数量未录入');
@@ -1541,6 +1539,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         if(errorMsg !=""){
           ToastUtil.errorDialog(context,
               errorMsg);
+          this.isSubmit = false;
         }
         //提交
         setState(() {

@@ -173,7 +173,7 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
     userMap['FormId'] = 'PRD_FeedMtrl';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FAppQty,FReqBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FUnitID.FNumber,FActualQty,FOwnerId0.FNumber,FDocumentStatus';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FBaseUnitID.FNumber,FBaseUnitID.FName,FAppQty,FReqBillNo,FID,FMaterialId.FIsBatchManage,FStockId.FNumber,FStockId.FName,FUnitID.FNumber,FActualQty,FOwnerId.FNumber,FDocumentStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -282,17 +282,50 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
       barcodeMap['FilterString'] = "FBarCode='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber,F_QDEP_MName,FOwnerID.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
       var barcodeData = jsonDecode(order);
       if (barcodeData.length>0) {
-        _code = event;
-        this.getMaterialList(barcodeData,_code);
-        print("ChannelPage: $event");
+        var msg = "";
+        print(barcodeData);
+        print(orderDate);
+        var orderIndex = 0;
+        for (var value in orderDate) {
+          if(value[5] == barcodeData[0][7]){
+            if(value[20] == barcodeData[0][8]){
+              if(value[16] == barcodeData[0][6]){
+                msg = "";
+                if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                  break;
+                }
+              }else{
+                msg = '条码仓库与单据仓库不一致';
+                if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                  break;
+                }
+              }
+            }else{
+              msg = '条码货主与单据货主不一致';
+              if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                break;
+              }
+            }
+          }else{
+            msg = '条码不在单据物料中';
+          }
+          orderIndex++;
+        };
+        if(msg ==  ""){
+          _code = event;
+          this.getMaterialList(barcodeData,_code);
+          print("ChannelPage: $event");
+        }else{
+          ToastUtil.showInfo(msg);
+        }
       }else{
-        ToastUtil.showInfo('该标签不存在');
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     }else{
       _code = event;
@@ -394,6 +427,10 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
           }
         }else{
           if(scanCode[5] == "N" ){
+            if(element[5]['value']['value'] == "") {
+              element[5]['value']['label'] = scanCode[1];
+              element[5]['value']['value'] = scanCode[1];
+            }
             element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
             element[3]['value']['value']=element[3]['value']['label'];
             var item = barCodeScan[0].toString()+"-"+barcodeNum;
@@ -1044,6 +1081,7 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
             if(errorMsg !=""){
               ToastUtil.errorDialog(context,
                   errorMsg);
+              this.isSubmit = false;
             }
             //提交清空页面
             setState(() {
@@ -1138,6 +1176,7 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
                 if(errorMsg !=""){
                   ToastUtil.errorDialog(context,
                       errorMsg);
+                  this.isSubmit = false;
                 }
                 //提交清空页面
                 setState(() {
@@ -1157,6 +1196,8 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

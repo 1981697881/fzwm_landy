@@ -200,7 +200,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -1029,6 +1029,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

@@ -149,7 +149,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
@@ -701,6 +701,8 @@ class _DispatchDetailState extends State<DispatchDetail> {
                         SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

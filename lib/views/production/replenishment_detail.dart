@@ -140,7 +140,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   //获取订单信息
   getOrderList() async {
 

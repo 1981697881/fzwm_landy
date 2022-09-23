@@ -196,6 +196,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
 
   // 查询数据集合
   List hobby = [];
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -214,6 +215,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     if (orderDate.length > 0) {
       hobby = [];
       orderDate.forEach((value) {
+        fNumber.add(value[5]);
         List arr = [];
         arr.add({
           "title": "物料名称",
@@ -303,7 +305,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       barcodeMap['FilterString'] = "FBarCode='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber,F_QDEP_MName,FOwnerID.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -313,7 +315,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
         this.getMaterialList(barcodeData,_code);
         print("ChannelPage: $event");
       }else{
-        ToastUtil.showInfo('该标签不存在');
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     }else{
       _code = event;
@@ -1086,6 +1088,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 if(errorMsg !=""){
                   ToastUtil.errorDialog(context,
                       errorMsg);
+                  this.isSubmit = false;
                 }
                 //提交清空页面
                 setState(() {
@@ -1106,6 +1109,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+
+                  }else{
                     this.isSubmit = false;
                   }
                 });

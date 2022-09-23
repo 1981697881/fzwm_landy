@@ -148,7 +148,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -978,7 +978,9 @@ class _InventoryDetailState extends State<InventoryDetail> {
                         .then((unAuditResult) {
                       if (unAuditResult) {
                         this.isSubmit = false;
-                      }
+                      }else{
+                    this.isSubmit = false;
+                  }
                     });
                   }
                 });
@@ -1062,7 +1064,9 @@ class _InventoryDetailState extends State<InventoryDetail> {
                         .then((unAuditResult) {
                       if (unAuditResult) {
                         this.isSubmit = false;
-                      }
+                      }else{
+                    this.isSubmit = false;
+                  }
                     });
                   }
                 });

@@ -196,7 +196,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -216,6 +216,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       hobby = [];
       orderDate.forEach((value) {
         List arr = [];
+        fNumber.add(value[5]);
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
@@ -293,7 +294,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       barcodeMap['FilterString'] = "FBarCode='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber,F_QDEP_MName,FOwnerID.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -305,10 +306,10 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           this.getMaterialList(barcodeData,_code);
           print("ChannelPage: $event");
         }else{
-          ToastUtil.showInfo('该条码剩余数量为0');
+          ToastUtil.showInfo('即时库存余额不足');
         }
       }else{
-        ToastUtil.showInfo('该标签不存在');
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     }else{
       _code = event;
@@ -1093,6 +1094,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                 if(errorMsg !=""){
                   ToastUtil.errorDialog(context,
                       errorMsg);
+                  this.isSubmit = false;
                 }
                 //提交清空页面
                 setState(() {
@@ -1113,6 +1115,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

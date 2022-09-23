@@ -119,7 +119,7 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
@@ -630,6 +630,8 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
                           HandlerOrder.orderHandler(context,auditMap,0,"PRD_INSTOCK",SubmitEntity.unAudit(auditMap)).then((unAuditResult) {
                             if(unAuditResult){
                               this.isSubmit = false;
+                            }else{
+                              this.isSubmit = false;
                             }
                           });
                         }
@@ -690,6 +692,8 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
                           //失败后反审
                           HandlerOrder.orderHandler(context,auditMap,0,"PRD_INSTOCK",SubmitEntity.unAudit(auditMap)).then((unAuditResult) {
                             if(unAuditResult){
+                              this.isSubmit = false;
+                            }else{
                               this.isSubmit = false;
                             }
                           });

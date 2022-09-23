@@ -147,7 +147,7 @@ class _GroundingPageState extends State<GroundingPage> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
@@ -611,6 +611,8 @@ class _GroundingPageState extends State<GroundingPage> {
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });

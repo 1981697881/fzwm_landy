@@ -156,7 +156,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
 
   // 查询数据集合
   List hobby = [];
-
+  List fNumber = [];
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
@@ -960,6 +960,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                         SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
+                    this.isSubmit = false;
+                  }else{
                     this.isSubmit = false;
                   }
                 });
