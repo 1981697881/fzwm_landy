@@ -376,6 +376,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         if(element[5]['isHide']){//不启用
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
+              //判断是否可重复扫码
+              if(scanCode.length>4){
+                element[0]['value']['barcode'].add(code);
+              }
               if(scanCode[5] == "N" ){
                   element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                   element[3]['value']['value']=element[3]['value']['label'];
@@ -386,10 +390,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                   barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
                 break;
               }
-              //判断是否可重复扫码
-              if(scanCode.length>4){
-                element[0]['value']['barcode'].add(code);
-              }
+
               //判断扫描数量是否大于单据数量
               if(double.parse(element[3]['value']['label']) >= element[9]['value']['value']) {
                   continue;
@@ -433,28 +434,30 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
             }
           }
         }else{
-          if(scanCode[5] == "N" ){
-              if(element[5]['value']['value'] == "") {
-                element[5]['value']['label'] = scanCode[1];
-                element[5]['value']['value'] = scanCode[1];
-              }
-            element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-            element[3]['value']['value']=element[3]['value']['label'];
-            var item = barCodeScan[0].toString()+"-"+barcodeNum;
-            element[0]['value']['kingDeeCode'].add(item);
-            element[10]['value']['label'] = barcodeNum.toString();
-            element[10]['value']['value'] = barcodeNum.toString();
-            barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
-            break;
-          }
+
           //启用批号
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
-              if(element[5]['value']['value'] == scanCode[1]){
-                //判断是否可重复扫码
-                if(scanCode.length>4){
-                  element[0]['value']['barcode'].add(code);
+              //判断是否可重复扫码
+              if(scanCode.length>4){
+                element[0]['value']['barcode'].add(code);
+              }
+              if(scanCode[5] == "N" ){
+                if(element[5]['value']['value'] == "") {
+                  element[5]['value']['label'] = scanCode[1];
+                  element[5]['value']['value'] = scanCode[1];
                 }
+                element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
+                element[3]['value']['value']=element[3]['value']['label'];
+                var item = barCodeScan[0].toString()+"-"+barcodeNum;
+                element[0]['value']['kingDeeCode'].add(item);
+                element[10]['value']['label'] = barcodeNum.toString();
+                element[10]['value']['value'] = barcodeNum.toString();
+                barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                break;
+              }
+              if(element[5]['value']['value'] == scanCode[1]){
+
                 //判断扫描数量是否大于单据数量
                 if(double.parse(element[3]['value']['label']) >= element[9]['value']['value']) {
                     continue;
@@ -494,10 +497,6 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                 }
               }else{
                 if(element[5]['value']['value'] == ""){
-                  //判断是否可重复扫码
-                  if(scanCode.length>4){
-                    element[0]['value']['barcode'].add(code);
-                  }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断扫描数量是否大于单据数量
