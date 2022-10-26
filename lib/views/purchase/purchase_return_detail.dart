@@ -299,12 +299,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         var orderIndex = 0;
         for (var value in orderDate) {
           if(value[5] == barcodeData[0][7]){
-            if(value[28] == barcodeData[0][8]){
+            /*if(value[28] == barcodeData[0][8]){
               if(value[16] == barcodeData[0][6]){
-                msg = "";
-                if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
-                  break;
-                }
+
+
               }else{
                 msg = '条码仓库与单据仓库不一致';
                 if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
@@ -316,6 +314,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
               if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
                 break;
               }
+            }*/
+            msg = "";
+            if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+              break;
             }
           }else{
             msg = '条码不在单据物料中';

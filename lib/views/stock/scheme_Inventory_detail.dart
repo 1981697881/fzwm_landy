@@ -636,7 +636,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               scanCode[0] + "-" + scanCode[1]) {
             element[4]['value']['label'] =
                 (double.parse(element[4]['value']['label']) +
-                        double.parse(scanCode[4]))
+                        double.parse(barCodeScan[4]))
                     .toString();
             element[4]['value']['value'] = element[4]['value']['label'];
             element[14]['value']['label'] = barCodeScan[4].toString();
