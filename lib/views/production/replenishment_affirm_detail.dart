@@ -407,9 +407,8 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
         var residue = 0.0;
         //判断是否启用批号
         if (element[5]['isHide']) {
-          //不启用
-          if (element[0]['value']['value'] == scanCode[0] &&
-              element[4]['value']['value'] == barCodeScan[6]) {
+          //不启用 && element[4]['value']['value'] == barCodeScan[6]
+          if (element[0]['value']['value'] == scanCode[0] ) {
             if (element[0]['value']['barcode'].indexOf(code) == -1) {
               //判断是否可重复扫码
               if (scanCode.length > 4) {
@@ -508,9 +507,8 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
             }
           }
         } else {
-          //启用批号
-          if (element[0]['value']['value'] == scanCode[0] &&
-              element[4]['value']['value'] == barCodeScan[6]) {
+          //启用批号 && element[4]['value']['value'] == barCodeScan[6]
+          if (element[0]['value']['value'] == scanCode[0] ) {
             if (element[0]['value']['barcode'].indexOf(code) == -1) {
               //判断是否可重复扫码
               if (scanCode.length > 4) {

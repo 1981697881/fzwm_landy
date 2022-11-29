@@ -405,8 +405,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
       for (var element in hobby) {
         hobbyIndex ++;
         //判断是否启用批号
-        if(element[5]['isHide']){//不启用
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[6]){
+        if(element[5]['isHide']){//不启用 && element[4]['value']['value'] == barCodeScan[6]
+          if(element[0]['value']['value'] == scanCode[0] ){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
 
               //判断是否可重复扫码
@@ -439,8 +439,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         var item = barCodeScan[0].toString()+"-"+residue.toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
-                        residue = residue - double.parse(element[3]['value']['label']);
-                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                        residue = (residue*100 - double.parse(element[10]['value']['value'])*100)/100;
+                        element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                     }else{*/
@@ -452,7 +452,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
                         residue = 0.0;
-                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                        element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }else{
@@ -461,8 +461,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
                         element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
-                        residue = residue - double.parse(element[3]['value']['label']);
-                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                        residue = (residue*100 - double.parse(element[10]['value']['value'])*100)/100;
+                        element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }
@@ -477,8 +477,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
           }
         }else{
 
-          //启用批号
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[6]){
+          //启用批号 && element[4]['value']['value'] == barCodeScan[6]
+          if(element[0]['value']['value'] == scanCode[0] ){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4){
@@ -516,8 +516,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                         var item = barCodeScan[0].toString()+"-"+residue.toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
-                        residue = residue - double.parse(element[3]['value']['label']);
-                        element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                        residue = (residue*100 - double.parse(element[10]['value']['value'])*100)/100;
+                        element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }else{*/
@@ -529,7 +529,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
                           residue = 0.0;
-                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                          element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                         }else{
@@ -538,8 +538,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                           element[10]['value']['value'] = element[0]['value']['surplus'].toString();
                           element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
-                          residue = residue - double.parse(element[3]['value']['label']);
-                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                          residue = (residue*100 - double.parse(element[10]['value']['value'])*100)/100;
+                          element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                         }
@@ -565,8 +565,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                           var item = barCodeScan[0].toString()+"-"+residue.toString();
                           element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
-                          residue = residue - double.parse(element[3]['value']['label']);
-                          element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                          residue = (residue*100 - double.parse(element[10]['value']['value'])*100)/100;
+                          element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                         }else{*/
@@ -578,7 +578,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                             element[3]['value']['label']=(double.parse(element[3]['value']['label'])+residue).toString();
                             element[3]['value']['value']=element[3]['value']['label'];
                             residue = 0.0;
-                            element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                            element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
                           }else{
@@ -587,8 +587,8 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
                             element[10]['value']['value'] = element[0]['value']['surplus'].toString();
                             element[3]['value']['label']=(element[0]['value']['surplus'] + double.parse(element[3]['value']['label'])).toString();
                             element[3]['value']['value']=element[3]['value']['label'];
-                            residue = residue - double.parse(element[3]['value']['label']);
-                            element[0]['value']['surplus'] = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                            residue = (residue*100 - double.parse(element[10]['value']['value'])*100)/100;
+                            element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
                           }

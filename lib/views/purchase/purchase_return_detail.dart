@@ -403,14 +403,14 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     var item = barCodeScan[0].toString()+"-"+(element[9]['value']['value'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['value'] - double.parse(element[3]['value']['label']))).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
-                    residue = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                    residue = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                     element[0]['value']['kingDeeCode'].add(item);
                   }else{
                     //获取已存在下标
                     var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
                     element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['value'] - double.parse(element[3]['value']['label']))).toString();
                     element[3]['value']['value']=element[3]['value']['label'];
-                    residue = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                    residue = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                     element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
                   }
                 }else{//数量不超出
@@ -470,14 +470,14 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       var item = barCodeScan[0].toString()+"-"+(element[9]['value']['value'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['value'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
-                      residue = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                      residue = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                       element[0]['value']['kingDeeCode'].add(item);
                     }else{
                       //获取已存在下标
                       var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
                       element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['value'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
-                      residue = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                      residue = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                       element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
                     }
                   }else{//数量不超出
@@ -511,14 +511,14 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         var item = barCodeScan[0].toString()+"-"+(element[9]['value']['value'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['value'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
-                        residue = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                        residue = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                         element[0]['value']['kingDeeCode'].add(item);
                       }else{
                         //获取已存在下标
                         var index = element[0]['value']['kingDeeCode'].indexOf(barCodeScan[0].toString()+"-"+element[3]['value']['value']);
                         element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['value'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
-                        residue = element[9]['value']['value'] - double.parse(element[3]['value']['label']);
+                        residue = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                         element[0]['value']['kingDeeCode'][index] = barCodeScan[0].toString()+"-"+element[3]['value']['value'];
                       }
                     }else{//数量不超出
