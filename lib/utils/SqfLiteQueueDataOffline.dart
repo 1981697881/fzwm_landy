@@ -34,7 +34,8 @@ final _tableKeeperTypeId = "keeperTypeId";
 final _tableKeeperId = "keeperId";
 final _tableEntryID = "entryID";
 final _tableBarcode = "barcode";
-
+final _tablePosition = "position";
+final _tableIsBatch = "isBatch";
 class SqfLiteQueueDataOffline {
   SqfLiteQueueDataOffline.internal();
 
@@ -62,15 +63,15 @@ class SqfLiteQueueDataOffline {
         print("重新打开时调用");
         if (await isTableExitss(db,"offline_Inventory") == false) {
           await _createTable(db,
-              '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+              '''create table if not exists $_tableName ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text,$_tablePosition text,$_tableIsBatch INTEGER)''');
         }
         if (await isTableExitss(db,"scheme_Inventory") == false) {
           await _createTable(db,
-              '''create table if not exists scheme_Inventory ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+              '''create table if not exists scheme_Inventory ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text,$_tablePosition text,$_tableIsBatch INTEGER)''');
         }
         if (await isTableExitss(db,"offline_Inventory_cache") == false) {
           await _createTable(db,
-              '''create table if not exists offline_Inventory_cache ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text)''');
+              '''create table if not exists offline_Inventory_cache ($_tableId integer primary key,$_tableFid INTEGER,$_tableSchemeName text,$_tableSchemeNumber text,$_tableOrganizationsName text,$_tableOrganizationsNumber text,$_tableStockIdName text,$_tableStockIdNumber text,$_tableMaterialName text,$_tableMaterialNumber text,$_tableSpecification text,$_tableUnitName text,$_tableUnitNumber text,$_tableRealQty REAL,$_tableCountQty text,$_tableStockName text,$_tableStockNumber text,$_tableLot text,$_tableStockOrgId text,$_tableOwnerId text,$_tableStockStatusId text,$_tableKeeperTypeId text,$_tableKeeperId text,$_tableEntryID INTEGER,$_tableBarcode text,$_tablePosition text,$_tableIsBatch INTEGER)''');
         }
         if (await isTableExitss(db,"barcode_list") == false) {
           await _createTable(db,
@@ -113,14 +114,18 @@ class SqfLiteQueueDataOffline {
       String keeperTypeId,
       String keeperId,
       int entryID,
-      String barcode,int length,int index) async {
+      String barcode,
+      String position,
+      int isBatch,
+      int length,
+      int index) async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
     //1、普通添加
     //await db.rawDelete("insert or replace into $_tableName ($_tableId,$_tableFid,$_tableRealQty) values (null,?,?)",[fid, realQty]);
     //2、事务添加
     db.transaction((txn) async {
       await txn.rawInsert(
-          "insert or replace into $_tableName ($_tableId,$_tableFid,$_tableSchemeName,$_tableSchemeNumber,$_tableOrganizationsName,$_tableOrganizationsNumber,$_tableStockIdName,$_tableStockIdNumber,$_tableMaterialName,$_tableMaterialNumber,$_tableSpecification,$_tableUnitName,$_tableUnitNumber,$_tableRealQty,$_tableCountQty,$_tableStockName,$_tableStockNumber,$_tableLot,$_tableStockOrgId,$_tableOwnerId,$_tableStockStatusId,$_tableKeeperTypeId,$_tableKeeperId,$_tableEntryID,$_tableBarcode) values (null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+          "insert or replace into $_tableName ($_tableId,$_tableFid,$_tableSchemeName,$_tableSchemeNumber,$_tableOrganizationsName,$_tableOrganizationsNumber,$_tableStockIdName,$_tableStockIdNumber,$_tableMaterialName,$_tableMaterialNumber,$_tableSpecification,$_tableUnitName,$_tableUnitNumber,$_tableRealQty,$_tableCountQty,$_tableStockName,$_tableStockNumber,$_tableLot,$_tableStockOrgId,$_tableOwnerId,$_tableStockStatusId,$_tableKeeperTypeId,$_tableKeeperId,$_tableEntryID,$_tableBarcode,$_tablePosition,$_tableIsBatch) values (null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
           [
             fid,
             schemeName,
@@ -145,7 +150,9 @@ class SqfLiteQueueDataOffline {
             keeperTypeId,
             keeperId,
             entryID,
-            barcode
+            barcode,
+            position,
+            isBatch,
           ]);
     });
     await db.batch().commit();
@@ -181,14 +188,15 @@ class SqfLiteQueueDataOffline {
       String keeperTypeId,
       String keeperId,
       int entryID,
-      String barcode) async {
+      String barcode,
+      String position,int isBatch) async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
     //1、普通添加
     //await db.rawDelete("insert or replace into $_tableName ($_tableId,$_tableFid,$_tableRealQty) values (null,?,?)",[fid, realQty]);
     //2、事务添加
     db.transaction((txn) async {
       await txn.rawInsert(
-          "insert or replace into offline_Inventory_cache ($_tableId,$_tableFid,$_tableSchemeName,$_tableSchemeNumber,$_tableOrganizationsName,$_tableOrganizationsNumber,$_tableStockIdName,$_tableStockIdNumber,$_tableMaterialName,$_tableMaterialNumber,$_tableSpecification,$_tableUnitName,$_tableUnitNumber,$_tableRealQty,$_tableCountQty,$_tableStockName,$_tableStockNumber,$_tableLot,$_tableStockOrgId,$_tableOwnerId,$_tableStockStatusId,$_tableKeeperTypeId,$_tableKeeperId,$_tableEntryID,$_tableBarcode) values (null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+          "insert or replace into offline_Inventory_cache ($_tableId,$_tableFid,$_tableSchemeName,$_tableSchemeNumber,$_tableOrganizationsName,$_tableOrganizationsNumber,$_tableStockIdName,$_tableStockIdNumber,$_tableMaterialName,$_tableMaterialNumber,$_tableSpecification,$_tableUnitName,$_tableUnitNumber,$_tableRealQty,$_tableCountQty,$_tableStockName,$_tableStockNumber,$_tableLot,$_tableStockOrgId,$_tableOwnerId,$_tableStockStatusId,$_tableKeeperTypeId,$_tableKeeperId,$_tableEntryID,$_tableBarcode,$_tablePosition,$_tableIsBatch) values (null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
           [
             fid,
             schemeName,
@@ -213,7 +221,9 @@ class SqfLiteQueueDataOffline {
             keeperTypeId,
             keeperId,
             entryID,
-            barcode
+            barcode,
+            position,
+            isBatch
           ]);
     });
     await db.batch().commit();
@@ -308,7 +318,8 @@ class SqfLiteQueueDataOffline {
       String keeperTypeId,
       String keeperId,
       int entryID,
-      String barcode) async {
+      String barcode,
+      String position,int isBatch) async {
     Database db = await SqfLiteQueueDataOffline.internal().open();
     //1、普通更新
     // await db.rawUpdate("update $_tableName set $_tableFid =  ?,$_tableRealQty =  ? where $_tableId = ?",[fid,realQty,id]);
@@ -316,7 +327,7 @@ class SqfLiteQueueDataOffline {
     //_tableScheme _tableMaterialName _tableMaterialNumber _tableSpecification _tableUnitName _tableUnitNumber _tableRealQty _tableCountQty _tableStockName _tableStockNumber _tableOwnerId _tableStockStatusId _tableKeeperTypeId _tableKeeperId _tableEntryID
     db.transaction((txn) async {
       txn.rawUpdate(
-          "update $_tableName set $_tableFid =  ?,$_tableSchemeName =  ?,$_tableSchemeNumber =  ?,$_tableOrganizationsName =  ?,$_tableOrganizationsNumber =  ?,$_tableStockIdName =  ?,$_tableStockIdNumber =  ?,$_tableMaterialName =  ?,$_tableMaterialNumber =  ?,$_tableSpecification =  ?,$_tableUnitName =  ?,$_tableUnitNumber =  ?,$_tableRealQty =  ?,$_tableCountQty =  ?,$_tableStockName =  ?,$_tableStockNumber =  ?,$_tableLot =  ?,$_tableStockOrgId =  ?,$_tableOwnerId =  ?,$_tableStockStatusId =  ?,$_tableKeeperTypeId =  ?,$_tableKeeperId =  ?,$_tableEntryID =  ?,$_tableBarcode =  ? where $_tableId = ?",
+          "update $_tableName set $_tableFid =  ?,$_tableSchemeName =  ?,$_tableSchemeNumber =  ?,$_tableOrganizationsName =  ?,$_tableOrganizationsNumber =  ?,$_tableStockIdName =  ?,$_tableStockIdNumber =  ?,$_tableMaterialName =  ?,$_tableMaterialNumber =  ?,$_tableSpecification =  ?,$_tableUnitName =  ?,$_tableUnitNumber =  ?,$_tableRealQty =  ?,$_tableCountQty =  ?,$_tableStockName =  ?,$_tableStockNumber =  ?,$_tableLot =  ?,$_tableStockOrgId =  ?,$_tableOwnerId =  ?,$_tableStockStatusId =  ?,$_tableKeeperTypeId =  ?,$_tableKeeperId =  ?,$_tableEntryID =  ?,$_tableBarcode =  ?,$_tablePosition =  ?,$_tableIsBatch =  ? where $_tableId = ?",
           [
             fid,
             schemeName,
@@ -342,6 +353,8 @@ class SqfLiteQueueDataOffline {
             keeperId,
             entryID,
             barcode,
+            position,
+            isBatch,
             id
           ]);
     });

@@ -191,7 +191,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       userMap['FilterString'] = "FSchemeNo = '$schemeNumber'";
       userMap['FormId'] = 'STK_StockCountInput';
       userMap['FieldKeys'] =
-          'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID';
+          'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId,FMaterialId.FIsBatchManage';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -235,7 +235,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               value[11],
               value[12],
               value[14],
-              "",resData.length,resDataIndex);
+              "","",value[17]?0:1,resData.length,resDataIndex);/*value[16]*/
         }
       } else {
         EasyLoading.dismiss();
@@ -401,15 +401,39 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         });
       } else {
         await SqfLiteQueueDataOffline.searchDates(
-                "select * from offline_Inventory where materialNumber='" +
-                    scanCode[0] +
-                    "' and lot='" +
-                    scanCode[1] +
-                    "' and schemeNumber = '$schemeNumber' and ownerId ='$organizationsNumber' and stockNumber = '$stockNumber'")
-            .then((value) {
-          var res = jsonEncode(value);
-          if (jsonDecode(res).length > 0) {
-            resInventory = jsonDecode(res);
+            "select * from offline_Inventory where materialNumber='" +
+                scanCode[0] +
+                "' and schemeNumber = '$schemeNumber' and ownerId ='$organizationsNumber' and stockNumber = '$stockNumber'")
+            .then((batchValue) async {
+          var resBatch = jsonEncode(batchValue);
+          var resBatchData;
+          if (jsonDecode(resBatch).length > 0) {
+            resBatchData = jsonDecode(resBatch);
+            if(resBatchData[0]['isBatch'] == 0){
+              await SqfLiteQueueDataOffline.searchDates(
+                  "select * from offline_Inventory where materialNumber='" +
+                      scanCode[0] +
+                      "' and lot='" +
+                      scanCode[1] +
+                      "' and schemeNumber = '$schemeNumber' and ownerId ='$organizationsNumber' and stockNumber = '$stockNumber'")
+                  .then((value) {
+                var res = jsonEncode(value);
+                if (jsonDecode(res).length > 0) {
+                  resInventory = jsonDecode(res);
+                }
+              });
+            }else{
+              await SqfLiteQueueDataOffline.searchDates(
+                  "select * from offline_Inventory where materialNumber='" +
+                      scanCode[0] +
+                      "' and schemeNumber = '$schemeNumber' and ownerId ='$organizationsNumber' and stockNumber = '$stockNumber'")
+                  .then((value) {
+                var res = jsonEncode(value);
+                if (jsonDecode(res).length > 0) {
+                  resInventory = jsonDecode(res);
+                }
+              });
+            }
           }
         });
       }
@@ -454,8 +478,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           ToastUtil.showInfo('该标签已扫描');
           break;
         }
-        if (element[0]['value']['value'] + "-" + element[6]['value']['value'] ==
-            scanCode[0] + "-" + scanCode[1]) {
+        if (element[0]['value']['value'] /*+ "-" + element[6]['value']['value']*/ == scanCode[0] /*+ "-" + scanCode[1]*/) {
           element[4]['value']['label'] = (double.parse(element[4]['value']['label']) + double.parse(barCodeScan[4])).toString();
           element[4]['value']['value'] = element[4]['value']['label'];
           element[14]['value']['label'] = barCodeScan[4].toString();
@@ -528,6 +551,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           "title": "批号",
           "name": "FLot",
           "isHide": false,
+          "isBatch": resInventory[0]['isBatch'],
           "value": {
             "label": resInventory[0]['lot'],
             "value": resInventory[0]['lot']
@@ -602,6 +626,45 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             "value": barCodeScan[4].toString()
           }
         });
+        Map<String, dynamic> userMap = Map();
+        userMap['FormId'] = 'BD_STOCK';
+        userMap['FieldKeys'] =
+        'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+        userMap['FilterString'] = "FForbidStatus = 'A' and FNumber = '" +
+            resInventory[0]['stockNumber'] +
+            "' and FUseOrgId.FNumber =" +
+            deptData[1];
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = userMap;
+        String res = await CurrencyEntity.polling(dataMap);
+        var stocks = jsonDecode(res);
+        if (stocks.length > 0) {
+          if (stocks[0][4] != null) {
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {
+                "label": "",
+                "value": "",
+                "hide": true,
+                'dimension': stocks[0][4]
+              }
+            });
+          } else {
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {
+                "label": "",
+                "value": "",
+                "hide": false,
+                'dimension': ""
+              }
+            });
+          }
+        }
         hobby.add(arr);
       }
       setState(() {
@@ -632,7 +695,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             ToastUtil.showInfo('该标签已扫描');
             break;
           }
-          if (element[0]['value']['value'] + "-" + element[6]['value']['value'] == scanCode[0] + "-" + scanCode[1]) {
+          if (element[0]['value']['value'] /*+ "-" + element[6]['value']['value']*/ == scanCode[0] /*+ "-" + scanCode[1]*/) {
             element[4]['value']['label'] = (double.parse(element[4]['value']['label']) + double.parse(barCodeScan[4])).toString();
             element[4]['value']['value'] = element[4]['value']['label'];
             element[14]['value']['label'] = barCodeScan[4].toString();
@@ -671,7 +734,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             "title": "账存数量",
             "name": "FRealQty",
             "isHide": false,
-            "value": {"label": 0, "value": 0}
+            "value": {"label": 0.0, "value": 0.0}
           });
           arr.add({
             "title": "盘点数量",
@@ -693,6 +756,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             "title": "批号",
             "name": "FLot",
             "isHide": false,
+            "isBatch": 1,
             "value": {"label": scanCode[1], "value": scanCode[1]}
           });
           arr.add({
@@ -738,7 +802,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
             "title": "FBillEntry_FEntryID",
             "name": "FBillEntry_FEntryID",
             "isHide": true,
-            "value": {"label": "0", "value": "0"}
+            "value": {"label": 0, "value": 0}
           });
           arr.add({
             "title": "最后扫描数量",
@@ -749,6 +813,45 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               "value": barCodeScan[4].toString()
             }
           });
+          Map<String, dynamic> userMap = Map();
+          userMap['FormId'] = 'BD_STOCK';
+          userMap['FieldKeys'] =
+          'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+          userMap['FilterString'] = "FForbidStatus = 'A' and FNumber = '" +
+              this.stockNumber +
+              "' and FUseOrgId.FNumber =" +
+              deptData[1];
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = userMap;
+          String res = await CurrencyEntity.polling(dataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
+            if (stocks[0][4] != null) {
+              arr.add({
+                "title": "仓位",
+                "name": "FStockLocID",
+                "isHide": false,
+                "value": {
+                  "label": "",
+                  "value": "",
+                  "hide": true,
+                  'dimension': stocks[0][4]
+                }
+              });
+            } else {
+              arr.add({
+                "title": "仓位",
+                "name": "FStockLocID",
+                "isHide": false,
+                "value": {
+                  "label": "",
+                  "value": "",
+                  "hide": false,
+                  'dimension': ""
+                }
+              });
+            }
+          }
           hobby.add(arr);
         }
         setState(() {
@@ -829,7 +932,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
       minDate: PDuration(year: 2020, month: 2, day: 10),
       maxDate: PDuration(second: 22),
       selectDate: (FDate == '' || FDate == null
-          ? PDuration(year: 2021, month: 2, day: 10)
+          ? PDuration(year: 2023, month: 2, day: 10)
           : PDuration.parse(DateTime.parse(FDate))),
       // minDate: PDuration(hour: 12, minute: 38, second: 3),
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
@@ -1157,6 +1260,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                         "title": "批号",
                         "name": "FLot",
                         "isHide": false,
+                        "isBatch": element['isBatch'],
                         "value": {
                           "label": element["lot"],
                           "value": element["lot"]
@@ -1229,6 +1333,15 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                         "value": {
                           "label": "0",
                           "value": "0"
+                        }
+                      });
+                      arr.add({
+                        "title": "仓位",
+                        "name": "FStockLocID",
+                        "isHide": false,
+                        "value": {
+                          "label": element["FStockLocID"],
+                          "value": element["FStockLocID"]
                         }
                       });
                       hobby.add(arr);
@@ -1628,7 +1741,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                                 element[11]['value']['value'],
                                 element[12]['value']['value'],
                                 element[13]['value']['value'],
-                                jsonEncode(element[0]['value']['barcode']));
+                                jsonEncode(element[0]['value']['barcode']),element[15]['value']['value'], element[6]['isBatch']);
                           }
                           ToastUtil.showInfo('暂存成功');
                         },

@@ -198,6 +198,9 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
   List hobby = [];
   List fNumber = [];
   getOrderList() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
@@ -215,7 +218,8 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
     hobby = [];
     if (orderDate.length > 0) {
       this.fOrgID = orderDate[0][8];
-      orderDate.forEach((value) {
+      for (var value in orderDate){
+      /*orderDate.forEach((value) {*/
         fNumber.add(value[5]);
         List arr = [];
         arr.add({
@@ -254,12 +258,45 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
           "isHide": value[15] != true,
           "value": {"label": "", "value": ""}
         });
-        arr.add({
-          "title": "仓位",
-          "name": "FStockLocID",
-          "isHide": false,
-          "value": {"label": "", "value": "","hide": false}
-        });
+        Map<String, dynamic> userMap = Map();
+        userMap['FormId'] = 'BD_STOCK';
+        userMap['FieldKeys'] =
+        'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+        userMap['FilterString'] = "FForbidStatus = 'A' and FNumber = '" +
+            value[16] +
+            "' and FUseOrgId.FNumber =" +
+            deptData[1];
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = userMap;
+        String res = await CurrencyEntity.polling(dataMap);
+        var stocks = jsonDecode(res);
+        if (stocks.length > 0) {
+          if (stocks[0][4] != null) {
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {
+                "label": "",
+                "value": "",
+                "hide": true,
+                'dimension': stocks[0][4]
+              }
+            });
+          } else {
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {
+                "label": "",
+                "value": "",
+                "hide": false,
+                'dimension': ""
+              }
+            });
+          }
+        }
         arr.add({
           "title": "操作",
           "name": "",
@@ -288,7 +325,7 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
           }
         });
         hobby.add(arr);
-      });
+      };
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -307,23 +344,27 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
     fBarCodeList = menuList['FBarCodeList'];
-    if(fBarCodeList == 1){
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCode='"+event+"'";
-      barcodeMap['FormId'] = 'QDEP_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber,F_QDEP_MName,FOwnerID.FNumber';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length>0) {
-        if(barcodeData[0][4]>0){
-          var msg = "";
-          var orderIndex = 0;
-          for (var value in orderDate) {
-            if(value[5] == barcodeData[0][7]){
-              /*if(value[20] == barcodeData[0][8]){
+    if (checkItem == "position") {
+      this._FNumber = event;
+      this._textNumber.text = event;
+    } else {
+      if(fBarCodeList == 1){
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCode='"+event+"'";
+        barcodeMap['FormId'] = 'QDEP_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockID.FName,FStockID.FNumber,F_QDEP_MName,FOwnerID.FNumber';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length>0) {
+          if(barcodeData[0][4]>0){
+            var msg = "";
+            var orderIndex = 0;
+            for (var value in orderDate) {
+              if(value[5] == barcodeData[0][7]){
+                /*if(value[20] == barcodeData[0][8]){
                 if(value[16] == barcodeData[0][6]){
 
                 }else{
@@ -338,32 +379,33 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
                   break;
                 }
               }*/
-              msg = "";
-              if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
-                break;
+                msg = "";
+                if(fNumber.lastIndexOf(barcodeData[0][7])  == orderIndex){
+                  break;
+                }
+              }else{
+                msg = '条码不在单据物料中';
               }
+              orderIndex++;
+            };
+            if(msg ==  ""){
+              _code = event;
+              this.getMaterialList(barcodeData,_code);
+              print("ChannelPage: $event");
             }else{
-              msg = '条码不在单据物料中';
+              ToastUtil.showInfo(msg);
             }
-            orderIndex++;
-          };
-          if(msg ==  ""){
-            _code = event;
-            this.getMaterialList(barcodeData,_code);
-            print("ChannelPage: $event");
           }else{
-            ToastUtil.showInfo(msg);
+            ToastUtil.showInfo('即时库存余额不足');
           }
         }else{
-          ToastUtil.showInfo('即时库存余额不足');
+          ToastUtil.showInfo('条码不在条码清单中');
         }
       }else{
-        ToastUtil.showInfo('条码不在条码清单中');
+        _code = event;
+        this.getMaterialList("",_code);
+        print("ChannelPage: $event");
       }
-    }else{
-      _code = event;
-      this.getMaterialList("",_code);
-      print("ChannelPage: $event");
     }
   }
   getMaterialList(barcodeData,code) async {
@@ -790,7 +832,7 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
                                   this.hobby[i][j]["value"]["label"].toString();
                               this._FNumber =
                                   this.hobby[i][j]["value"]["label"].toString();
-                              checkItem = 'FNumber';
+                              checkItem = 'position';
                               this.show = false;
                               checkData = i;
                               checkDataChild = j;
@@ -981,7 +1023,13 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
                               }else{
                                 ToastUtil.showInfo('无条码信息，输入失败');
                               }
+                            } else if (checkItem == "position") {
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
                             }
+                            checkItem = "";
                           });
                         },
                         child: Text(
@@ -1039,16 +1087,32 @@ class _PurchaseReturnAffirmDetailState extends State<PurchaseReturnAffirmDetail>
       Model['FID'] = orderDate[0][14];
       var FEntity = [];
       var hobbyIndex = 0;
+      var ckInfo = "";
       this.hobby.forEach((element) {
         if (element[3]['value']['value'] != '0') {
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FEntryID'] = orderDate[hobbyIndex][4];
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
           FEntityItem['FRMREALQTY'] = element[3]['value']['value'];
+          if(element[6]['value']['dimension'] != null && element[6]['value']['dimension'] != ""){
+            if(element[6]['value']['value'] == null || element[6]['value']['value'] == ""){
+              ckInfo +=  element[0]['value']['label']+'-仓位不能为空';
+            }
+            FEntityItem['FStockLocId'] = {
+              "FSTOCKLOCID__"+element[6]['value']['dimension'] : {
+                "FNumber": element[6]['value']['value']
+              }
+            };
+          }
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
       });
+      if(ckInfo != ""){
+        this.isSubmit = false;
+        ToastUtil.showInfo(ckInfo);
+        return;
+      }
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('请输入数量');

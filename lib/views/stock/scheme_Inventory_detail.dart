@@ -410,16 +410,40 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             scanCode[0] +
             "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
       } else {
-        userMap['FilterString'] = "FMaterialId.FNumber='" +
+        Map<String, dynamic> materialBatchMap = Map();
+        materialBatchMap['FilterString'] = "FNumber='" +
             scanCode[0] +
-            "' and FLot.FNumber='" +
-            scanCode[1] +
-            "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
+            "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
+            deptData[1] +
+            "'";
+        materialBatchMap['FormId'] = 'BD_MATERIAL';
+        materialBatchMap['FieldKeys'] =
+        'FIsBatchManage';
+        Map<String, dynamic> materialBatchDataMap = Map();
+        materialBatchDataMap['data'] = materialBatchMap;
+        String orderBatch = await CurrencyEntity.polling(materialBatchDataMap);
+        var materialBatchDate = [];
+        materialBatchDate = jsonDecode(orderBatch);
+        if (materialBatchDate.length > 0) {
+          if(materialBatchDate[0][0]){
+            userMap['FilterString'] = "FMaterialId.FNumber='" +
+                scanCode[0] +
+                "' and FLot.FNumber='" +
+                scanCode[1] +
+                "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+          }else{
+            userMap['FilterString'] = "FMaterialId.FNumber='" +
+                scanCode[0] +
+                "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+          }
+        }else{
+          ToastUtil.showInfo('物料不存在');
+        }
       }
     }
     userMap['FormId'] = 'STK_StockCountInput';
     userMap['FieldKeys'] =
-        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID';
+        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -460,12 +484,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           ToastUtil.showInfo('该标签已扫描');
           break;
         }
-        if (element[0]['value']['value'] + "-" + element[6]['value']['value'] ==
-            scanCode[0] + "-" + scanCode[1]) {
-          element[4]['value']['label'] =
-              (double.parse(element[4]['value']['label']) +
-                      double.parse(barCodeScan[4]))
-                  .toString();
+        if (element[0]['value']['value'] /*+ "-" + element[6]['value']['value'] */== scanCode[0] /*+ "-" + scanCode[1]*/) {
+          element[4]['value']['label'] = (double.parse(element[4]['value']['label']) + double.parse(barCodeScan[4])).toString();
           element[4]['value']['value'] = element[4]['value']['label'];
           element[14]['value']['label'] = barCodeScan[4].toString();
           element[14]['value']['value'] = barCodeScan[4].toString();
@@ -476,7 +496,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         }
       }
       if (number == 0) {
-        orderDate.forEach((value) {
+        for (var value in orderDate){
+       /* orderDate.forEach((value) {*/
           List arr = [];
           arr.add({
             "title": "物料",
@@ -589,8 +610,47 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               "value": barCodeScan[4].toString()
             }
           });
+          Map<String, dynamic> userMap = Map();
+          userMap['FormId'] = 'BD_STOCK';
+          userMap['FieldKeys'] =
+          'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+          userMap['FilterString'] = "FForbidStatus = 'A' and FNumber = '" +
+              value[6] +
+              "' and FUseOrgId.FNumber =" +
+              deptData[1];
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = userMap;
+          String res = await CurrencyEntity.polling(dataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
+            if (stocks[0][4] != null) {
+              arr.add({
+                "title": "仓位",
+                "name": "FStockLocID",
+                "isHide": false,
+                "value": {
+                  "label": value[16],
+                  "value": value[16],
+                  "hide": true,
+                  'dimension': stocks[0][4]
+                }
+              });
+            } else {
+              arr.add({
+                "title": "仓位",
+                "name": "FStockLocID",
+                "isHide": false,
+                "value": {
+                  "label": "",
+                  "value": "",
+                  "hide": false,
+                  'dimension': ""
+                }
+              });
+            }
+          }
           hobby.add(arr);
-        });
+        };
       }
       setState(() {
         EasyLoading.dismiss();
@@ -630,10 +690,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             ToastUtil.showInfo('该标签已扫描');
             break;
           }
-          if (element[0]['value']['value'] +
-                  "-" +
-                  element[6]['value']['value'] ==
-              scanCode[0] + "-" + scanCode[1]) {
+          if (element[0]['value']['value'] /*+ "-" + element[6]['value']['value']*/ == scanCode[0] /*+ "-" + scanCode[1]*/) {
             element[4]['value']['label'] =
                 (double.parse(element[4]['value']['label']) +
                         double.parse(barCodeScan[4]))
@@ -648,7 +705,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           }
         }
         if (number == 0) {
-          materialDate.forEach((value) {
+          for (var value in materialDate){
+         /* materialDate.forEach((value) {*/
             List arr = [];
             arr.add({
               "title": "物料",
@@ -677,7 +735,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               "title": "账存数量",
               "name": "FRealQty",
               "isHide": false,
-              "value": {"label": 0, "value": 0}
+              "value": {"label": 0.0, "value": 0.0}
             });
             arr.add({
               "title": "盘点数量",
@@ -743,7 +801,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               "title": "FBillEntry_FEntryID",
               "name": "FBillEntry_FEntryID",
               "isHide": true,
-              "value": {"label": "0", "value": "0"}
+              "value": {"label": 0, "value": 0}
             });
             arr.add({
               "title": "最后扫描数量",
@@ -754,8 +812,47 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                 "value": barCodeScan[4].toString()
               }
             });
+            Map<String, dynamic> userMap = Map();
+            userMap['FormId'] = 'BD_STOCK';
+            userMap['FieldKeys'] =
+            'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+            userMap['FilterString'] = "FForbidStatus = 'A' and FNumber = '" +
+                this.stockNumber +
+                "' and FUseOrgId.FNumber =" +
+                deptData[1];
+            Map<String, dynamic> dataMap = Map();
+            dataMap['data'] = userMap;
+            String res = await CurrencyEntity.polling(dataMap);
+            var stocks = jsonDecode(res);
+            if (stocks.length > 0) {
+              if (stocks[0][4] != null) {
+                arr.add({
+                  "title": "仓位",
+                  "name": "FStockLocID",
+                  "isHide": false,
+                  "value": {
+                    "label": "",
+                    "value": "",
+                    "hide": true,
+                    'dimension': stocks[0][4]
+                  }
+                });
+              } else {
+                arr.add({
+                  "title": "仓位",
+                  "name": "FStockLocID",
+                  "isHide": false,
+                  "value": {
+                    "label": "",
+                    "value": "",
+                    "hide": false,
+                    'dimension': ""
+                  }
+                });
+              }
+            }
             hobby.add(arr);
-          });
+          };
         }
         setState(() {
           EasyLoading.dismiss();
@@ -835,7 +932,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       minDate: PDuration(year: 2020, month: 2, day: 10),
       maxDate: PDuration(second: 22),
       selectDate: (FDate == '' || FDate == null
-          ? PDuration(year: 2021, month: 2, day: 10)
+          ? PDuration(year: 2023, month: 2, day: 10)
           : PDuration.parse(DateTime.parse(FDate))),
       // minDate: PDuration(hour: 12, minute: 38, second: 3),
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
@@ -1353,6 +1450,15 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                         "isHide": false,
                         "value": {"label": "0", "value": "0"}
                       });
+                      arr.add({
+                        "title": "仓位",
+                        "name": "FStockLocID",
+                        "isHide": false,
+                        "value": {
+                          "label": element["FStockLocID"],
+                          "value": element["FStockLocID"]
+                        }
+                      });
                       hobby.add(arr);
                     }
                     this._getHobby();
@@ -1683,7 +1789,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                                 element[1]['value']['value'],
                                 element[2]['value']['label'],
                                 element[2]['value']['value'],
-                                element[3]['value']['value'],
+                                element[3]['value']['value'] is int ? double.parse(element[3]['value']['value']) :element[3]['value']['value'],
                                 element[4]['value']['value'],
                                 element[5]['value']['label'],
                                 element[5]['value']['value'],
@@ -1694,7 +1800,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                                 element[11]['value']['value'],
                                 element[12]['value']['value'],
                                 element[13]['value']['value'],
-                                jsonEncode(element[0]['value']['barcode']));
+                                jsonEncode(element[0]['value']['barcode']),element[15]['value']['value']);
                           }
                           /* await SqfLiteQueueDataScheme.internal().close();*/
                           /*SharedPreferences sharedPreferences =
