@@ -299,6 +299,18 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
               }
             });
           }
+        }else{
+          arr.add({
+            "title": "仓位",
+            "name": "FStockLocID",
+            "isHide": false,
+            "value": {
+              "label": "",
+              "value": "",
+              "hide": false,
+              'dimension': ""
+            }
+          });
         }
         arr.add({
           "title": "操作",
@@ -544,7 +556,6 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                 break;
               }
               if(element[5]['value']['value'] == scanCode[1]){
-
                 //判断扫描数量是否大于单据数量
                 if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
                     continue;

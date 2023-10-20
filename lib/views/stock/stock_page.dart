@@ -62,8 +62,9 @@ class _StockPageState extends State<StockPage> {
     EasyLoading.show(status: 'loading...');
       Map<String, dynamic> userMap = Map();
       if(this.keyWord != ''){
+        var number = this.keyWord.split(',');
         userMap['FilterString'] =
-        "FMaterialId.FNumber='$keyWord'";
+        "FMaterialId.FNumber='"+number[0]+"'";
       }
       userMap['FormId'] = 'STK_Inventory';
       userMap['FieldKeys'] =

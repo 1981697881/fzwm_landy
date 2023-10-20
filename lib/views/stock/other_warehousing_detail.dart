@@ -363,7 +363,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               }
               //判断条码数量
               if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
-                //判断条码是否重复
+                //判断条码是否重复0
                 if(element[0]['value']['scanCode'].indexOf(code) == -1){
                   element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
                   element[3]['value']['value']=element[3]['value']['label'];
