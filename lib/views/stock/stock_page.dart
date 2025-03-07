@@ -64,7 +64,7 @@ class _StockPageState extends State<StockPage> {
       if(this.keyWord != ''){
         var number = this.keyWord.split(',');
         userMap['FilterString'] =
-        "FMaterialId.FNumber='"+number[0]+"'";
+        "FMaterialId.FNumber='"+number[0]+"' and FBaseQty>0";
       }
       userMap['FormId'] = 'STK_Inventory';
       userMap['FieldKeys'] =

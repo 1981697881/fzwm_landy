@@ -108,6 +108,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
    /* getTypeList();*/
     getCustomer();
     getDepartmentList();
+
   }
   //获取部门
   getDepartmentList() async {

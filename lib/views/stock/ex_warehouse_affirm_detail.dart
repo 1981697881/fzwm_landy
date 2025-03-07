@@ -276,7 +276,7 @@ class _ExWarehouseAffirmDetailState extends State<ExWarehouseAffirmDetail> {
         if (stocks.length > 0) {
           if (stocks[0][4] != null) {
             arr.add({
-              "title": "仓位",
+              "title": "",
               "name": "FStockLocID",
               "isHide": false,
               "value": {
