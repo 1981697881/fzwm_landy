@@ -510,6 +510,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                         element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
+                        break;
                       }else{
                         var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
                         element[10]['value']['label'] = element[0]['value']['surplus'].toString();
@@ -587,6 +588,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                           element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
+                          break;
                         }else{
                           var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
                           element[10]['value']['label'] = element[0]['value']['surplus'].toString();
@@ -637,6 +639,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                             element[0]['value']['surplus'] = (element[9]['value']['value']*100 - double.parse(element[3]['value']['label'])*100)/100;;
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
+                            break;
                           }else{
                             var item = barCodeScan[0].toString()+"-"+element[0]['value']['surplus'].toString();
                             element[10]['value']['label'] = element[0]['value']['surplus'].toString();
@@ -1189,6 +1192,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
       print(jsonEncode(dataMap));
+      var dataParams = jsonEncode(dataMap);
       if (orderDate[0][orderDate[0].length - 1] == "B") {
         Map<String, dynamic> submitMap = Map();
         submitMap = {
