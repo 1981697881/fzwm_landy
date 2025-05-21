@@ -293,6 +293,18 @@ class _SalesReturnAffirmDetailState extends State<ReplenishmentAffirmDetail> {
               }
             });
           }
+        }else{
+          arr.add({
+            "title": "仓位",
+            "name": "FStockLocID",
+            "isHide": false,
+            "value": {
+              "label": "",
+              "value": "",
+              "hide": false,
+              'dimension': ""
+            }
+          });
         }
         arr.add({
           "title": "操作",

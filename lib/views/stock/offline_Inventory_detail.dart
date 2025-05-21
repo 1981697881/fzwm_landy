@@ -664,6 +664,18 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
               }
             });
           }
+        }else{
+          arr.add({
+            "title": "仓位",
+            "name": "FStockLocID",
+            "isHide": false,
+            "value": {
+              "label": "",
+              "value": "",
+              "hide": false,
+              'dimension': ""
+            }
+          });
         }
         hobby.add(arr);
       }
@@ -851,6 +863,18 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                 }
               });
             }
+          }else{
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {
+                "label": "",
+                "value": "",
+                "hide": false,
+                'dimension': ""
+              }
+            });
           }
           hobby.add(arr);
         }
