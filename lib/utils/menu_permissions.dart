@@ -302,22 +302,22 @@ class MenuPermissions {
       "router": AllocationAffirmPage(),
       "source": '',
     });
-    menu.add({
-      "icon": Icons.loupe,
-      "text": "调拨",
-      "parentId": 3,
-      "color": Colors.pink.withOpacity(0.7),
-      "router": AllocationPage(),
-      "source": '',
-    });
-    menu.add({
-      "icon": Icons.loupe,
-      "text": "分步式调拨",
-      "parentId": 3,
-      "color": Colors.pink.withOpacity(0.7),
-      "router": SubstepAllocationPage(),
-      "source": '',
-    });
+    // menu.add({
+    //   "icon": Icons.loupe,
+    //   "text": "调拨",
+    //   "parentId": 3,
+    //   "color": Colors.pink.withOpacity(0.7),
+    //   "router": AllocationPage(),
+    //   "source": '',
+    // });
+    // menu.add({
+    //   "icon": Icons.loupe,
+    //   "text": "分步式调拨",
+    //   "parentId": 3,
+    //   "color": Colors.pink.withOpacity(0.7),
+    //   "router": SubstepAllocationPage(),
+    //   "source": '',
+    // });
     menu.add({
       "icon": Icons.loupe,
       "text": "其他盘点",

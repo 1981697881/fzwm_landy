@@ -85,6 +85,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
       userMap['FilterString'] =
       "FMaterialId.FNumber='$keyWord' and FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

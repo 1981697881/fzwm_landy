@@ -84,6 +84,7 @@ class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
       userMap['FilterString'] =/*and FInStockQty>0*/
       "FBillNo='"+scanCode[0]+"' and FDocumentStatus = 'C' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'STK_TRANSFEROUT';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

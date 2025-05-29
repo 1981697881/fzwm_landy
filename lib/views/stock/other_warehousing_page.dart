@@ -84,6 +84,7 @@ class _OtherWarehousingPageState extends State<OtherWarehousingPage> {
       userMap['FilterString'] =
       "FMaterialId.FNumber='$keyWord' and FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

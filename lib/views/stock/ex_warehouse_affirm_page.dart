@@ -88,6 +88,7 @@ class _ExWarehouseAffirmPageState extends State<ExWarehouseAffirmPage> {
     }
     userMap['FormId'] = 'STK_MisDelivery';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['Limit'] = '20';
     userMap['FieldKeys'] =
     'FBillNo,FCustId.FNumber,FCustId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitID.FNumber,FUnitID.FName,FQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

@@ -302,17 +302,54 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
         var stocks = jsonDecode(res);
         if (stocks.length > 0) {
           if (stocks[0][4] != null) {
-            arr.add({
-              "title": "仓位",
-              "name": "FStockLocID",
-              "isHide": false,
-              "value": {
-                "label": "",
-                "value": "",
-                "hide": true,
-                'dimension': stocks[0][4]
+            Map<String, dynamic> stockLocMap = Map();
+            stockLocMap['FormId'] = 'PRD_PickMtrl';
+            stockLocMap['FieldKeys'] =
+                'FStockLocId.'+stocks[0][4] +'.FNumber';
+            stockLocMap['FilterString'] = "FID = " + value[14].toString() + " and FEntity_FEntryId =" + value[4].toString();
+            Map<String, dynamic> dataStockLocMap = Map();
+            dataStockLocMap['data'] = stockLocMap;
+            String stockLocRes = await CurrencyEntity.polling(dataStockLocMap);
+            var stockLocs = jsonDecode(stockLocRes);
+            if (stockLocs.length > 0) {
+              if (stockLocs[0][0] != null) {
+                arr.add({
+                  "title": "仓位",
+                  "name": "FStockLocID",
+                  "isHide": false,
+                  "value": {
+                    "label": stockLocs[0][0],
+                    "value": stockLocs[0][0],
+                    "hide": true,
+                    'dimension': stocks[0][4]
+                  }
+                });
+              }else{
+                arr.add({
+                  "title": "仓位",
+                  "name": "FStockLocID",
+                  "isHide": false,
+                  "value": {
+                    "label": "",
+                    "value": "",
+                    "hide": true,
+                    'dimension': stocks[0][4]
+                  }
+                });
               }
-            });
+            }else{
+              arr.add({
+                "title": "仓位",
+                "name": "FStockLocID",
+                "isHide": false,
+                "value": {
+                  "label": "",
+                  "value": "",
+                  "hide": true,
+                  'dimension': stocks[0][4]
+                }
+              });
+            }
           } else {
             arr.add({
               "title": "仓位",
@@ -1451,6 +1488,15 @@ msg = '条码仓库与单据仓库不一致';
                     var itemCode = kingDeeCode[j].split("-");
                     codeModel['FID'] = itemCode[0];
                     Map<String, dynamic> codeFEntityItem = Map();
+                    if(this.hobby[i][6]['value']['dimension'] != null && this.hobby[i][6]['value']['dimension'] != ""){
+                      if(this.hobby[i][6]['value']['value'] != null && this.hobby[i][6]['value']['value'] != ""){
+                        codeFEntityItem['FEntryLocID'] = {
+                          "FSTOCKLOCID__"+this.hobby[i][6]['value']['dimension'] : {
+                            "FNumber": this.hobby[i][6]['value']['value']
+                          }
+                        };
+                      }
+                    }
                     codeFEntityItem['FBillDate'] = FDate;
                     codeFEntityItem['FOutQty'] = itemCode[1];
                     codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
@@ -1541,6 +1587,15 @@ msg = '条码仓库与单据仓库不一致';
                         };*/
                           /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                           Map<String, dynamic> codeFEntityItem = Map();
+                          if(this.hobby[i][6]['value']['dimension'] != null && this.hobby[i][6]['value']['dimension'] != ""){
+                            if(this.hobby[i][6]['value']['value'] != null && this.hobby[i][6]['value']['value'] != ""){
+                              codeFEntityItem['FEntryLocID'] = {
+                                "FSTOCKLOCID__"+this.hobby[i][6]['value']['dimension'] : {
+                                  "FNumber": this.hobby[i][6]['value']['value']
+                                }
+                              };
+                            }
+                          }
                           codeFEntityItem['FBillDate'] = FDate;
                           codeFEntityItem['FOutQty'] = itemCode[1];
                           codeFEntityItem['FEntryBillNo'] = orderDate[i][0];

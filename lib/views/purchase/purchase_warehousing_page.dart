@@ -85,6 +85,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
       userMap['FilterString'] =/*and FInStockQty>0*/
       "FBillNo='"+scanCode[0]+"' and FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

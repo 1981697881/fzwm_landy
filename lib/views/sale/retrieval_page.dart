@@ -88,6 +88,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
       userMap['FilterString'] =
           "FBillNo='"+scanCode[0]+"' and FCLOSESTATUS='A' and FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

@@ -83,6 +83,7 @@ class _ReturnGoodsPageState extends State<ReplenishmentAffirmPage> {
     if (this.keyWord != '') {
       userMap['FilterString'] = "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'PRD_FeedMtrl';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

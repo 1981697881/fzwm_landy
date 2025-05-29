@@ -81,6 +81,7 @@ class _OtherInventoryPageState extends State<OtherInventoryPage> {
       userMap['FilterString'] =
       "FMaterialId.FNumber='$keyWord' and FDocumentStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'STK_StockCountScheme';
     userMap['FieldKeys'] =
     'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FInStockQty,FSrcBillNo,FID';

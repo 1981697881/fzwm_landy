@@ -84,6 +84,7 @@ class _PurchaseAffirmPageState extends State<PurchaseAffirmPage> {
       userMap['FilterString'] =/*and FInStockQty>0*/
       "FBillNo='"+scanCode[0]+"' and FDocumentStatus in ('A','B','D') and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'STK_InStock';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

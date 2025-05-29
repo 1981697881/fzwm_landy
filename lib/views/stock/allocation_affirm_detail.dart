@@ -201,7 +201,6 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
   List fNumber = [];
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
-    print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo'";
     userMap['FormId'] = 'STK_TransferDirect';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
@@ -217,7 +216,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
     hobby = [];
     if (orderDate.length > 0) {
       this.fOrgID = orderDate[0][8];
-      orderDate.forEach((value) {
+      for (var value in orderDate){
         List arr = [];
         fNumber.add(value[5]);
         arr.add({
@@ -250,6 +249,94 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
           "isHide": false,
           "value": {"label": value[17], "value": value[16]}
         });
+        Map<String, dynamic> userMap = Map();
+        userMap['FormId'] = 'BD_STOCK';
+        userMap['FieldKeys'] =
+        'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+        userMap['FilterString'] = "FForbidStatus = 'A' and FNumber = '" +
+            value[16] +
+            "' and FUseOrgId.FNumber =" +
+            value[1];
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = userMap;
+        String res = await CurrencyEntity.polling(dataMap);
+        var stocks = jsonDecode(res);
+        if (stocks.length > 0) {
+          if (stocks[0][4] != null) {
+            Map<String, dynamic> stockLocMap = Map();
+            stockLocMap['FormId'] = 'STK_TransferDirect';
+            stockLocMap['FieldKeys'] =
+            'FDestStockLocId.'+stocks[0][4] +'.FNumber';
+            stockLocMap['FilterString'] = "FID = " + value[14].toString() + " and FBillEntry_FEntryId =" + value[4].toString();
+            Map<String, dynamic> dataStockLocMap = Map();
+            dataStockLocMap['data'] = stockLocMap;
+            String stockLocRes = await CurrencyEntity.polling(dataStockLocMap);
+            var stockLocs = jsonDecode(stockLocRes);
+            if (stockLocs.length > 0) {
+              if (stockLocs[0][0] != null) {
+                arr.add({
+                  "title": "调入仓位",
+                  "name": "FStockLocID",
+                  "isHide": false,
+                  "value": {
+                    "label": stockLocs[0][0],
+                    "value": stockLocs[0][0],
+                    "hide": true,
+                    'dimension': stocks[0][4]
+                  }
+                });
+              }else{
+                arr.add({
+                  "title": "调入仓位",
+                  "name": "FStockLocID",
+                  "isHide": false,
+                  "value": {
+                    "label": "",
+                    "value": "",
+                    "hide": true,
+                    'dimension': stocks[0][4]
+                  }
+                });
+              }
+            }else{
+              arr.add({
+                "title": "调入仓位",
+                "name": "FStockLocID",
+                "isHide": false,
+                "value": {
+                  "label": "",
+                  "value": "",
+                  "hide": true,
+                  'dimension': stocks[0][4]
+                }
+              });
+            }
+          } else {
+            arr.add({
+              "title": "调入仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {
+                "label": "",
+                "value": "",
+                "hide": false,
+                'dimension': ""
+              }
+            });
+          }
+        }else{
+          arr.add({
+            "title": "调入仓位",
+            "name": "FStockLocID",
+            "isHide": false,
+            "value": {
+              "label": "",
+              "value": "",
+              "hide": false,
+              'dimension': ""
+            }
+          });
+        }
         arr.add({
           "title": "批号",
           "name": "FLot",
@@ -262,6 +349,94 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
           "isHide": false,
           "value": {"label": value[13], "value": value[12]}
         });
+        Map<String, dynamic> nuserMap = Map();
+        nuserMap['FormId'] = 'BD_STOCK';
+        nuserMap['FieldKeys'] =
+        'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+        nuserMap['FilterString'] = "FForbidStatus = 'A' and FNumber = '" +
+            value[12] +
+            "' and FUseOrgId.FNumber =" +
+            value[8];
+        Map<String, dynamic> ndataMap = Map();
+        ndataMap['data'] = nuserMap;
+        String nres = await CurrencyEntity.polling(ndataMap);
+        var nstocks = jsonDecode(nres);
+        if (nstocks.length > 0) {
+          if (nstocks[0][4] != null) {
+            Map<String, dynamic> stockLocMap = Map();
+            stockLocMap['FormId'] = 'STK_TransferDirect';
+            stockLocMap['FieldKeys'] =
+                'FSrcStockLocId.'+nstocks[0][4] +'.FNumber';
+            stockLocMap['FilterString'] = "FID = " + value[14].toString() + " and FBillEntry_FEntryId =" + value[4].toString();
+            Map<String, dynamic> dataStockLocMap = Map();
+            dataStockLocMap['data'] = stockLocMap;
+            String stockLocRes = await CurrencyEntity.polling(dataStockLocMap);
+            var stockLocs = jsonDecode(stockLocRes);
+            if (stockLocs.length > 0) {
+              if (stockLocs[0][0] != null) {
+                arr.add({
+                  "title": "调出仓位",
+                  "name": "FStockLocID",
+                  "isHide": false,
+                  "value": {
+                    "label": stockLocs[0][0],
+                    "value": stockLocs[0][0],
+                    "hide": true,
+                    'dimension': nstocks[0][4]
+                  }
+                });
+              }else{
+                arr.add({
+                  "title": "调出仓位",
+                  "name": "FStockLocID",
+                  "isHide": false,
+                  "value": {
+                    "label": "",
+                    "value": "",
+                    "hide": true,
+                    'dimension': nstocks[0][4]
+                  }
+                });
+              }
+            }else{
+              arr.add({
+                "title": "调出仓位",
+                "name": "FStockLocID",
+                "isHide": false,
+                "value": {
+                  "label": "",
+                  "value": "",
+                  "hide": true,
+                  'dimension': nstocks[0][4]
+                }
+              });
+            }
+          } else {
+            arr.add({
+              "title": "调出仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {
+                "label": "",
+                "value": "",
+                "hide": false,
+                'dimension': ""
+              }
+            });
+          }
+        }else{
+          arr.add({
+            "title": "调出仓位",
+            "name": "FStockLocID",
+            "isHide": false,
+            "value": {
+              "label": "",
+              "value": "",
+              "hide": false,
+              'dimension': ""
+            }
+          });
+        }
         arr.add({
           "title": "操作",
           "name": "",
@@ -290,7 +465,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
           }
         });
         hobby.add(arr);
-      });
+      };
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -773,7 +948,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                 divider,
               ]),
             );
-          } else if(j == 6){
+          } else*/ if(j == 5 || j == 8){
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -787,38 +962,39 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                         title: Text(this.hobby[i][j]["title"] +
                             '：' +
                             this.hobby[i][j]["value"]["label"].toString()),
-                        trailing:
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                          IconButton(
-                            icon: new Icon(Icons.filter_center_focus),
-                            tooltip: '点击扫描',
-                            onPressed: () {
-                              this._textNumber.text =
-                                  this.hobby[i][j]["value"]["label"].toString();
-                              this._FNumber =
-                                  this.hobby[i][j]["value"]["label"].toString();
-                              checkItem = 'FNumber';
-                              this.show = false;
-                              checkData = i;
-                              checkDataChild = j;
-                              scanDialog();
-                              print(this.hobby[i][j]["value"]["label"]);
-                              if (this.hobby[i][j]["value"]["label"] != 0) {
-                                this._textNumber.value = _textNumber.value.copyWith(
-                                  text:
-                                  this.hobby[i][j]["value"]["label"].toString(),
-                                );
-                              }
-                            },
-                          ),
-                        ])),
+                        // trailing:
+                        // Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        //   IconButton(
+                        //     icon: new Icon(Icons.filter_center_focus),
+                        //     tooltip: '点击扫描',
+                        //     onPressed: () {
+                        //       this._textNumber.text =
+                        //           this.hobby[i][j]["value"]["label"].toString();
+                        //       this._FNumber =
+                        //           this.hobby[i][j]["value"]["label"].toString();
+                        //       checkItem = 'FNumber';
+                        //       this.show = false;
+                        //       checkData = i;
+                        //       checkDataChild = j;
+                        //       scanDialog();
+                        //       print(this.hobby[i][j]["value"]["label"]);
+                        //       if (this.hobby[i][j]["value"]["label"] != 0) {
+                        //         this._textNumber.value = _textNumber.value.copyWith(
+                        //           text:
+                        //           this.hobby[i][j]["value"]["label"].toString(),
+                        //         );
+                        //       }
+                        //     },
+                        //   ),
+                        // ])
+                    ),
                   ),
                   divider,
                 ]),
               ),
 
             );
-          }else*/ if (j == 7) {
+          }else if (j == 9) {
             comList.add(
               Column(children: [
                 Container(
@@ -844,7 +1020,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                 divider,
               ]),
             );
-          }else if (j == 10) {
+          }else if (j == 12) {
             comList.add(
               Column(children: [
                 Container(
@@ -1101,6 +1277,15 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                       if(j==0){
                         /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         Map<String, dynamic> codeFEntityItem = Map();
+                        if(this.hobby[i][8]['value']['dimension'] != null && this.hobby[i][8]['value']['dimension'] != ""){
+                          if(this.hobby[i][8]['value']['value'] != null && this.hobby[i][8]['value']['value'] != ""){
+                            codeFEntityItem['FEntryLocID'] = {
+                              "FSTOCKLOCID__"+this.hobby[i][8]['value']['dimension'] : {
+                                "FNumber": this.hobby[i][8]['value']['value']
+                              }
+                            };
+                          }
+                        }
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FOutQty'] = itemCode[1];
                         codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
@@ -1130,6 +1315,20 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                         };
                         /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         Map<String, dynamic> codeFEntityItem = Map();
+                        if(this.hobby[i][5]['value']['dimension'] != null && this.hobby[i][5]['value']['dimension'] != ""){
+                          if(this.hobby[i][5]['value']['value'] != null && this.hobby[i][5]['value']['value'] != ""){
+                            codeModel['FLocID'] = {
+                              "FSTOCKLOCID__"+this.hobby[i][5]['value']['dimension'] : {
+                                "FNumber": this.hobby[i][5]['value']['value']
+                              }
+                            };
+                            codeFEntityItem['FEntryLocID'] = {
+                              "FSTOCKLOCID__"+this.hobby[i][5]['value']['dimension'] : {
+                                "FNumber": this.hobby[i][5]['value']['value']
+                              }
+                            };
+                          }
+                        }
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];
                         codeFEntityItem['FEntryBillNo'] = orderDate[i][0];

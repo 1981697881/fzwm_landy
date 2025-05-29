@@ -106,6 +106,7 @@ class _ReturnPageState extends State<ReturnPage> {
       userMap['FilterString'] =
       "FBillNo='$keyWord' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'PRD_MO';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

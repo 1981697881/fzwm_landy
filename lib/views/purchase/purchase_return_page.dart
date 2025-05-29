@@ -84,6 +84,7 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
     if (this.keyWord != '') {
       userMap['FilterString'] = "FBillNo='"+scanCode[0]+"' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
+    userMap['Limit'] = '20';
     userMap['FormId'] = 'STK_InStock';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
