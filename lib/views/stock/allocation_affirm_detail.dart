@@ -63,6 +63,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
   List<dynamic> supplierListObj = [];
   var stockList = [];
   var typeList = [];
+  var _checked = false;
   List<dynamic> typeListObj = [];
   List<dynamic> stockListObj = [];
   List<dynamic> orderDate = [];
@@ -577,7 +578,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
         var residue = 0.0;
         //判断是否启用批号
         if(element[5]['isHide']){//不启用
-          if(element[0]['value']['value'] == scanCode[0] && element[6]['value']['value'] == barCodeScan[6]){
+          if(element[0]['value']['value'] == scanCode[0] && element[7]['value']['value'] == barCodeScan[6]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4){
@@ -598,22 +599,22 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
               }
 
               //判断扫描数量是否大于单据数量
-              if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+              if(double.parse(element[3]['value']['label']) >= element[11]['value']['label']) {
                   continue;
               }else {
                 //判断条码数量
                 if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                   //判断二维码数量是否大于单据数量
-                  if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                  if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[11]['value']['label']){
                     //判断条码是否重复
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                      var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
-                      element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                      element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                      barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                      element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                      var item = barCodeScan[0].toString()+"-"+(element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                      element[10]['value']['label'] =(element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                      element[10]['value']['value'] = (element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                      barcodeNum = (double.parse(barcodeNum) - (element[11]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                      element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[11]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                       element[3]['value']['value']=element[3]['value']['label'];
-                      residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                      residue = element[11]['value']['label'] - double.parse(element[3]['value']['label']);
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                       print(1);
@@ -645,7 +646,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
         }else{
 
           //启用批号
-          if(element[0]['value']['value'] == scanCode[0] && element[6]['value']['value'] == barCodeScan[6]){
+          if(element[0]['value']['value'] == scanCode[0] && element[7]['value']['value'] == barCodeScan[6]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4){
@@ -671,22 +672,22 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
               if(element[5]['value']['value'] == scanCode[1]){
 
                 //判断扫描数量是否大于单据数量
-                if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+                if(double.parse(element[3]['value']['label']) >= element[11]['value']['label']) {
                     continue;
                 }else {
                   //判断条码数量
                   if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                     //判断二维码数量是否大于单据数量
-                    if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                    if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[11]['value']['label']){
                       //判断条码是否重复
                       if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                        var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
-                        element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                        element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                        barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                        var item = barCodeScan[0].toString()+"-"+(element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                        element[10]['value']['label'] =(element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        element[10]['value']['value'] = (element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                        barcodeNum = (double.parse(barcodeNum) - (element[11]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                        element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[11]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                         element[3]['value']['value']=element[3]['value']['label'];
-                        residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                        residue = element[11]['value']['label'] - double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                         print(1);
@@ -716,22 +717,22 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断扫描数量是否大于单据数量
-                  if(double.parse(element[3]['value']['label']) >= element[9]['value']['label']) {
+                  if(double.parse(element[3]['value']['label']) >= element[11]['value']['label']) {
                       continue;
                   }else {
                     //判断条码数量
                     if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                       //判断二维码数量是否大于单据数量
-                      if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[9]['value']['label']){
+                      if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) >= element[11]['value']['label']){
                         //判断条码是否重复
                         if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                          var item = barCodeScan[0].toString()+"-"+(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
-                          element[10]['value']['label'] =(element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                          element[10]['value']['value'] = (element[9]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
-                          barcodeNum = (double.parse(barcodeNum) - (element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
-                          element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[9]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                          var item = barCodeScan[0].toString()+"-"+(element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toStringAsFixed(2).toString();
+                          element[10]['value']['label'] =(element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                          element[10]['value']['value'] = (element[11]['value']['label'] - double.parse(element[3]['value']['label'])).toString();
+                          barcodeNum = (double.parse(barcodeNum) - (element[11]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
+                          element[3]['value']['label']=(double.parse(element[3]['value']['label'])+(element[11]['value']['label'] - double.parse(element[3]['value']['label']))).toString();
                           element[3]['value']['value']=element[3]['value']['label'];
-                          residue = element[9]['value']['label'] - double.parse(element[3]['value']['label']);
+                          residue = element[11]['value']['label'] - double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                           print(1);
@@ -1290,7 +1291,7 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                         codeFEntityItem['FOutQty'] = itemCode[1];
                         codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
                         codeFEntityItem['FEntryStockID'] ={
-                          "FNUMBER": this.hobby[i][6]['value']['value']
+                          "FNUMBER": this.hobby[i][7]['value']['value']
                         };
                         var codeFEntity = [codeFEntityItem];
                         codeModel['FEntity'] = codeFEntity;
@@ -1310,18 +1311,22 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                         codeModel['FStockOrgID'] = {
                           "FNUMBER": orderDate[i][8]
                         };
-                        codeModel['FStockID'] = {
-                          "FNUMBER": this.hobby[i][4]['value']['value']
-                        };
+                        if(!this._checked){
+                          codeModel['FStockID'] = {
+                            "FNUMBER": this.hobby[i][4]['value']['value']
+                          };
+                        }
                         /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         Map<String, dynamic> codeFEntityItem = Map();
                         if(this.hobby[i][5]['value']['dimension'] != null && this.hobby[i][5]['value']['dimension'] != ""){
                           if(this.hobby[i][5]['value']['value'] != null && this.hobby[i][5]['value']['value'] != ""){
-                            codeModel['FLocID'] = {
-                              "FSTOCKLOCID__"+this.hobby[i][5]['value']['dimension'] : {
-                                "FNumber": this.hobby[i][5]['value']['value']
-                              }
-                            };
+                            if(!this._checked){
+                              codeModel['FLocID'] = {
+                                "FSTOCKLOCID__"+this.hobby[i][5]['value']['dimension'] : {
+                                  "FNumber": this.hobby[i][5]['value']['value']
+                                }
+                              };
+                            }
                             codeFEntityItem['FEntryLocID'] = {
                               "FSTOCKLOCID__"+this.hobby[i][5]['value']['dimension'] : {
                                 "FNumber": this.hobby[i][5]['value']['value']
@@ -1419,11 +1424,20 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                           if(j==0){
                             /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                             Map<String, dynamic> codeFEntityItem = Map();
+                            if(this.hobby[i][8]['value']['dimension'] != null && this.hobby[i][8]['value']['dimension'] != ""){
+                              if(this.hobby[i][8]['value']['value'] != null && this.hobby[i][8]['value']['value'] != ""){
+                                codeFEntityItem['FEntryLocID'] = {
+                                  "FSTOCKLOCID__"+this.hobby[i][8]['value']['dimension'] : {
+                                    "FNumber": this.hobby[i][8]['value']['value']
+                                  }
+                                };
+                              }
+                            }
                             codeFEntityItem['FBillDate'] = FDate;
                             codeFEntityItem['FOutQty'] = itemCode[1];
                             codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
                             codeFEntityItem['FEntryStockID'] ={
-                              "FNUMBER": this.hobby[i][6]['value']['value']
+                              "FNUMBER": this.hobby[i][7]['value']['value']
                             };
                             var codeFEntity = [codeFEntityItem];
                             codeModel['FEntity'] = codeFEntity;
@@ -1443,11 +1457,29 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                             codeModel['FStockOrgID'] = {
                               "FNUMBER": orderDate[i][8]
                             };
-                            codeModel['FStockID'] = {
-                              "FNUMBER": this.hobby[i][4]['value']['value']
-                            };
+                            if(!this._checked){
+                              codeModel['FStockID'] = {
+                                "FNUMBER": this.hobby[i][4]['value']['value']
+                              };
+                            }
                             /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                             Map<String, dynamic> codeFEntityItem = Map();
+                            if(this.hobby[i][5]['value']['dimension'] != null && this.hobby[i][5]['value']['dimension'] != ""){
+                              if(this.hobby[i][5]['value']['value'] != null && this.hobby[i][5]['value']['value'] != ""){
+                                if(!this._checked){
+                                  codeModel['FLocID'] = {
+                                    "FSTOCKLOCID__"+this.hobby[i][5]['value']['dimension'] : {
+                                      "FNumber": this.hobby[i][5]['value']['value']
+                                    }
+                                  };
+                                }
+                                codeFEntityItem['FEntryLocID'] = {
+                                  "FSTOCKLOCID__"+this.hobby[i][5]['value']['dimension'] : {
+                                    "FNumber": this.hobby[i][5]['value']['value']
+                                  }
+                                };
+                              }
+                            }
                             codeFEntityItem['FBillDate'] = FDate;
                             codeFEntityItem['FInQty'] = itemCode[1];
                             codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
@@ -1562,6 +1594,29 @@ class _AllocationAffirmDetailState extends State<AllocationAffirmDetail> {
                         'department'),
                   ),
                   /*_item('部门', ['生产部'], '生产部'),*/
+                  Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text("倒冲:"),
+                          trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Checkbox(
+                                  value: _checked, // 当前复选框的值，表示是否选中
+                                  onChanged: (bool? newValue) {
+                                    setState(() {
+                                      _checked = newValue!;
+                                    });
+                                  },
+                                ),
+                              ]),
+                        ),
+                      ),
+                      divider,
+                    ],
+                  ),
                   Column(
                     children: [
                       Container(
