@@ -382,6 +382,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
         EasyLoading.dismiss();
         this._getHobby();
       });
+      _onEvent("C02010358,,,,4.19,N,012");
     } else {
       setState(() {
         EasyLoading.dismiss();
@@ -1275,7 +1276,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                     if(this.hobby[i][6]['value']['dimension'] != null && this.hobby[i][6]['value']['dimension'] != ""){
                       if(this.hobby[i][6]['value']['value'] != null && this.hobby[i][6]['value']['value'] != ""){
                         codeFEntityItem['FEntryLocID'] = {
-                          "FSTOCKLOCID__"+this.hobby[i][6]['value']['dimension'] : {
+                          "FENTRYLOCID__"+this.hobby[i][6]['value']['dimension'] : {
                             "FNumber": this.hobby[i][6]['value']['value']
                           }
                         };
@@ -1378,7 +1379,7 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
                         if(this.hobby[i][6]['value']['dimension'] != null && this.hobby[i][6]['value']['dimension'] != ""){
                           if(this.hobby[i][6]['value']['value'] != null && this.hobby[i][6]['value']['value'] != ""){
                             codeFEntityItem['FEntryLocID'] = {
-                              "FSTOCKLOCID__"+this.hobby[i][6]['value']['dimension'] : {
+                              "FENTRYLOCID__"+this.hobby[i][6]['value']['dimension'] : {
                                 "FNumber": this.hobby[i][6]['value']['value']
                               }
                             };

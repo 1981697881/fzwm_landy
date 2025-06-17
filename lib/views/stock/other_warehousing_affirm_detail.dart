@@ -1181,15 +1181,18 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                     };
                     /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                     Map<String, dynamic> codeFEntityItem = Map();
+                    codeFEntityItem['FEntryStockID'] ={
+                      "FNUMBER": this.hobby[i][4]['value']['value']
+                    };
                     if(this.hobby[i][6]['value']['dimension'] != null && this.hobby[i][6]['value']['dimension'] != ""){
                       if(this.hobby[i][6]['value']['value'] != null && this.hobby[i][6]['value']['value'] != ""){
                         codeModel['FLocID'] = {
-                          "FSTOCKLOCID__"+this.hobby[i][6]['value']['dimension'] : {
+                          "FLOCID__"+this.hobby[i][6]['value']['dimension'] : {
                             "FNumber": this.hobby[i][6]['value']['value']
                           }
                         };
                         codeFEntityItem['FEntryLocID'] = {
-                          "FSTOCKLOCID__"+this.hobby[i][6]['value']['dimension'] : {
+                          "FENTRYLOCID__"+this.hobby[i][6]['value']['dimension'] : {
                             "FNumber": this.hobby[i][6]['value']['value']
                           }
                         };
@@ -1198,9 +1201,7 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                     codeFEntityItem['FBillDate'] = FDate;
                     codeFEntityItem['FInQty'] = itemCode[1];
                     codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
-                    codeFEntityItem['FEntryStockID'] ={
-                      "FNUMBER": this.hobby[i][4]['value']['value']
-                    };
+
                     var codeFEntity = [codeFEntityItem];
                     codeModel['FEntity'] = codeFEntity;
                     orderCodeMap['Model'] = codeModel;
@@ -1291,15 +1292,18 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                         };
                         /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         Map<String, dynamic> codeFEntityItem = Map();
+                        codeFEntityItem['FEntryStockID'] ={
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };
                         if(this.hobby[i][6]['value']['dimension'] != null && this.hobby[i][6]['value']['dimension'] != ""){
                           if(this.hobby[i][6]['value']['value'] != null && this.hobby[i][6]['value']['value'] != ""){
                             codeModel['FLocID'] = {
-                              "FSTOCKLOCID__"+this.hobby[i][6]['value']['dimension'] : {
+                              "FLOCID__"+this.hobby[i][6]['value']['dimension'] : {
                                 "FNumber": this.hobby[i][6]['value']['value']
                               }
                             };
                             codeFEntityItem['FEntryLocID'] = {
-                              "FSTOCKLOCID__"+this.hobby[i][6]['value']['dimension'] : {
+                              "FENTRYLOCID__"+this.hobby[i][6]['value']['dimension'] : {
                                 "FNumber": this.hobby[i][6]['value']['value']
                               }
                             };
@@ -1308,9 +1312,7 @@ class _OtherWarehousingAffirmDetailState extends State<OtherWarehousingAffirmDet
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];
                         codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
-                        codeFEntityItem['FEntryStockID'] ={
-                          "FNUMBER": this.hobby[i][4]['value']['value']
-                        };
+
                         var codeFEntity = [codeFEntityItem];
                         codeModel['FEntity'] = codeFEntity;
                         orderCodeMap['Model'] = codeModel;
