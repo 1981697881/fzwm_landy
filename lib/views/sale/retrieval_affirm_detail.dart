@@ -382,7 +382,6 @@ class _RetrievalAffirmDetailState extends State<RetrievalAffirmDetail> {
         EasyLoading.dismiss();
         this._getHobby();
       });
-      _onEvent("C02010358,,,,4.19,N,012");
     } else {
       setState(() {
         EasyLoading.dismiss();
